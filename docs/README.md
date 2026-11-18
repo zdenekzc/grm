@@ -98,3 +98,15 @@ from grammars.*
 [An Example of a Parser for the Description of Database Tables](appendix/mini_table.md)
 
 [An Experiment](appendix/pokus.md)
+
+# Literature
+
+**Niklaus Wirth: Compiler Construction**
+
+http://inf.ethz.ch/personal/wirth/CompilerConstruction/CompilerConstruction1.pdf
+
+http://inf.ethz.ch/personal/wirth/CompilerConstruction/CompilerConstruction2.pdf
+
+**Steven Pemberton and Martin Daniels: Pascal Implementation: The P4 Compiler and Interpreter**
+
+http://homepages.cwi.nl/~steven/pascal
