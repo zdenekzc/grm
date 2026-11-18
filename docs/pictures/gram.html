@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title></title>
+   </head>
+   <body>
+      <pre>
+      <a name="while_stat">while_stat</a> :
+         "while""("<a href="#expr">expr</a>")"<a href="#stat">stat</a>
+      ;
+
+      <a name="if_stat">if_stat</a> :
+         "if""("<a href="#expr">expr</a>")"<a href="#stat">stat</a>
+         (
+            "else"<a href="#stat">stat</a>
+         )?
+      ;
+
+      <a name="compound_stat">compound_stat</a> :
+         "{"
+         (
+            <a href="#stat">stat</a>
+         )*
+         "}"
+      ;
+
+      <a name="simple_stat">simple_stat</a> :
+         <a href="#expr">expr</a>";"
+      ;
+
+      <a name="empty_stat">empty_stat</a> :
+         ";"
+      ;
+
+      <a name="stat">stat</a> :
+         <a href="#while_stat">while_stat</a>|
+         <a href="#if_stat">if_stat</a>|
+         <a href="#compound_stat">compound_stat</a>|
+         <a href="#simple_stat">simple_stat</a>|
+         <a href="#empty_stat">empty_stat</a>
+      ;
+
+      <a name="simple_expr">simple_expr</a> :
+         identifier|
+         number|
+         "("<a href="#expr">expr</a>")"
+      ;
+
+      <a name="mult_expr">mult_expr</a> :
+         <a href="#simple_expr">simple_expr</a>
+         (
+            (
+               "*"|
+               "/"
+            )
+            <a href="#simple_expr">simple_expr</a>
+         )*
+      ;
+
+      <a name="add_expr">add_expr</a> :
+         <a href="#mult_expr">mult_expr</a>
+         (
+            (
+               "+"|
+               "-"
+            )
+            <a href="#mult_expr">mult_expr</a>
+         )*
+      ;
+
+      <a name="expr">expr</a> :
+         <a href="#add_expr">add_expr</a>
+         (
+            ","<a href="#expr">expr</a>
+         )?
+      ;
+
+      <a name="program">program</a> :
+         <a href="#stat">stat</a>
+      ;
+
+      </pre>
+   </body>
+</html>
