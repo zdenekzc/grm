@@ -6,7 +6,7 @@ from __future__ import print_function
 import os, sys, optparse
 
 work_dir = os.path.abspath (sys.path [0])
-sys.path.insert (1, os.path.join (work_dir, "..")) # util (repository root)
+sys.path.insert (1, os.path.join (work_dir, "..", "view")) # util
 sys.path.insert (2, os.path.join (work_dir, "..", "code"))
 sys.path.insert (3, os.path.join (work_dir, "..", "grm"))
 

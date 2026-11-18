@@ -11,8 +11,11 @@ from util import *
 
 # work_dir = os.getcwd ()
 work_dir = os.path.abspath (sys.path [0])
-module_dirs = [ "qtdesigner",
-                "code", "grm", "cmm" ]
+# The application lives in view/, the shared modules one level up.
+module_dirs = [ os.path.join ("..", "qtdesigner"),
+                os.path.join ("..", "code"),
+                os.path.join ("..", "grm"),
+                os.path.join ("..", "cmm") ]
 
 for local_dir in module_dirs :
     sys.path.insert (1, os.path.join (work_dir, local_dir)) # Debian 10, Python 2

@@ -78,8 +78,8 @@ def main () :
     p = argparse.ArgumentParser (description = __doc__)
     p.add_argument ("--timeout", type = float, default = 2.0,
                     help = "seconds to keep each generated program alive (default 2)")
-    p.add_argument ("--ini", default = "tools.ini",
-                    help = "path to the examples manifest (default tools.ini)")
+    p.add_argument ("--ini", default = None,
+                    help = "path to the examples manifest (default: tools.ini next to tools_ini.py)")
     args = p.parse_args ()
 
     sections = listExamples (args.ini)
