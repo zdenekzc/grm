@@ -335,6 +335,10 @@ def find_lout_lib(lout_bin):
 def find_lout():
     if os.environ.get("LOUT"):
         return os.environ["LOUT"]
+    # a locally built lout from docs/tools/build_lout.py takes precedence
+    local = os.path.join(DOCS, "_library", "bin", "lout")
+    if os.path.isfile(local) and os.access(local, os.X_OK):
+        return local
     return shutil_which("lout")
 
 # --------------------------------------------------------------------------
