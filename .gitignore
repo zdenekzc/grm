@@ -1,0 +1,11 @@
+# Local materials not part of the published repository
+wiki/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Editor / OS
+*~
+.kate-swp
+.swp
