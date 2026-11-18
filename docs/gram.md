@@ -35,7 +35,8 @@ separated by a vertical bar:
    description : alternative ( "|" alternative )* ;
 ```
 
-:-) The vertical bar (or) can be regarded as a kind of additive operation.
+> [!NOTE]
+> The vertical bar (or) can be regarded as a kind of additive operation.
 
 ## Alternative
 
@@ -46,9 +47,10 @@ It may also be empty:
    alternative : ( simple )* ;
 ```
 
-:-) Writing items one after another can be regarded as an analogue of a
-multiplicative operation — we usually omit the multiplication sign there
-as well.
+> [!NOTE]
+> Writing items one after another can be regarded as an analogue of a
+> multiplicative operation — we usually omit the multiplication sign there
+> as well.
 
 ## Simple Item
 
