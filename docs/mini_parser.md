@@ -12,7 +12,7 @@ We use the [lexical analyzer](lexer.md) described earlier.
 
 ![hand-written parser](pictures/mini_parser.png)
 
-https://gitlab.fjfi.cvut.cz/culikzde/simple-view/-/blob/main/tutorial/mini-parser/mini_parser.py#L205
+https://gitlab.fjfi.cvut.cz/culikzde/simple-view/-/blob/master/tutorial/mini-parser/mini_parser.py#L205
 
 ```python
     def readIdent (self, lexer) :
