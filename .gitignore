@@ -4,6 +4,10 @@ docs/_output/
 # Generated cmm parser/product (cmm/cmm_run.py)
 _output/
 
+# Build artifacts: object files, generated executables (.bin)
+*.o
+*.bin
+
 # Locally downloaded and built Lout (docs/tools/build_lout.py)
 docs/_import/
 docs/_library/
