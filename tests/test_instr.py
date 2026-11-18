@@ -43,7 +43,7 @@ import os, sys, io, contextlib
 
 HERE = os.path.dirname (os.path.abspath (__file__))
 ROOT = os.path.abspath (os.path.join (HERE, ".."))
-for sub in [ "", "grm", "code", "_output", "cmm" ] :
+for sub in [ "", "grm", "code", "view", "_output", "cmm" ] :
    path = os.path.join (ROOT, sub) if sub else ROOT
    if path not in sys.path :
       sys.path.insert (0, path)
