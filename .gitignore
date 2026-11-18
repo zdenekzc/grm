@@ -1,6 +1,9 @@
 # Generated documentation build (docs/tools/md2lout.py)
 docs/_output/
 
+# Generated cmm parser/product (cmm/cmm_run.py)
+_output/
+
 # Locally downloaded and built Lout (docs/tools/build_lout.py)
 docs/_import/
 docs/_library/
