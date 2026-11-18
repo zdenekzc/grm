@@ -11,8 +11,7 @@ from util import *
 
 # work_dir = os.getcwd ()
 work_dir = os.path.abspath (sys.path [0])
-module_dirs = [ "tools/llvm-tools", "tools/tcc-tools",
-                "qtdesigner", "fileview",
+module_dirs = [ "qtdesigner",
                 "code", "grm", "cmm" ]
 
 for local_dir in module_dirs :

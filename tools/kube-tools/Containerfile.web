@@ -1,9 +1,0 @@
-# PHP + Apache image that serves the master/detail demo. mysqli and pdo_mysql
-# ship as core PHP extensions but aren't enabled in the default image; the
-# docker-php-ext-install helper does that in one step.
-
-FROM php:8.2-apache
-
-RUN docker-php-ext-install pdo pdo_mysql mysqli
-
-COPY web/ /var/www/html/
