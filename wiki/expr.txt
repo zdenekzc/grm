@@ -1,0 +1,171 @@
+
+===== Syntaktická analýza výrazů =====
+
+Soubory lex.h, lex.cc, decl.h a expr.cc obsahují parser zjednodušeného jazyka C. \\
+http://kmlinux.fjfi.cvut.cz/~culikzde/prekl/Comp11.tgz \\
+nebo http://gitlab.fjfi.cvut.cz/culikzde/c-parser
+
+Budeme zpracovávat výrazy, ktere mohou obsahovat identifikatory, cela cisla, vyrazy v zavorkach, plus a krat :
+
+<code >
+  simple : identifier | number | '(' expr ')' ;
+  mul    : simple ( '*' simple )* ;
+  expr   : mul    ( ( '+' | '-' ) mul )* ;
+</code>
+
+Syntakticke pravidlo zacina jmenem definovaneho neterminalu a dvojteckou **:**. \\
+Retezce v uvozovkach jsou terminalni symboly. \\
+Obycejne identifikatory predstavuji neterminalni symboly, \\
+Svisla cara **|** predstavuje //nebo// \\
+Zavorka s hvezickou ** ( )* ** dovoluje opakovani 0, 1, 2, ... libovolne krat. \\
+Zavorka s plusem ** ( )+ ** dovoluje opakovani 1, 2, ... libovolne krat. \\
+Zavorka s otaznikem ** ( )? ** dovoluje opakovani 0 nebo 1 krat. \\
+Muzeme pouzivat zavorky bez nasledujici znacky ** ( ) ** vetsinou pri zapisu nekolika alternativ odelenych svislou carou. \\
+Syntakticke pravidlo konci strednikem **;**
+
+===== Funkce rozpoznavájící jednoduché výrazy =====
+
+<code C++>
+void simple_expr (void)
+{
+  if (sy==IDENT)
+  {
+     NextSymbol ();
+  }
+  else if (sy==NUM)
+  {
+     NextSymbol ();
+  }
+  else if (sy==LPAR)
+  {
+     NextSymbol ();
+     add_expr ();
+     CheckSymbol (RPAR);
+  }
+  else Error ("Syntax error in expression");
+}
+
+void mul_expr (void)
+{
+  simple_expr ();
+  while (sy==ASTERISK ||
+         sy==SLASH ||
+         sy==MOD)
+  {
+     NextSymbol ();
+     simple_expr ();
+  }
+}
+
+void add_expr (void)
+{
+  mul_expr ();
+  while (sy==PLUS ||
+         sy==MINUS)
+  {
+     NextSymbol ();
+     mul_expr ();
+  }
+}
+</code>
+
+
+
+===== Funkce vytvářející syntaktické stromy =====
+
+V souboru expr.cc nalezneme obdobné funkce, které navíc vytvářejí stromy reprezentující rozpoznané výrazy: \\
+http://gitlab.fjfi.cvut.cz/culikzde/c-parser/-/blob/master/expr.cc#L909
+
+<code C++>
+ExprPtr simple_expr (void)
+{
+  ExprPtr t1;
+
+  if (sy==IDENT ||
+  {
+     t1 = NewStr (IdentVal);
+     NextSymbol ();
+  }
+  else if (sy==NUM)
+  {
+     t1 = NewStr (NumVal);
+     NextSymbol ();
+  }
+  else if (sy==LPAR)
+  {
+     NextSymbol ();
+     t1 = expression ();
+     t1 = calc (t1, NULL, LPAR);
+     CheckSymbol (RPAR);
+  }
+  else Error ("Syntax error in expression");
+
+  return t1;
+}
+
+ExprPtr mul_expr (void)
+{
+  ExprPtr t1, t2;
+  SYMBOL op;
+
+  t1 = simple_expr ();
+  while (sy==ASTERISK ||
+         sy==SLASH ||
+         sy==MOD)
+  {
+     op = sy;
+     NextSymbol ();
+     t2 = simple_expr ();
+     t1 = calc (t1, t2, op);
+  }
+  return t1;
+}
+
+ExprPtr add_expr (void)
+{
+  ExprPtr t1, t2;
+  SYMBOL op;
+
+  t1 = mul_expr ();
+  while (sy==PLUS ||
+         sy==MINUS)
+  {
+     op = sy;
+     NextSymbol ();
+     t2 = mul_expr ();
+     t1 = calc (t1, t2, op);
+  }
+
+  return t1;
+}
+</code>
+
+Pomocna funkce **calc** vytvari novy uzel stromu. Napriklad \\
+<code> t3 = calc (t1, t2, op); </code> 
+Ulozi do t3 ukazatel na novy uzel, ktery ma podstromy t1 a t2
+<code>
+       op
+       |
+   .------.
+   |      |
+   t1     t2
+</code>
+
+Funkce **add_expr** postupne vytvari strom z multiplikativnich vyrazu. \\
+Pokud mame na vstupu \\
+<code> A + B - C </code>
+Funkce add_expr vytvori strom
+<code>
+          "-"
+           |
+       .------.
+       |      |
+      "+"      C
+       |
+   .------.
+   |      |
+   A      B
+</code>
+
+Obrazky: 2. kapitola, stranky 9 a 10 http://inf.ethz.ch/personal/wirth/CompilerConstruction/CompilerConstruction1.pdf \\
+Pripadne dalsi informace: kapitoly 4.1 a 4.2 

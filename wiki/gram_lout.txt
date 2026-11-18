@@ -1,0 +1,42 @@
+==== Zobrazení programem LOUT ====
+
+**Program Lout**
+
+http://jeffreykingston.id.au/lout/ \\
+Manuál, kapitola 9.8. Syntaktické diagramy
+
+Mějme na vstupu gramatické pravidlo
+
+<code C++>
+   if_stat  :  "if" "(" expr ")" stat ( "else" stat  )? ;
+</code>
+
+Program //plain_tolout.py// http://gitlab.fjfi.cvut.cz/culikzde/simple-view/-/blob/master/tutorial/plain-grammar/plain_tolout.py \\
+prochází gramatiku uloženou ve stromu a \\
+vytvoří následující textový výstup
+
+<code>
+@SyntaxDiag
+title {if_stat}
+{
+   @StartRight
+   @Sequence
+   A {blue @Color @BCell "if"}
+   B {blue @Color @BCell "("}
+   C {@ACell "expr"}
+   D {blue @Color @BCell ")"}
+   E {@ACell "stat"}
+   F {@Optional
+         @Sequence
+         A {blue @Color @BCell "else"}
+         B {@ACell "stat"}
+   }
+}
+</code>
+
+Tento text je vstupem pro program Lout. \\
+Lout vytvoří výstup v PostScriptu : {{prekl::gram.ps}}
+
+{{prekl::gram_lout.png}}
+
+Legendární gramatika programovacího jazyka Pascal http://www.cs.utexas.edu/users/novak/grammar.html

@@ -1,0 +1,63 @@
+
+====== Gramatika popisující gramatiku =====
+
+Zápis gramatiky použitý v předchozí kapitole můžeme považovat za svého druhu programovací jazyk. \\
+K tomuto jazyku můžeme napsat gramatiku:
+
+=== Gramatika ===
+
+Celá gramatika je poslouplností pravidel
+
+<code>
+   grammar : ( rule )* ;
+</code>
+
+=== Pravidlo ===
+
+Pravidla zapisujeme pomocí jména pravidla následovaného dvojtečkou, popisem pravidla a středníkem.
+
+<code>
+   rule : identifier ":" description ";" ;
+</code>
+
+// Dvojtečka a středník v uvozovkách jsou dvojtečkou a středníkem zmíněným v předcházející větě. // \\
+// Dvojtečka a středník bez uvozovek jsou součástí právě definovaného pravidla. // \\
+
+=== Výraz popisující pravidlo  ===
+
+Popis pravidla je posloupnost jedné nebo více alternativ oddělených svislou čarou.
+
+<code>
+   description : alternative ( "|" alternative )* ;
+</code>
+
+:-) Svislou čáru (nebo) můžeme považovat za jakousi aditivní operaci
+
+=== Alternativa ===
+
+Alternativa je posloupnost jednoducých položek. \\
+Může být i prázdná.
+
+<code>
+   alternative : ( simple )* ;
+</code>
+
+:-) Zápis položek za sebou můžeme považovat za obdobu multiplikativní operace, znak násobení také ovykle vynecháváme
+
+=== Jednoduchá položka ===
+
+Jednoduchá položka může být řetězec v dvojtých uvozovkách (terminal), \\ 
+identifikátor (neterminál) nebo výraz v závorkách.
+
+<code>
+   simple : string_literal | identifier | ebnf ;
+</code>
+
+=== Výraz v závorkách ===
+
+Výraz v závorkách rekurzivně používá již zavedený výraz pro popis pravidla (description). \\
+Za závorkami může následovat otazník, hvězdička nebo plus.
+
+<code>
+   ebnf : "(" description ")" ( "?" | "*" | "+" | ) ;
+</code>

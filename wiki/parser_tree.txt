@@ -1,0 +1,151 @@
+===== Syntaktický analyzátor vytvářející syntaktický strom =====
+
+
+
+==== Vstupní gramatika s atributy ====
+
+Rozšíříme vstupní gramatiku o atributy popisující ukládání informací do syntaktického stromy.
+
+Před jménem neterminálu může být uvedeno jméno proměnné, do které bude uložen příslušný syntaktický podstrom.
+
+<code C++>
+      else_code : stat
+</code>
+
+Za jménem pravidla může být identifikátor třídy pro ukládání dat z jednoho uzlu syntaktického stromu. \\
+Za identifikátorem třídy může být identfikátor nadřazené třídy, z které je první třída odvozena. 
+
+<code C++>
+      if_stat < CmmIfStat: CmmStat >  : ... ;
+</code>
+
+Například pravidlo pro příkaz **if**
+
+<code C++>
+if_stat < CmmIfStat: CmmStat >  :
+   "if"
+   "(" cond:expr ")"
+   then_code:stat
+   (
+      <new_line>
+      "else"
+      else_code:stat
+   )? ;
+</code>
+
+Generátor z popisu pravidla napíše deklaraci třídy pro uložení uzlu stromu odpovídajícímu pravidlu //if_stat//. \\
+Předpokládejme, že pravidla //expr// a //stat// mají jako svůj typ uveden //CmmExpr// a //CmmStat//, \\
+potom pokud generujeme analyzátor v jazyce C++. vznikne deklarace:
+
+<code C++>
+class CmmIfStat : public CmmStat
+{
+   public:
+      CmmExpr *  cond;
+      CmmStat *  then_stat;
+      CmmStat *  else_stat;
+};
+</code>
+
+nebo pokud generujeme analyzátor napsaný v Pythonu
+
+<code Python>
+class CmmIfStat (CmmStat) :
+   def __init__ (self) :
+      super (CmmIfStat, self).__init__ ()
+      self.cond = None
+      self.then_code = None
+      self.else_code = None
+</code>
+
+Program pro načtení gramatiky s rošiřujícími atributy:
+[[http://gitlab.fjfi.cvut.cz/culikzde/simple-view/-/blob/master/tutorial/easy-grammar/easy_grammar.py|easy_grammar.py]]
+
+==== Vygenerovaný analyzátor ====
+
+Analyzátor rozpoznává, zda zdrojový text na vstupu odpovídá zadané gramatice, \\
+a současně vytváří syntaktický strom ze zmíněných tříd:
+
+Generátor podle zadané gramatiky napíše třídu //Parser// implementující syntaktický analyzátor. \\
+Pro jednotlivá pravidla generátor napíše metody v této třídě.
+
+<code Python>
+class Parser (Lexer) :
+   def parse_if_stat (self) :
+      result = CmmIfStat ()
+      self.storeLocation (result)
+      self.check ("if")
+      self.check ("(")
+      result.cond = self.parse_expr ()
+      self.check (")")
+      result.then_code = self.parse_stat ()
+      if self.tokenText == "else" :
+         self.check ("else")
+         result.else_code = self.parse_stat ()
+      return result
+</code>
+
+Metoda **parse_if_stat** vytvoří novou instanci třídy **CmmIfStat**, která bude i výsledkem této metody. \\
+Do vzniklé instance uložíme informace o číslu řádky ve zdrojovém souboru, \\
+//které využijeme např. při kliknutí do grafické reprezentace sybtaktického stromu a můžeme zvýraznit příslušnou zdrojovou řádku.//
+
+Potom zkontroluje, zda na vstupu jsou terminální symboly **if** a **(**. 
+
+K zpracování výrazu zavolá metodu **parse_expr** a odkaz na podstrom popisující výraz uloží do položky **cond** ve vytvořené instanci.
+
+Zkontroluje **)** a metoda **parse_stat** uloží odkaz na //"then"// příkaz do položky **then_code**.
+
+Na základě [[prekl::gram_symbols|množin lexikálních symbolů]], kterými začínají jednotlivá pravidla \\
+se generátor rozhodne, že musí otestovat zda následuje terminální symbol **else**.
+
+Funkce **check ("else")** jen přeskočí symbol else, o kterém my víme, že tam bude.
+
+**parse_stat** uloží //"else"// příkaz do položky **else_code**.
+
+Pokud terminál **else** není přítomen, zůstane položka **else_code** nastavená na hodnotu **None**, \\
+kterou tam umístil konstruktor třídu **CmmIfStat**.
+
+Program generující syntaktický analyzátor: 
+[[http://gitlab.fjfi.cvut.cz/culikzde/simple-view/-/blob/master/tutorial/easy-grammar/easy_toparser.py|easy_toparser.py]]
+
+
+
+
+
+
+
+==== Vygenerovaný analyzátor v jazyce C++ ====
+
+Případně generátor syntaktického analyzátoru v jazyce C++
+[[http://gitlab.fjfi.cvut.cz/culikzde/simple-view/-/blob/master/tutorial/easy-grammar/easy_cparser.py|easy_cparser.py]]
+
+<code C++>
+CmmIfStat * CmmParser::if_stat ()
+{
+   CmmIfStat * result = new CmmIfStat;
+
+   match (KEYWORD_if);
+   match (LPAREN);
+   result->cond = expr ();
+   match (RPAREN);
+
+   result->then_stat = stat ();
+   if (isSymbol (KEYWORD_else))
+   {
+      match (KEYWORD_else);
+      result->else_stat = stat ();
+   }
+
+   return result;
+}
+</code>
+
+==== Generování syntaktických analyzátorů ====
+
+Jednoduché grafické rozhranní pro generování syntaktických analyzátorů:
+[[http://gitlab.fjfi.cvut.cz/culikzde/simple-view/-/blob/master/tutorial/easy-grammar/easy_view.py|easy_view.py]]
+
+{{prekl:easy_view.png}}
+
+
+{{prekl:generovani.png?800}}

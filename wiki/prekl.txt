@@ -1,0 +1,135 @@
+
+====== Lexikální analyzátor ======
+
+
+===== Lexikální analyzátor pro jazyk podobný jazyku C ( napsaný v jazyce Python ) ======
+[[prekl:lexer|lexikální analyzátor]]
+
+Video: Lexical Analysis http://www.youtube.com/watch?v=sJKFLcsysVs
+
+( Úvod: http://www.youtube.com/watch?v=0A079QpDAzY )
+
+
+====== Syntaktická analýza ======
+
+===== Syntaktická analýza výrazů =====
+
+[[prekl::expr|syntaktická analýza výrazů]]
+
+===== Gramatika popisující příkazy zjednodušeného jazyka C =====
+
+[[prekl::stat|gramatika popisující příkazy]]
+
+
+
+
+
+===== Příklady syntaktických analyzátorů =====
+
+[[prekl:mini_parser| Příklad ručně psaného parseru příkazů]]
+
+[[prekl:mini_table| Příklad parseru pro popis databázových tabulek]]
+
+[[http://kmlinux.fjfi.cvut.cz/~culikzde/prekl/mini-parser.zip|mini-parser.zip]]
+
+[[pokus]]
+
+Video: Syntax Analysis http://www.youtube.com/watch?v=8nBoVjEOCMI
+
+
+====== Strojově generované syntaktické analyzátory ======
+
+===== Gramatika popisující gramatiku =====
+
+[[prekl::gram|gramatika]]
+
+===== Parser pro popis gramatiky =====
+
+[[prekl::gram_parser|Načtení popisu gramatiky a uložení do stromové struktury]]
+
+===== Zobrazení gramatiky =====
+
+[[prekl::gram_html|Zobrazení pomocí HTML]]
+
+[[prekl::gram_lout|Zobrazení programem LOUT]]
+
+===== Množiny symbolů, kterými začínají jednotlivá syntaktická pravidla ====
+
+[[prekl::gram_nullable|Vypouštějící pravidla]]
+
+[[prekl::gram_symbols|Množiny symbolů]]
+
+
+
+===== Syntaktický analyzátor =====
+
+[[prekl::parser|Parser (a také lexer)]]
+
+===== Program =====
+
+http://github.com/zdenekzc/plain-grammar
+
+====== Objektově orientované syntaktické stromy ======
+
+===== Syntaktický analyzátor vytvářející syntaktický strom =====
+
+[[prekl::parser_tree|parser vytvářející strom]]
+
+===== Tisk programu uloženého v syntaktickém stromu =====
+
+[[prekl::product|product]]
+
+===== Select ====
+
+[[prekl::select|select]]
+
+===== Choose ====
+
+[[prekl::choose|choose]]
+
+===== Program =====
+
+http://github.com/zdenekzc/easy-grammar
+
+====== Příklady ======
+
+===== Příklady v adresáři tutorial =====
+
+[[prekl::c1|c1 - jednoduchá gramatika pro výrazy a příkazy]]
+
+[[prekl::c2|c2 - zobrazení syntaktického stromu]]
+
+[[prekl::c3|c3 - gramatika se zjednodušenými deklaracemi]]
+
+[[prekl::c3_comp|c3 - zpracování deklarací]]
+
+[[prekl::c3_python|c3 - převod do Pythonu]]
+
+[[prekl::c4|c4 - syntaktické predikáty, generování instrukcí]]
+
+http://github.com/zdenekzc/simple-view
+
+===== C-- =====
+
+[[prekl::cmm_grammar|gramatika C--, sémantické predikáty]]
+
+[[prekl::cmm_comp|zpracování deklarací]]
+
+[[prekl::cmm_qt|převod do Pythonu, PyQt]]
+
+===== CLang a Python =====
+
+[[cindex]]
+
+[[http://kmlinux.fjfi.cvut.cz/~culikzde/prekl/peachpy-fedora34.tgz|peachpy]]
+
+
+
+====== Literatura ======
+
+**Niklaus Wirth: Compiler Construction ** \\
+http://inf.ethz.ch/personal/wirth/CompilerConstruction/CompilerConstruction1.pdf \\
+http://inf.ethz.ch/personal/wirth/CompilerConstruction/CompilerConstruction2.pdf \\
+
+**Steven Pemberton and Martin Daniels: Pascal Implementation: The P4 Compiler and Interpreter ** \\
+http://homepages.cwi.nl/~steven/pascal

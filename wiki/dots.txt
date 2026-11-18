@@ -1,0 +1,232 @@
+<code C++>
+#include <iostream>
+using namespace std;
+
+void put (string s)
+{
+    cout << "retezec " << s << endl;
+}
+
+void put (int p)
+{
+    cout << "cele cislo " << p << endl;
+}
+
+void put (double p)
+{
+    cout << "cislo " << p << endl;
+}
+
+void put (char c)
+{
+    cout << "pismeno " << c << endl;
+}
+
+void print ()
+{
+}
+
+template <class T, class ... S>
+void print (T head, S ... other)
+{
+    put (head);
+    print (other ...);
+}
+
+void f ()
+{
+    print (1, 1.2, "abc", 'c');
+}
+</code>
+
+<code C++>
+#include "mainwindow.h"
+
+#include <QApplication>
+
+#include <string>
+#include <iostream>
+using namespace std;
+#include <QString>
+
+class Section
+{
+public:
+     QString name;
+     QVector <QString> items;
+     QVector <Section> sections;
+     Section (QString name0) : name (name0) {}
+};
+
+void add (Section & sect, QString item)
+{
+    sect.items.append (item);
+    cout << "add " << item.toStdString () << " to section " << sect.name.toStdString () << endl;
+}
+
+void add (Section & sect, Section item)
+{
+    sect.sections.append (item);
+    cout << "add section " << item.name.toStdString () << " to section " << sect.name.toStdString () << endl;
+}
+
+void expand (Section & sect)
+{
+}
+
+template< class S, class ... T >
+void expand (Section & sect, S head, T... tail)
+{
+    add (sect, head);
+    expand (sect, tail...);
+}
+
+template< class ... T >
+Section section (QString name, T ... params)
+{
+    Section result (name);
+    expand (result, params...);
+    return result;
+}
+
+int main(int argc, char *argv[])
+{
+    Section a = section ("acko", "alpha");
+    Section b = section ("becko", "beta", a);
+    Section c = section ("cecko", "gamma", section ("decko", b));
+
+    QApplication app(argc, argv);
+    MainWindow w;
+    w.show();
+    return app.exec();
+}
+
+</code>
+
+=== Pripadne s konstuktorem ===
+
+<code C++>
+class Section
+{
+public:
+     QString name;
+     QVector <QString> items;
+     QVector <Section> sections;
+     Section (QString name0) : name (name0) {}
+
+     template< class ... T >
+     Section (QString name0, T ... params);
+};
+
+void add (Section & sect, QString item)
+{
+    sect.items.append (item);
+    cout << "add " << item.toStdString () << " to section " << sect.name.toStdString () << endl;
+}
+
+void add (Section & sect, Section item)
+{
+    sect.sections.append (item);
+    cout << "add section " << item.name.toStdString () << " to section " << sect.name.toStdString () << endl;
+}
+
+void expand (Section & sect)
+{
+}
+
+template< class S, class ... T >
+void expand (Section & sect, S head, T... tail)
+{
+    add (sect, head);
+    expand (sect, tail...);
+}
+
+template< class ... T >
+Section section (QString name, T ... params)
+{
+    Section result (name);
+    expand (result, params...);
+    return result;
+}
+
+template< class ... T >
+Section::Section (QString name0, T ... params) :
+   name (name0)
+{
+
+    expand (*this, params...);
+}
+
+int main(int argc, char *argv[])
+{
+    Section a = section ("acko", "alpha");
+    Section b = section ("becko", "beta", a);
+    Section d = section ("decko", "delta", section ("cecko", "gamma", b));
+    Section e ("ecko", "epsilon", d);
+}
+</code>
+
+=== Vse uvnitr tridy ===
+
+<code C++>
+class Section
+{
+public:
+     QString name;
+     QVector <QString> items;
+     QVector <Section> sections;
+     Section (QString name0) : name (name0) {}
+
+     static void add (Section & sect, QString item)
+     {
+         sect.items.append (item);
+         cout << "add " << item.toStdString () << " to section " << sect.name.toStdString () << endl;
+     }
+
+     static void add (Section & sect, Section item)
+     {
+         sect.sections.append (item);
+         cout << "add section " << item.name.toStdString () << " to section " << sect.name.toStdString () << endl;
+     }
+
+     static void expand (Section & sect)
+     {
+     }
+
+     template< class S, class ... T >
+     static void expand (Section & sect, S head, T... tail)
+     {
+         add (sect, head);
+         expand (sect, tail...);
+     }
+
+     template < class ... T >
+
+     Section (QString name0, T ... params) :
+         name (name0)
+     {
+         expand (*this, params...);
+     }
+
+     template < class ... T >
+     static Section section (QString name, T ... params)
+     {
+         Section result (name);
+         expand (result, params...);
+         return result;
+     }
+};
+
+template < class ... T >
+static Section section (QString name, T ... params)
+{
+   return Section::section (name, params ...);
+}
+
+int main (int argc, char *argv[])
+{
+    Section a = section ("acko", "alpha");
+    Section b = section ("becko", "beta", a);
+    Section d = section ("decko", "delta", section ("cecko", "gamma", b));
+}
+</code>

@@ -1,0 +1,48 @@
+====== C1 - tutorial/cecko.g  ======
+
+Jednoduchá gramatika pro výrazy a příkazy používaná v kapitole "Strojově generované syntaktické analyzátory"
+
+[[http://gitlab.fjfi.cvut.cz/culikzde/simple-view/-/blob/master/tutorial/cecko.g|cecko.g]]
+
+<code C++>
+while_stat :  "while" "(" expr ")" stat   ;
+
+if_stat    :  "if" "(" expr ")" stat ( "else" stat  )?   ;
+
+compound_stat : "{" ( stat )* "}" ;
+
+simple_stat :  expr ";" ;
+
+empty_stat :  ";" ;
+
+stat : while_stat | if_stat | compound_stat | simple_stat | empty_stat ;
+
+
+simple_expr : identifier | number  | "(" expr ")" ;
+
+mult_expr :  simple_expr ( ("*"|"/") simple_expr )* ;
+
+add_expr :  mult_expr ( ("+"|"-") mult_expr )* ;
+
+expr : add_expr ( "=" expr )? ;
+
+
+program : stat;
+</code>
+
+Vstupní soubor s jedním příkazem [[http://gitlab.fjfi.cvut.cz/culikzde/simple-view/-/blob/master/tutorial/c1.cc|c1.cc]]
+
+<code C++>
+{
+   while ( n )
+      if ( n )
+         n = n + 2;
+      else
+         n = n * 2;
+}
+</code>
+
+
+Obrázek použitý v kapitole [[prekl::parser|Parser]]
+
+{{prekl::gram_tree.png}}

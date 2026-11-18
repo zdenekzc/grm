@@ -1,0 +1,39 @@
+====== Tisk programu uloženého v syntaktickém stromu =====
+
+Zdrojový text uložený v syntaktickém stromu vytiskne třída **Product**.
+
+Tuto třídu vytvoří generátor podobně jako třídu **Parser**. \\
+Nečte se zdrojový text ze vstupu, ale data se získávají z uzl; syntaktického stromu. \\
+Rozhodování při výběru alternativ je také založeno na uložených datech.
+
+<code Python>
+class Product (Output) :
+
+   def send_if_stat (self, param) :
+       self.send ("if")
+       self.send ("(")
+       self.send_expr (param.cond)
+       self.send (")")
+       self.send_stat (param.then_code)
+       if param.else_code != None :
+         self.style_new_line ()
+         self.send ("else")
+         self.send_stat (param.else_code)
+</code>
+
+<code C++>
+void CmmProduct::send_if_stat (CmmIfStat * item)
+{
+   send ("if");
+   send ("(");
+   send_expr (item->cond);
+   send (")");
+   send_stat (item->then_code);
+   if (item->else_code != NULL)
+   {
+      style_new_line ();
+      send ("else");
+      send_stat (item->else_code);
+   }
+}
+</code>

@@ -1,0 +1,125 @@
+===== Choose - opožděné rozhodnutí ====
+
+Při zpracování aritmetických výrazů není vhodné vytvářet novou instanci pro každé zpracovávané pravidlo
+
+<code C++>
+simple_expr :          identifier | number  | "(" expr ")" ;
+multiplicative_expr :  simple_expr ( ("*"|"/") simple_expr )* ;
+additive_expr :        multiplicative_expr ( ("+"|"-") multiplicative_expr )* ;
+expr :                 additive_expr ( "=" expr )? ;
+</code>
+
+Pokud např. zpracováváme výraz A + B - C,  \\
+zajímají nás uzly odpovídající aditivnímu výrazu a listy s idetifikátory.
+
+Uzly, které neskladují žádnou aritmetickou operaci, většinou znepřehledňují strom.
+
+
+
+==== Klíčové slovo choose před typem pravidla  ====
+
+<code>
+additive_expr <choose CmmExpr> :
+   multiplicative_expr
+   (
+      <new CmmAddExpr:CmmExpr>
+      <store left:CmmExpr>
+      ( '+' <set kind=addExp> |
+        '-' <set kind=subExp> )
+      right:multiplicative_expr
+   )* ;
+</code>
+
+  * Před typem pravidla uvedeme klíčové slovo **choose**.
+  * Popis pravidla začneme neterminálním symbolem, který bude výsledkem pokud nenastane následující varianta v závorkách
+  * Varianta v závorkách ** ( )? ** nebo **()* **
+  * Pokud varianta nastane, každé opakování vytvoří novou instanci ** <new CmmAddExpr:CmmExpr> **
+  * Původní výsledek nebo předchozí varianta se uloží jako položka nové instance ** <store left:CmmExpr> **
+
+  * Uvnitř varianty může být další větvení, ale vše se již ukládá do vytvořené instance
+  * Pokud některé alternativy obsahují jen terminály např. ** ("+"|"-") **, můžeme nastavit nějakou položku na hodnotu výčtového typu ** <set kind=addExp> **
+
+
+==== Požadavky na použité typy ====
+
+   * Typ úvodního neterminálu musí být odvozen z typu pravidla 
+   * Typ použitý uvniř varianty také musí být odvozen z typu pravidla 
+
+
+==== Vygenerovaná metoda syntaktického analyzátoru ===
+
+<code Python>
+   def parse_additive_expr (self) :
+      result = self.parse_multiplicative_expr ()
+      while self.tokenText == "+" or self.tokenText == "-" :
+            store = result
+            result = CmmAddExpr ()
+
+            result.left = store
+
+            if self.tokenText == "+" :
+               self.check ("+")
+               result.kind = result.addExp
+            elif self.tokenText == "-" :
+               self.check ("-")
+               result.kind = result.subExp
+            else :
+               self.error ("Unexpected token")
+
+            result.right = self.parse_multiplicative_expr ()
+      return result
+</code>
+
+Pokud bude na vstupu např. A + B - C, vznikne strom
+
+<code>
+          "-"
+           |
+       .------.
+       |      |
+      "+"      C
+       |
+   .------.
+   |      |
+   A      B
+</code>
+
+Do proměnné **result** se nejprve voláním **parse_multiplicative_expr** uloží **A**. 
+
+Jelikož následuje plus, původní hodnotu **result** uschováme do proměnné **store**. \\
+Do **result** uložíme nový uzel pro aritmetickou operaci typu **CmmAddExpr**. \\
+Původní hodnotu (**A**) uložíme do **result.left**. \\
+Nastavíme **result.kind** na **addExp** nebo **subExp**. \\
+Pravý operand (**B**) uložíme do **result.right**.
+
+Nyní se **while** cyklus opakuje.\\
+Jelikož následuje minus, současný výsledek (**A+B**) uschováme, \\
+a vytvoříme novou instanci, tentokrát pro minus.
+
+Pokud nenásleduje další plus nebo minus, tak funkce skončí a výsledkem bude načrtnutý strom. \\
+Můžete porovnat s úvodní kapitolou [[prekl::expr|syntaktická analýza výrazů]].
+
+
+
+
+
+
+==== Vygenerovaná metoda pro tisk zdrojového textu ====
+
+Metoda pro tisk nejprve vyzkouší zda parametr není typem pro naší variantu **CmmAddExpr**.
+Pro tisk levého parametru rekurzivně použije stejnou metodu.
+
+Nakonci metody je //else// pro případ, že naše varianta nenastala.
+
+<code Python>
+   def send_additive_expr (self, param) :
+      if isinstance (param, CmmAddExpr) :
+         self.send_additive_expr (param.left)
+         if param.kind == param.addExp :
+            self.send ("+")
+         elif param.kind == param.subExp :
+            self.send ("-")
+         self.send_multiplicative_expr (param.right)
+      else :
+         self.send_multiplicative_expr (param)
+</code>

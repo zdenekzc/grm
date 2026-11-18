@@ -1,0 +1,176 @@
+===== Vypouštějící pravidla =====
+
+Nejprve nalezneme //Vypouštějící pravidla//, tedy pravidla, která lze přepsat na prázdnou posloupnost.
+
+Zde je odkaz na program hledající vypouštějící pravidla (a který si zde popíšeme) \\
+https://gitlab.fjfi.cvut.cz/culikzde/simple-view
+
+Pro připomenutí [[prekl::gram_parser|načtení popisu gramatiky a uložení do stromové struktury]], \\
+obrázek s jedním pravidlem uloženým do stromu: \\
+{{prekl::gram_if_tree.png}}
+
+
+Pro jednotlivé terminály, neterminály, výrazy v závorkách, alternativy a celé výrazy postupně nastavíme booleovskou proměnnou **nullable**.
+
+Nejprve všechna pravidla označíme jako //nevypouštějící//:
+
+<code Python>
+    for rule in grammar.rules :
+        rule.nullable = False
+</code>
+
+==== Terminální symboly ====
+
+Terminální symboly nikdy nejsou vypouštějící, \\
+//neboť je nemůžeme přepsat na nic jiného, než na ten samý terminální symbol a to je jednoprvková posloupnost symbolů.//
+
+<code Python>
+def nullableTerminal (grammar, item) :
+    item.nullable = False
+</code>
+
+==== Neterminální symboly ====
+
+Neterminálním symbolům nastavíme hodnotu na základě pravidla, které neterminál představuje.
+
+<code Python>
+def nullableNonterminal (grammar, item) :
+    rule = item.rule_ref
+    item.nullable = rule.nullable
+</code>
+
+==== Výrazy v závorkách ====
+
+Výrazy v závorkách nejprve přiřadíme stejnou hodnotu jako vniřnímu výrazu, ta bude určena funkcí **nullableExpression**. \\
+Pokud za závorkou je otazník nebo hvězdička, tak ** ( )? ** i ** ( )* ** jsou vypouštějící.
+
+<code Python>
+def nullableEbnf (grammar, ebnf) :
+    nullableExpression (grammar, ebnf.expr)
+
+    expr = ebnf.expr
+    # set ebnf according to expression
+    ebnf.nullable = expr.nullable
+    # ( )? or ( )* => ebnf is nullable
+    if ebnf.mark == '?' or ebnf.mark == '*' :
+       ebnf.nullable = True
+</code>
+
+
+
+==== Alternativy ====
+
+Alternativy jsou posloupností terminálů, neterminálů a výrazů v závorkách. \\
+Nejprve alternativu označíme jako vypouštějící, //pokud je alternativa prázdná tak bude vypouštějící//. \\
+Potom procházíme jednotlivé gramatické prvky a pokud nalezneme nevypouštějící, \\
+tak se zastavíme a alternativa bude nevypouštějící. \\
+//tj. stačí nám jeden nevypouštějící a alternativa je nevypouštějící//
+
+<code Python>
+def nullableAlternative (grammar, alt) :
+    # init
+    alt.nullable = True
+
+    for item in alt.items :
+        if isinstance (item, Terminal) :
+           nullableTerminal (grammar, item)
+        elif isinstance (item, Nonterminal) :
+           nullableNonterminal (grammar, item)
+        elif isinstance (item, Ebnf) :
+           nullableEbnf (grammar, item)
+        else :
+           grammar.error ("Unknown alternative item: " + item.__class__.__name__)
+
+        # one item is not nullable => alternative is also not nullable
+        if not item.nullable :
+           alt.nullable = False
+           break
+</code>
+
+
+
+==== Výrazy  ====
+
+Výrazy používáme pro popis celých pravidel nebo jako vniřky výrazů se závorkami. \\
+Výrazy jsou posloupností alterativ oddělených **|**. \\
+Výraz obsahuje alespoň jednu alternativu, ale ta může být prázdná.
+
+
+Pokud nalezneme alespoň jednu //vypouštějící// alternativu, je celý výraz //vypouštějící//.
+
+<code Python>
+def nullableExpression (grammar, expr) :
+    expr.nullable = False
+
+    for alt in expr.alternatives :
+       nullableAlternative (grammar, alt)
+
+       # one alternative is nullable => expression is nullable
+       if alt.nullable :
+          expr.nullable = True
+          break
+</code>
+
+
+
+==== Pravidla ====
+
+Nejprve jsme všechna pravidla označili jako //nevypouštějící//.
+
+Potom spustíme výpočet pro všechny výrazy, která tvoří popis jednotlivých pravidel. \\
+Sledujeme, zda se nějaké pravidlo stalo //vypouštějící//. \\
+Pokud ano, zopakujeme výpočet opět pro všechna pravidla. 
+
+Pokud se množina //vypouštějících// pravidel nezměnila, jsme hotovi.
+
+<code Python>
+def nullableRules (grammar) :
+    for rule in grammar.rules :
+        rule.nullable = False
+
+    grammar.nullableChanged = True
+    while grammar.nullableChanged :
+       grammar.nullableChanged = False
+       for rule in grammar.rules :
+           nullableRule (grammar, rule)
+</code>
+
+<code Python>
+def nullableRule (grammar, rule) :
+    expr = rule.expr
+    nullableExpression (grammar, expr)
+    if rule.nullable != expr.nullable :
+       rule.nullable = expr.nullable
+       grammar.nullableChanged = True
+</code>
+
+
+
+
+===== Příklad =====
+
+<code C++>
+expr : identifier | number ;
+
+parameter_list : ( expr ( "," expr )* )? ;
+
+function_call : identifier "(" parameter_list ")" ;
+
+if_stat : "if" "(" expr ")" stat else_section ;
+
+else_section : ( "else" stat )? ;
+
+stat : expr ";" | if_stat ;
+</code>
+
+Červeně jsou označena vypouštějící pravidla
+
+{{prekl::nullable.png}}
+
+===== Užitečné odkazy =====
+
+http://fileadmin.cs.lth.se/cs/Education/EDAN65/2017/lectures/L05A.pdf \\
+https://mkaul.wordpress.com/2009/12/11/computing-nullable-first-and-follow-sets/ \\
+http://stackoverflow.com/questions/29197332/how-to-find-first-and-follow-sets-of-a-recursive-grammar \\
+http://www.youtube.com/watch?v=8nBoVjEOCMI
+

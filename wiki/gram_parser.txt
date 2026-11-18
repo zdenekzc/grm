@@ -1,0 +1,273 @@
+====== Parser pro popis gramatiky a uložení gramatiky do stromu =====
+
+http://github.com/zdenekzc/plain-grammar/blob/main/plain_grammar.py
+
+Na vstupu bude nějaká gramatika, například:
+<code C++>
+while_stat :  "while" "(" expr ")" stat   ;
+
+if_stat    :  "if" "(" expr ")" stat ( "else" stat  )?   ;
+
+compound_stat : "{" ( stat )* "}" ;
+
+simple_stat :  expr ";" ;
+
+empty_stat :  ";" ;
+
+stat : while_stat | if_stat | compound_stat | simple_stat | empty_stat ;
+</code>
+
+( Tento vstup představující několik gramatických pravidel by měl vyhovovat již popsané gramatice 
+[[prekl::gram|gramatika popisující gramatiku]] )
+
+Jednotlivá pravidla chceme přečíst a uložit do paměti počítače.
+
+===== Třídy pro uložení gramatiky =====
+
+Několik tříd pro ukládání informací:
+
+<code Python>
+class Rule (object) :
+   def __init__ (self) :
+       self.name = ""
+       self.expr = None
+
+class Expression (object) :
+   def __init__ (self) :
+       self.alternatives = [ ]
+
+class Alternative (object) :
+   def __init__ (self) :
+       self.items = [ ]
+
+class Ebnf (object) :
+   def __init__ (self) :
+       self.mark = ""
+       self.expr = None
+
+class Nonterminal (object) :
+   def __init__ (self) :
+       self.rule_name = ""
+
+class Terminal (object) :
+   def __init__ (self) :
+       self.text = ""
+       self.multiterminal_name = ""
+</code>
+
+
+
+
+
+
+
+
+===== Parser popisu gramatik =====
+
+<code Python>
+class Grammar (Lexer) :
+
+   def __init__ (self) :
+       super (Grammar, self).__init__ ()
+       self.rules = [ ]
+       self.multiterminals = [ "identifier",
+                               "number",
+                               "real_number",
+                               "character_literal",
+                               "string_literal" ]
+
+   def setPosition (self, item) :
+       item.src_line = self.tokenLineNum
+       item.src_column = self.tokenColNum
+       item.src_pos = self.tokenByteOfs
+</code>
+
+=== Pravidla ===
+
+Dokud neskončí zdrojový text, čteme jednotlivá pravidla.
+
+<code Python>
+   def parseRules (self) :
+       while not self.isEndOfSource () :
+          self.parseRule ()
+</code>
+
+Informace o jednotlivých pravidlech uložíme do instance třídy **Rule**. \\
+Přečteme ze vstupu jmého pravidla, \\
+zkontrolujeme dvojtečku, \\
+popis za dvojtčkou přečte funkce **parseExpression**, \\
+zkontrolujeme středník.
+
+<code Python>
+   def parseRule (self) :
+       rule = Rule ()
+
+       rule.name = self.readIdentifier ("Rule identifier expected")
+       self.setPosition (rule)
+
+       self.checkSeparator (':')
+       rule.expr = self.parseExpression ()
+       self.checkSeparator (';')
+
+       self.rules.append (rule)
+</code>
+
+=== Výrazy - popisy pravidel ===
+
+Popis pravidla ukládáme do třídy **Expression**. \\
+Přečteme jednu alternativu a vložíme do seznamu **expr.alternatives**. \\
+Pokud následuje **|**, čteme další alternativy a ukládáme je do seznamu.
+
+<code Python>
+   def parseExpression (self) :
+       expr = Expression ()
+       self.setPosition (expr)
+
+       alt = self.parseAlternative ()
+       expr.alternatives.append (alt)
+
+       while self.isSeparator ('|') :
+          self.nextToken ()
+
+          alt = self.parseAlternative ()
+          expr.alternatives.append (alt)
+
+       return expr
+</code>
+
+=== Alternativy ===
+
+Čteme jednotlivé položky, dokud nenarazíme na svislou čáru, pravou závorku nebo středník.
+
+Alternativy jsou posloupnosti identifikátorů (neterminálních symbolů), \\
+řetězců v uvozovkách (terminálních symbolů) \\
+nebo výrazů v závorkách.
+
+Alternativa může být i prázdná. 
+
+Jednotlivé položky ukládáme do seznamu **items** ve třídě **Alternative**.
+
+<code Python>
+   def parseAlternative (self) :
+       alt = Alternative ()
+       self.setPosition (alt)
+
+       while not self.isSeparator ('|') and not self.isSeparator (')') and not self.isSeparator (';') :
+
+          if self.token == self.identifier :
+             if self.tokenText in self.multiterminals :
+                item = self.parseMultiterminal ()
+             else :
+                item = self.parseNonterminal ()
+             alt.items.append (item)
+
+          elif self.token == self.character_literal or self.token == self.string_literal :
+             item = self.parseTerminal ()
+             alt.items.append (item)
+
+          elif self.isSeparator ('(') :
+             ebnf = self.parseEbnf ()
+             alt.items.append (ebnf)
+
+          else :
+             self.error ("Unknown grammar item")
+
+       return alt
+</code>
+
+=== Výrazy v závorkách ===
+
+Zkontrolujeme a přeskočíme levou závorku. \\
+Přečteme popis uvnitř závorek, rekurzivně použijeme již zmíněnou funkci **parseExpression**. \\
+Zkontrolujeme a přeskočíme pravou závorku.
+
+//Tj. stejný postup jako u aritmetických výrazů.//
+
+Pokud za závorkou je otazník, plus nebo hvězdička  tak také tuto značku přečteme.
+
+<code Python>
+   def parseEbnf (self) :
+       item = Ebnf ()
+       self.setPosition (item)
+
+       self.checkSeparator ('(')
+       item.expr = self.parseExpression ()
+       self.checkSeparator (')')
+
+       if self.isSeparator ('?') or self.isSeparator ('+') or self.isSeparator ('*') :
+          item.mark = self.tokenText
+          self.nextToken ()
+
+       return item
+</code>
+
+=== Terminály a neterminály ===
+
+Neterminální symboly - jméno uložime do třídy **Nonterminal**.
+Terminální symboly - text uvnitř uvozovek uložime do třídy **Terminal**.
+
+<code Python>
+   def parseNonterminal (self) :
+       item = Nonterminal ()
+       self.setPosition (item)
+       item.rule_name = self.tokenText
+       self.nextToken ()
+       return item
+
+   def parseTerminal (self) :
+       item = Terminal ()
+       self.setPosition (item)
+       item.text = self.tokenText
+       self.nextToken ()
+       return item
+</code>
+
+=== Multi-terminály ===
+
+Moje nestandardní pojmenování pro terminální symboly, které představují celé skupiny terminálních symbolů.
+
+Jsou to identifikátory, celá a desetinná čísla, řetězce v jednoduchých a dovojitých uvozovkách.
+   * identifier
+   * number
+   * real_number
+   * character_literal
+   * string_literal
+
+Například v pravidle
+<code C++>
+    simple_expr : identifier | number  | "(" expr ")" ;
+</code>
+    * simple_expr a expr jsou neterminální symboly
+    * "(" a ")" jsou terminální symboly
+    * identifier a number jsou multi-terminály ( a také současně terminální symboly )
+
+// Jelikož se zapisují pomocí identifikátorů bez uvozovek, tak připomínají neterminály. //
+
+// Tyto skupinové terminální symboly potřebujeme, aby množiny terminálních symbolů byly konečné. // \\
+// ( Množina symbolů z kterých se vytváří výstupní posloupnost (výstupní páska) lexikální analýzy. ) // \\
+// ( A to je současně množina symbolů z kterých je tvořena vstupní posloupnost (páska) syntaktické analýzy. ) //
+
+<code Python>
+   def parseMultiterminal (self) :
+       item = Terminal ()
+       self.setPosition (item)
+       item.multiterminal_name = self.tokenText
+       self.nextToken ()
+       return item
+</code>
+
+
+
+
+
+
+
+===== Uložení gramatiky ve stromové podobě =====
+
+https://github.com/zdenekzc/plain-grammar
+
+spustit python plain_view.py
+
+V pravé části okna je vstupní gramatika, v levém stromu jsou zobrazeny informace o načtené gramatice.
+
+{{prekl::gram_tree.png}}

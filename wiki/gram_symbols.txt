@@ -1,0 +1,178 @@
+====== Množiny symbolů, kterými začínají jednotlivá syntaktická pravidla ======
+
+Když máme naleznena vypouštějící pravidla, můžeme hledat množiny terminálních symbolů, kterými začínají jednotlivá syntaktická pravidla. \\
+Tyto množiny vyuzijeme při rozhodování, kterou alternativou má pokračovat parser.
+
+http://gitlab.fjfi.cvut.cz/culikzde/simple-view/-/blob/master/tutorial/plain-grammar/plain_symbols.py
+
+Množiny budeme ukládat v jednotlivých třídách do proměnné **first**.
+Proměnná **first** bude pole, \\
+indexem budou čísla označující terminální symboly, \\
+hodnoty v poli budou **True** nebo **False**, podle toho zda terminální symbol patří do zmíněné množiny.
+
+Na obrázku jsou čísla symbolů z našeho příkladu:
+
+{{prekl::symbol_numbers.png}}
+
+==== Terminální symboly ====
+
+Pole **first** pro terminální symboly bude obsahovat jednu hodnotu **True** v místě odpovídajícím právě zpracovávanému terminálu. \\
+//tj. výsledkem bude jednoprvková množina//
+
+<code Python>
+def firstFromTerminal (grammar, item) :
+    # first set has one item
+    item.first = newArray (grammar)
+    inx = item.symbol_ref.inx
+    item.first [inx] = True
+</code>
+
+
+
+==== Neterminální symboly ====
+
+Neterminální symboly získají množinu od svého pravidla.
+
+Pokud navíc je pravidlo //vypouštějící//, má nastaveno **nullable** na True \\
+//"a může začínat ničím", to se někdy označuje prázdným řetězcem, písmenem **epsilon** nebo v našem programu zápisem <empty>.//
+
+<code Python>
+def firstFromNonterminal (grammar, item) :
+    rule = item.rule_ref
+    item.first = rule.first
+</code>
+
+==== Výrazy v závorkách ====
+
+Výrazy v závorkách mají stejnou množinu **first** jako výraz uvnitř závorek
+
+<code Python>
+def firstFromEbnf (grammar, ebnf) :
+    firstFromExpression (grammar, ebnf.expr)
+    # set ebnf according to expression
+    ebnf.first = ebnf.expr.first
+</code>
+
+
+
+
+
+==== Alternativy ====
+
+First pro jednu alternativu nejprve inicializujeme na prázdnou množinu. \\
+Postupně přidáváme množiny pro jednotlivé gramatické prvky (provádíme sjednocení množin). \\
+Pokud nalezneme //nevypouštějící// prvek, postup zastavíme.
+
+
+
+<code Python>
+def firstFromAlternative (grammar, alt) :
+    alt.first = newArray (grammar)
+
+    for item in alt.items :
+        if isinstance (item, Terminal) :
+           firstFromTerminal (grammar, item)
+        elif isinstance (item, Nonterminal) :
+           firstFromNonterminal (grammar, item)
+        elif isinstance (item, Ebnf) :
+           firstFromEbnf (grammar, item)
+        else :
+           grammar.error ("Unknown alternative item: " + item.__class__.__name__)
+
+        # union
+        for inx in range (grammar.symbol_cnt) :
+            if item.first [inx] :
+               alt.first [inx] = True
+
+        # item is not nullable => stop adding symbols from items
+        if not item.nullable :
+           break
+</code>
+
+
+==== Výrazy  ====
+
+Výsledkem bude sjednocení množin pro jednotlivé alternativy.
+
+Pokud množiny pro jednotlivé alternativy nejsou disjunktní, \\
+nebude náš parser rozhodující se na základě jednoho právě čteného symbolu vědět jak má pokračovat.
+
+( Rovněž vypouštějící altrenativy mohou védst k nejednoznačnostem. )
+
+<code Python>
+def firstFromExpression (grammar, expr) :
+    expr.first = newArray (grammar)
+
+    for alt in expr.alternatives :
+       firstFromAlternative (grammar, alt)
+
+       # add symbols from alternative to expression
+       for inx in range (grammar.symbol_cnt) :
+           if alt.first [inx] :
+              if expr.first [inx] :
+                 pass # grammar.error ("Conflict between alternatives")
+              expr.first [inx] = True
+</code>
+
+
+
+
+==== Pravidla ====
+
+Množiny **first** pro všechny pravidla nastavíme na prázdné množiny.
+
+Provedeme výpočet pro všechna pravidla. \\
+Sledujeme, zda se změnila množina pro některé pravidlo. \\
+Pokud se některá množina změnila, výpočty opakujeme.
+
+<code Python>
+def firstFromRules (grammar) :
+    for rule in grammar.rules :
+        rule.first = newArray (grammar)
+
+    grammar.firstChanged = True
+    while grammar.firstChanged :
+       grammar.firstChanged = False
+       for rule in grammar.rules :
+           firstFromRule (grammar, rule)
+</code>
+
+<code Python>
+def firstFromRule (grammar, rule) :
+    expr = rule.expr
+    firstFromExpression (grammar, expr)
+
+    equal = True
+    for inx in range (grammar.symbol_cnt) :
+        if rule.first [inx] != expr.first [inx] :
+           equal = False
+
+    if not equal :
+       rule.first = expr.first
+       grammar.firstChanged = True
+</code>
+
+Pomocné funkce pro vytvoření prázdné množiny a kopírování množin.
+
+<code Python>
+def newArray (grammar) :
+    return [False] * grammar.symbol_cnt
+
+def copyArray (grammar, source) :
+    result = newArray (grammar)
+    for inx in range (grammar.symbol_cnt) :
+        if source [inx] :
+           result [inx] = True
+    return result
+</code>
+
+
+====== Zobrazení množiny symbolů ======
+
+http://gitlab.fjfi.cvut.cz/culikzde/simple-view/-/blob/master/tutorial/plain-grammar/plain_view.py#L440
+
+Modře jsou zobrazeny množiny symbolů. \\
+Zeleně pravidla, která mají množiny s dvěma a více prvky.
+
+
+{{prekl::simple_view.png}}

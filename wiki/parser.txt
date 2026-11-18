@@ -1,0 +1,545 @@
+====== Syntaktický analyzátor (parser) rozpoznávající zadaný jazyk  =====
+
+Programy pro generování syntaktických analyzátorů čtou ze vstupu popis gramatiky a vytvářejí zdrojový text parseru.
+
+Začneme syntaktických analyzátory, které pouze rozpoznávají daný jazyk. \\
+Tj. rozhodnou, zda vstupní zdrojový text vyhovuje zadané gramatice. 
+
+Podívejme se na jedno gramatické pravidlo ze zadané gramatiky:
+
+<code C++>
+   if_stat  :  "if" "(" expr ")" stat ( "else" stat  )? ;
+</code>
+
+Generátor vytvoří třídu Parser a v ní pro zmíněné pravidlo metodu **parse_if_stat**
+
+<code Python>
+from lexer import Lexer
+
+class Parser (Lexer) :
+
+   def parse_if_stat (self) :
+      self.check ("if")
+      self.check ("(")
+      self.parse_expr ()
+      self.check (")")
+      self.parse_stat ()
+      if self.tokenText == "else" :
+         self.check ("else")
+         self.parse_stat ()
+</code>
+
+Metoda zkontroluje přítomnost terminálů. \\
+Pro neterminály zavolá odpovídající metody. \\
+Rozhodování, kterou alternativou budeme pokračovat, se řídí množinami symbolů, kterými jednotlivé alternativy začínají.
+
+Nebo vygenerovaný parser v jazyce C++
+
+<code C++>
+void CmmParser::parse_if_stat ()
+{
+   match (KEYWORD_if);
+   match (LPAREN);
+   parse_expr ();
+   match (RPAREN);
+   parse_stat ();
+   if (isSymbol (KEYWORD_else))
+   {
+      nextSymbol ();
+      parse_stat ();
+   }
+}
+</code>
+
+
+
+
+
+====== Program generující syntaktický analyzátor ======
+
+Program //v jazyce Python// generující syntaktický analyzátor //také v jazyce Python//.
+
+http://gitlab.fjfi.cvut.cz/culikzde/simple-view/-/blob/master/tutorial/plain-grammar/plain_toparser.py
+
+( V této kapitole je použita varanta s konstantou generate_tree = False )
+
+===== Na vstupu bude naše obvyklá malá gramatika =====
+
+<code C++>
+while_stat :  "while" "(" expr ")" stat   ;
+if_stat    :  "if" "(" expr ")" stat ( "else" stat  )?   ;
+compound_stat : "{" ( stat )* "}" ;
+simple_stat :  expr ";" ;
+empty_stat :  ";" ;
+
+stat : while_stat | if_stat | compound_stat | simple_stat | empty_stat ;
+
+simple_expr : identifier | number  | "(" expr ")" ;
+mult_expr :  simple_expr ( ("*"|"/") simple_expr )* ;
+add_expr :  mult_expr ( ("+"|"-") mult_expr )* ;
+
+expr : add_expr ( "=" expr )? ;
+program : stat;
+</code>
+
+
+
+
+
+===== Vygenerovaný syntaktický analyzátor obsahuje lexikální anlýzu ====
+
+Vytvořená třída Parser je odvozená od lexikálního analyzátoru. \\
+[[prekl::lexer|již popsaný mimimální lexikální analyzátor]] \\
+Kompletní zdojový text http://gitlab.fjfi.cvut.cz/culikzde/simple-view/-/blob/master/tutorial/plain-grammar/plain_lexer.py 
+
+<code Python>
+from plain_lexer import Lexer
+
+class Parser (Lexer) :
+</code>
+
+V konstruktoru jsou očíslovány terminální symboly. \\
+  * //"Multiterminály"// již mají čísla z Lexeru a zde jsou jen jako poznámky \\
+  * Klíčová slova dostanou své konstanty (**keyword_else**) \\
+  * Oddělovače jsou označeny jen čísly
+
+  * Pro některé množiny symbolů jsou deklarovány konstanty (např. **set_0**)
+
+<code Python>
+   def __init__ (self) :
+      super (Parser, self).__init__ ()
+
+      # eos = 0
+      # identifier = 1
+      # number = 2
+      # real_number = 3
+      # character_literal = 4
+      # string_literal = 5
+      # separator = 6
+      # end_of_line = 7
+      self.keyword_else = 8
+      self.keyword_if = 9
+      self.keyword_while = 10
+      # ( 11
+      # ) 12
+      # * 13
+      # + 14
+      # , 15
+      # - 16
+      # / 17
+      # ; 18
+      # { 19
+      # } 20
+
+      self.set_0 = self.alloc ([self.identifier, self.number, self.keyword_if, self.keyword_while, 11, 18, 19]) 
+      # identifier  number  if  while  (  ;  {
+</code>
+
+Virtuální funkce **lookupKeyword** volaná lexer po přečtení identifikátoru, \\
+převádí některé idntifikátory na klíčová slova
+
+<code Python>
+   def lookupKeyword (self) :
+      s = self.tokenText
+      n = len (s)
+      if n == 2 :
+         if s[0:2] == "if" :
+            self.token = self.keyword_if
+      elif n == 4 :
+         if s[0:4] == "else" :
+            self.token = self.keyword_else
+      elif n == 5 :
+         if s[0:5] == "while" :
+            self.token = self.keyword_while
+</code>
+
+Funkce **processSeparator** rozpoznává oddělovače.
+
+<code Python>
+   def processSeparator (self) :
+      if self.tokenText == '(' :
+         self.token = 11
+      if self.tokenText == ')' :
+         self.token = 12
+      if self.tokenText == '*' :
+         self.token = 13
+      if self.tokenText == '+' :
+         self.token = 14
+      if self.tokenText == ',' :
+         self.token = 15
+      if self.tokenText == '-' :
+         self.token = 16
+      if self.tokenText == '/' :
+         self.token = 17
+      if self.tokenText == ';' :
+         self.token = 18
+      if self.tokenText == '{' :
+         self.token = 19
+      if self.tokenText == '}' :
+         self.token = 20
+      if self.token == self.separator :
+         self.error ("Unknown separator")
+</code>
+
+Pomocná funkce **tokenToString** se hodí při zobrazování chyb
+
+<code Python >
+   def tokenToString (self, value) :
+      if value == 0: return "<end of source text>"
+      if value == 1: return "<identifier>"
+      if value == 2: return "<number>"
+      # ...
+      if value == 9: return "if"
+      if value == 10: return "while"
+      if value == 11: return "("
+      if value == 12: return ")"
+      # ...
+</code>
+
+Funkce **storeLocation** ukládá číslo řádky ze zdrojového textu používané například navigačními stromy
+
+<code Python >
+   def storeLocation (self, item) :
+      item.src_line = self.tokenLineNum
+      item.src_column = self.tokenColNum
+      item.src_pos = self.tokenByteOfs
+      item.src_end = self.charByteOfs
+</code>
+
+
+
+===== Vygenerovaný syntaktický analyzátor ====
+
+Podívejme se jak se využívají [[prekl::gram_symbols|množiny symbolů]] z předchozí kapitoly, 
+při výběru alternativy.
+
+<code Python>
+   def parse_add_expr (self) :
+      self.parse_mult_expr ()
+      while self.tokenText == "+" or self.tokenText == "-" :
+         if self.tokenText == "+" :
+            self.check ("+")
+         elif self.tokenText == "-" :
+            self.check ("-")
+         else :
+            self.error ("Unexpected token")
+         self.parse_mult_expr ()
+</code>
+
+Pokud pro některou alternativu má množina dva nebo tři prvky, vygenerujeme podmínku pomocí několika **or**.
+
+<code Python>
+   def parse_stat (self) :
+      if self.tokenText == "while" :
+         self.parse_while_stat ()
+      elif self.tokenText == "if" :
+         self.parse_if_stat ()
+      elif self.tokenText == "{" :
+         self.parse_compound_stat ()
+      elif self.token == identifier or self.token == number or self.tokenText == "(" :
+         self.parse_simple_stat ()
+      elif self.tokenText == ";" :
+         self.parse_empty_stat ()
+      else :
+         self.error ("Unexpected token")
+</code>
+
+V případě větší množiny vygenerujeme konstantu (pole **set_0**) a používáme ji pro testování. \\
+( Funkce register_collection v http://gitlab.fjfi.cvut.cz/culikzde/simple-view/-/blob/master/tutorial/plain-grammar/plain_toparser.py#L177 )
+
+<code Python>
+   def parse_compound_stat (self) :
+      self.check ("{")
+      while self.set_0 [self.token] :
+         self.parse_stat ()
+      self.check ("}")
+</code>
+
+Zde jsou metody rozpoznávající ostatní pravidla
+
+<code Python>
+class Parser (Lexer) :
+
+   def parse_while_stat (self) :
+      self.check ("while")
+      self.check ("(")
+      self.parse_expr ()
+      self.check (")")
+      self.parse_stat ()
+
+   def parse_if_stat (self) :
+      self.check ("if")
+      self.check ("(")
+      self.parse_expr ()
+      self.check (")")
+      self.parse_stat ()
+      if self.tokenText == "else" :
+         self.check ("else")
+         self.parse_stat ()
+
+   def parse_simple_stat (self) :
+      self.parse_expr ()
+      self.check (";")
+
+   def parse_empty_stat (self) :
+      self.check (";")
+
+   def parse_simple_expr (self) :
+      if self.token == identifier :
+         self.readIdentifier ()
+      elif self.token == number :
+         self.readNumber ()
+      elif self.tokenText == "(" :
+         self.check ("(")
+         self.parse_expr ()
+         self.check (")")
+      else :
+         self.error ("Unexpected token")
+
+   def parse_mult_expr (self) :
+      self.parse_simple_expr ()
+      while self.tokenText == "*" or self.tokenText == "/" :
+         if self.tokenText == "*" :
+            self.check ("*")
+         elif self.tokenText == "/" :
+            self.check ("/")
+         else :
+            self.error ("Unexpected token")
+         self.parse_simple_expr ()
+
+   def parse_expr (self) :
+      self.parse_add_expr ()
+      if self.tokenText == "=" :
+         self.check ("=")
+         self.parse_expr ()
+
+   def parse_program (self) :
+      self.parse_stat ()
+</code>
+
+
+
+
+===== Interaktivní program plain_view.py generující syntaktické analyzátory ====
+
+https://gitlab.fjfi.cvut.cz/culikzde/simple-view/-/blob/master/tutorial/plain-grammar/plain_view.py
+
+{{prekl::plain_view.png}}
+
+Funkce, která vezme text zadané gramatiky z první záložky, \\ 
+gramatiku uloží do stromu (**parseRules**), \\
+vypočítá množiny počátečních symbolů (**initSymbols**), \\
+a vygeneruje parser (**parserFromGrammar**).
+
+<code Python>
+    def createParser (self) :
+        # self.tree.clear ()
+        edit = self.getEditor ()
+        if edit != None :
+           source = edit.toPlainText ()
+
+           grammar = Grammar ()
+           grammar.openString (source)
+
+           grammar.parseRules ()
+           initSymbols (grammar)
+
+           self.parserFileName = self.outputFileName ("parser.py")
+           self.productFileName = self.outputFileName ("product.py")
+
+           to_parser = ToParser ()
+           to_parser.open (self.parserFileName)
+           to_parser.parserFromGrammar (grammar)
+           to_parser.close ()
+           self.readFile (None, self.parserFileName)
+
+           to_product = ToProduct ()
+           to_product.open (self.productFileName)
+           to_product.productFromGrammar (grammar)
+           to_product.close ()
+           self.readFile (None, self.productFileName)
+
+           self.grammarTree (grammar, edit)
+</code>
+
+
+
+
+===== Vlastní generování syntaktického analyzátoru ====
+
+http://gitlab.fjfi.cvut.cz/culikzde/simple-view/-/blob/master/tutorial/plain-grammar/plain_toparser.py
+
+Podobně, jako když jsem určovali množiny počátečních symbolů procházíme celou gramatiku uloženou ve stromové podobě.
+
+Pro všechna pravidla vygenerujeme **parse_...** metodu. 
+
+<code Python>
+   def parserFromRules (self, grammar) :
+       for rule in grammar.rules :
+           self.parserFromRule (grammar, rule)
+
+   def parserFromRule (self, grammar, rule) :
+       grammar.updatePosition (rule)
+
+       self.putLn ("def parse_" + rule.name + " (self) :")
+       self.incIndent ()
+
+       self.parserFromExpression (grammar, rule, rule.expr)
+
+       self.decIndent ()
+       self.putEol ()
+</code>
+
+Pro jednotlivé alternativy napíšeme **if** příkazy.
+
+<code Python>
+   def parserFromExpression (self, grammar, rule, expr) :
+       cnt = len (expr.alternatives)
+       inx = 0
+       start = True
+       for alt in expr.alternatives :
+           if cnt > 1 :
+              cond = self.conditionFromAlternative (grammar, alt)
+              if start :
+                 self.put ("if")
+              else :
+                 self.put ("elif")
+              start = False
+              self.putLn (" " + cond + " :")
+              self.incIndent ()
+           self.parserFromAlternative (grammar, rule, alt)
+           if cnt > 1 :
+              self.decIndent ()
+           inx = inx + 1
+       if cnt > 1 :
+          self.putLn ("else :")
+          self.incIndent ()
+          self.putLn ("self.error (" +  '"' + "Unexpected token" + '"' + ")")
+          self.decIndent ()
+</code>
+
+Jednotlivé položky tvořící alternativu zpracujeme jednu po druhé.
+
+<code Python>
+   def parserFromAlternative (self, grammar, rule, alt) :
+       for item in alt.items :
+           if isinstance (item, Terminal) :
+              self.parserFromTerminal (grammar, rule, item)
+           elif isinstance (item, Nonterminal) :
+              self.parserFromNonterminal (grammar, rule, item)
+           elif isinstance (item, Ebnf) :
+              self.parserFromEbnf (grammar, rule, item)
+           else :
+              grammar.error ("Unknown alternative item: " + item.__class__.__name__)
+</code>
+
+Pro výraz v závorkách vygenerujeme **if** nebo **while**.
+
+<code Python>
+   def parserFromEbnf (self, grammar, rule, ebnf) :
+       if ebnf.mark == '?' :
+          self.put ("if ")
+       elif ebnf.mark == '*' :
+          self.put ("while ")
+       elif ebnf.mark == '+' :
+          self.put ("while ")
+
+       if ebnf.mark != "" :
+          cond = self.conditionFromExpression (grammar, ebnf.expr)
+          self.put (cond)
+          self.putLn (" :")
+          self.incIndent ()
+
+       self.parserFromExpression (grammar, rule, ebnf.expr)
+
+       if ebnf.mark != "" :
+          self.decIndent ()
+</code>
+
+Pro neterminály zaloláme odpovídající parse_... metodu.
+
+<code Python>
+   def parserFromNonterminal (self, grammar, rule, item) :
+       self.putLn ("self.parse_" + item.rule_name + " ()")
+</code>
+
+Pro obyčejné terminálů zkontrolujene přítomnost textu na vstupu ( a funkce **check** posune vstup na další lexikální symbol ).
+
+V případě //"multi-terminálů"// (identifikátory, celá a desetinná čísla, řetězce v jednoduchých a dvojitých uvozovkách) \\
+zavoláme **readIdentifier**, **readNumber**, ... z lexeru \\
+http://gitlab.fjfi.cvut.cz/culikzde/simple-view/-/blob/master/tutorial/plain-grammar/plain_lexer.py
+
+<code Python>
+   def parserFromTerminal (self, grammar, rule, item) :
+       symbol = item.symbol_ref
+       if symbol.multiterminal :
+
+          func = symbol.ident
+          if func.endswith ("_number") :
+             func = func [ : -7 ]
+          if func.endswith ("_literal") :
+             func = func [ : -8 ]
+          func = "read" + func.capitalize()
+
+          self.putLn ("self." + func + " ()")
+       else :
+          if symbol.text != "":
+             self.putLn ("self.check (" + '"' + symbol.text + '"' + ")")
+</code>
+
+
+===== Rozhodovací podmínky pro jednotlivé alternativy ====
+
+Funkce **condition** má vytvořit/napsat podmínku pro zadanou množinu počátečních symbolů **collection**.
+
+Podle počtu prvků množiny napíše jedno porovnání, několik **or**, \\
+případně deklaruje novou konstantu (pokud již nebyla deklarována).
+
+<code Python>
+   def condition (self, grammar, collection) :
+       cnt = 0
+       for inx in range (len (collection)) :
+           if collection [inx] :
+              cnt = cnt + 1
+
+       if cnt == 0 :
+          # grammar.error ("Empty set")
+          # return "nothing"
+          code = "True" # !?
+       elif cnt <= 3 :
+          code = ""
+          start = True
+          for inx in range (len (collection)) :
+              if collection [inx] :
+                 if not start :
+                    code = code + " or "
+                 start = False
+                 symbol = grammar.symbols[inx]
+                 if symbol.text != "" :
+                    code = code + "self.tokenText == " + '"' + symbol.text + '"'
+                 else :
+                    code = code + "self.token == " + symbol.ident
+       else :
+          num = self.registerCollection (grammar, collection)
+          code = "self.set_" + str (num) + " [self.token]";
+
+       return code
+</code>
+
+<code Python>
+   def conditionFromAlternative (self, grammar, alt) :
+       code = self.condition (grammar, alt.first)
+       return code
+</code>
+
+<code Python>
+   def conditionFromExpression (self, grammar, expr) :
+       code = ""
+       for alt in expr.alternatives :
+           if code != "" :
+              code = code + " or "
+           code = code + self.conditionFromAlternative (grammar, alt)
+       return code
+</code>
+
+

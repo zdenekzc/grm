@@ -1,0 +1,5 @@
+====== Zobrazení množiny symbolů ======
+
+http://gitlab.fjfi.cvut.cz/culikzde/simple-view/-/blob/master/tutorial/plain-grammar/plain_view.py
+
+{{prekl::simple_view.png}}

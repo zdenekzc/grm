@@ -1,0 +1,72 @@
+====== Příklad syntaktického analyzátoru ======
+
+Příklad ručně psaného syntaktického analyzátoru, který rozpoznává jednoduché příkazy. \\
+Na místě výrazů dovoluje pouze identifikátory. \\
+Funkce **openBranch**, **closeBranch** a **put** zobrazují výsledky ve stromu. \\
+Funkce **setLine** uloží do stromu číslo právě zpracovávané řádky zdrojového textu. (Kliknutí do stromu zvýrazní zdrojovou řádku.) \\
+Používáme již dříve popsaný lexikální analyzátor [[prekl::lexer]]
+
+{{prekl::mini_parser.png}}
+
+https://gitlab.fjfi.cvut.cz/culikzde/simple-view/-/blob/main/tutorial/mini-parser/mini_parser.py#L205
+
+<code Python>
+    def readIdent (self, lexer) :
+        result = lexer.tokenText
+        if not lexer.isIdentifier () :
+           lexer.error ("Identifier expected")
+        lexer.nextToken ()
+        return result
+
+    def parseExpr (self, lexer) :
+        a = self.readIdent (lexer)
+        self.put ("expression " + a )
+
+    def parseSimpleStat (self, lexer) :
+        a = self.readIdent (lexer)
+        lexer.checkSeparator ('=')
+        b = self.readIdent (lexer)
+        lexer.checkSeparator (';')
+        self.put ("simple " + a + " = " + b)
+
+    def parseWhile (self, lexer) :
+        self.openBranch ("while")
+        self.setLine (lexer)
+        lexer.checkKeyword ("while")
+        lexer.checkSeparator ('(')
+        self.parseExpr (lexer)
+        lexer.checkSeparator (')')
+        self.parseStat (lexer)
+        self.closeBranch ()
+
+    def parseIf (self, lexer) :
+        self.openBranch ("if")
+        self.setLine (lexer)
+        lexer.checkKeyword ("if")
+        lexer.checkSeparator ('(')
+        self.parseExpr (lexer)
+        lexer.checkSeparator (')')
+
+        self.openBranch ("then")
+        self.parseStat (lexer)
+        self.closeBranch ()
+
+        if lexer.isKeyword ("else") :
+           lexer.nextToken () # preskoc else
+           self.openBranch ("else")
+           self.parseStat (lexer)
+           self.closeBranch ()
+        self.closeBranch ()
+
+    def parseStat (self, lexer) :
+        if lexer.isKeyword ("if") :
+           self.parseIf (lexer)
+        elif lexer.isKeyword ("while") :
+           self.parseWhile (lexer)
+        else :
+           self.parseSimpleStat (lexer)
+
+
+</code>
+
+Literatura: http://homepages.cwi.nl/~steven/pascal/book/2syntax.html

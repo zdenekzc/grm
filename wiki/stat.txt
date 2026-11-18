@@ -1,0 +1,132 @@
+
+====== Gramatika popisující příkazy zjednodušeného jazyka C =====
+
+<code C++>
+while_stat :  "while" "(" expr ")" stat   ;
+
+if_stat    :  "if" "(" expr ")" stat ( "elif" "(" expr")" stat  )* ( "else" stat  )?   ;
+
+compound_stat : "{" ( stat )* "}" ;
+
+simple_stat :  expr ";" ;
+
+empty_stat :  ";" ;
+
+stat : while_stat | if_stat | compound_stat | simple_stat | empty_stat ;
+
+
+simple_expr : identifier | number  | "(" expr ")" ;
+
+mult_expr :  simple_expr ( ("*"|"/") simple_expr )* ;
+
+add_expr :  mult_expr ( ("+"|"-") mult_expr )* ;
+
+expr : add_expr ( "," expr )? ;
+</code>
+
+=== Syntaktická pravidla ===
+
+<code>
+   rule_name : rule_expression ;
+</code>
+
+=== Terminální symboly ===
+
+Terminální symboly představují klíčová slova nebo oddělovače. \\
+Zapisují se v jednoduchých nebo dvojitých uvozovkách. 
+
+<code>
+    "while" "(" ")"
+</code>
+
+=== Neterminální symboly ===
+
+Neterminální symboly zapisujeme pomocí identifikátorů bez uvozovek. \\
+Jsou to jména syntaktických pravidel, \\
+nebo jména //"skupinových"// lexikálních symbolů (identifier, number, real_number, character_literal, string_literal).
+
+<code>
+   expr
+</code>
+
+=== Alternativy ===
+
+Jednotlivé alternativy oddělujeme svislou čarou **|** \\
+Alternativa může být i prázdná.
+
+<code>
+   stat : while_stat | if_stat | compound_stat ;
+</code>
+
+<code>
+   ( "*" | "/" )
+</code>
+
+=== Volitelné sekce (  )? ===
+
+<code>
+   ( "else" stat  ) ?
+</code>
+
+Zavorka s otazníkem ** ( )? ** dovoluje opakování **0** nebo **1** krát. 
+
+=== Libovolné opakování (  )* ===
+
+<code>
+   ( stat )*
+</code>
+
+Závorka s hvězičkou ** ( )* ** dovoluje opakování **0**, **1**, **2**, … libovolně krát. 
+
+=== Opakování alespoň jednou (  )+ ===
+
+<code>
+   ( stat )+
+</code>
+
+Závorka s plusem ** ( )+ ** dovoluje opakování **1**, **2**, … libovolně krát. 
+
+=== Poznámka: závorky  ( ), ( )*, ( )+ ani (  )? nezbytně nepotřebujeme ===
+
+( **A** )? můžeme zapsat pomocí obyčejných závorek a prázdné alternativy.
+
+<code>
+   ( A | ) 
+</code>
+
+( **A** )+ nahradíme pomocným symbolem **B**
+
+<code>
+   B : A | B A ;
+</code>
+
+( **A** )* nahradíme pomocným symbolem **C**
+
+<code>
+   C : | C A ;
+</code>
+
+// **C** je nic nebo **C** následované **A** //
+
+Místo kulatých závorem můžeme vždy nadefinovat nějaký pomocný symbol.
+
+A svislou čáru nemusíme používat, pokud dovolíme několik pravidel se stejným jménem před dvojtečkou. \\
+Dva předcházející příklady zapíšeme následovně:
+
+<code>
+   B : A;
+   B : B A ;
+</code>
+
+<code>
+   C : ;
+   C : C A ;
+</code>
+
+Tím naše pravidla můžeme převédst na tvar často používaný v literatuře \\
+(místo dvojtečky se používá šipka, jednotlivá pravidla na samostatnou řádku, středník se nepoužívá)
+<code>
+   jméno definovaného neterminálu -> posloupnost (i prázdná) terminálních a neterminálních symbolů 
+</code>
+
+

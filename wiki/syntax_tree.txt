@@ -1,0 +1,7 @@
+====== Syntaktické stromy ======
+
+http://cs.wikipedia.org/wiki/Syntaktick%C3%BD_strom
+
+<code Python>
+
+</code>
