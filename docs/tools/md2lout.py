@@ -184,7 +184,18 @@ def esc_path(path):
 def code_string(line):
     return '"' + line.replace("\\", "\\\\").replace('"', '\\"') + '"'
 
-def lout_code_block(lines):
+def lout_code_block(lines, lang = ""):
+    """A code block.  Python and C/C++ blocks are syntax-highlighted by
+    the @Python / @CP symbols of the corresponding Lout packages (their
+    raw body is filtered through prg2lout); anything else (grammar
+    files, generated Lout output, ...) is set in Courier with the safe
+    quoted-string technique."""
+    text = "\n".join(line.rstrip("\n") for line in lines).strip("\n")
+    if lang in ("python", "c", "cpp", "c++") and \
+            text.count("{") == text.count("}"):
+        if lang == "python":
+            return "@ID @Python {\n" + text + "\n}"
+        return "@ID @CP style { varying } {\n" + text + "\n}"
     out = [ ]
     for line in lines:
         line = line.rstrip("\n")
@@ -212,6 +223,7 @@ def convert_md(text):
     out = []
     para = []
     code = None
+    code_lang = ""
     listitems = None
     opened = [ ]          # stack of heading levels currently open
     groups = [ ]          # stack of open sectioning groups (2 or 3)
@@ -240,13 +252,14 @@ def convert_md(text):
             listitems = None
 
     def close_code():
-        nonlocal code
+        nonlocal code, code_lang
         if code is not None:
             close_para()
             close_list()
             out.append("@PP")
-            out.append(lout_code_block(code))
+            out.append(lout_code_block(code, code_lang))
             code = None
+            code_lang = ""
 
     def open_heading(level, title):
         close_para(); close_list(); close_code()
@@ -291,6 +304,7 @@ def convert_md(text):
             continue
         if line.startswith("```"):
             code = [ ]
+            code_lang = line[3:].strip().lower()
             continue
         m = re.match(r"^(#{1,3})\s+(.*?)\s*#*\s*$", line)
         if m:
@@ -349,6 +363,8 @@ def main():
         # latin2 must come first: it adds the Central European (CE)
         # fonts needed for the author's name (Zdeněk Čulík)
         "@SysInclude { latin2 }",
+        "@SysInclude { python }",   # syntax-highlighted Python code
+        "@SysInclude { cprint }",   # syntax-highlighted C / C++ code
         "@SysInclude { report }",
         "@Report",
         "   @Title { " + lout_escape(DOC_TITLE) + " }",
@@ -401,8 +417,12 @@ def main():
             pass
 
     ps_file = os.path.join(OUT, "grm-docs.ps")
+    # @Python / @CP code blocks run the prg2lout filter, which lives
+    # next to the lout binary - make sure it is on PATH
+    env = os.environ.copy()
+    env["PATH"] = os.path.dirname(lout_bin) + os.pathsep + env["PATH"]
     r = subprocess.run([lout_bin, "-r3", lout_file, "-o", ps_file],
-                       cwd=libdir, capture_output=True, text=True)
+                       cwd=libdir, capture_output=True, text=True, env=env)
     if r.returncode != 0 or not os.path.exists(ps_file):
         print(r.stderr[-4000:], file=sys.stderr)
         print("error: lout failed", file=sys.stderr)
