@@ -84,7 +84,7 @@ http://github.com/zdenekzc/simple-view
 
 # Hand-Written Lexers and Parsers
 
-*Appendix — general notes on parsing, mostly without parsers generated
+*General notes on parsing, mostly without parsers generated
 from grammars.*
 
 [Lexical Analyzer](appendix/lexer.md)
