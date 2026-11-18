@@ -50,7 +50,7 @@ FILES = ["README.md",
          "mini_parser.md", "mini_table.md", "pokus.md"]
 
 DOC_TITLE = "grm - grammar toolkit documentation"
-DOC_AUTHOR = "Zdenek Culik"
+DOC_AUTHOR = "Zdeněk Čulík"
 WRAP_COL = 72
 
 # --------------------------------------------------------------------------
@@ -346,12 +346,16 @@ def find_lout():
 def main():
     os.makedirs(EPS, exist_ok=True)
     parts = [
+        # latin2 must come first: it adds the Central European (CE)
+        # fonts needed for the author's name (Zdeněk Čulík)
+        "@SysInclude { latin2 }",
         "@SysInclude { report }",
         "@Report",
         "   @Title { " + lout_escape(DOC_TITLE) + " }",
         "   @Author { " + lout_escape(DOC_AUTHOR) + " }",
         "   @DateLine { Yes }",
         "   @ContentsSeparate { Yes }",
+        "   @InitialFont { TimesCE Base 12p }",
         "//",
     ]
     for name in FILES:
@@ -365,8 +369,20 @@ def main():
     lout_source = "\n".join(parts) + "\n"
 
     lout_file = os.path.join(OUT, "grm-docs.lout")
-    with open(lout_file, "w", encoding="utf-8") as f:
-        f.write(lout_source)
+    # Lout reads single-byte text: with the latin2 font database the file
+    # must be ISO-8859-2 (the document text is ASCII except the author's
+    # name; typographic Unicode is normalized to ASCII equivalents)
+    latin2 = (lout_source
+              .replace("—", "--")   # em dash
+              .replace("–", "-")    # en dash
+              .replace("‘", "'")    # left single quote
+              .replace("’", "'")    # right single quote
+              .replace("‚", "'")
+              .replace("“", '"')    # double quotes
+              .replace("”", '"')
+              .replace("…", "...")) # ellipsis
+    with open(lout_file, "w", encoding="iso-8859-2", errors="replace") as f:
+        f.write(latin2)
     print("wrote", lout_file)
 
     lout_bin = find_lout()
