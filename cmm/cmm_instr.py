@@ -1024,11 +1024,21 @@ class InstructionsModule (object) :
    # -----------------------------------------------------------------------
 
    def code_program (self) :
-       llvm.initialize ()
-       llvm.initialize_native_target ()
-       llvm.initialize_native_asmprinter ()
-       llvm.initialize_all_targets ()
-       llvm.initialize_all_asmprinters ()
+       # llvmlite < 0.45: explicit initialization of all targets.
+       # llvmlite >= 0.48: llvm.initialize () raises RuntimeError (init is
+       # automatic), the old pass manager API is gone as well.
+       try :
+          llvm.initialize ()
+          llvm.initialize_native_target ()
+          llvm.initialize_native_asmprinter ()
+          llvm.initialize_all_targets ()
+          llvm.initialize_all_asmprinters ()
+       except RuntimeError :
+          try :
+             llvm.initialize_native_target ()
+             llvm.initialize_native_asmprinter ()
+          except RuntimeError :
+             pass
 
        self.module = ir.Module ()
 
@@ -1069,14 +1079,6 @@ class InstructionsModule (object) :
        # print ("ASSEMBLY")
        # print (llmod)
 
-       pmb = llvm.create_pass_manager_builder ()
-       pmb.opt_level = 2
-       pm = llvm.create_module_pass_manager ()
-       pmb.populate (pm)
-       pm.run (llmod)
-       # print ("OPTIMIZED")
-       # print (llmod)
-
        target = llvm.Target.from_default_triple ()
        # target = llvm.Target.from_triple ("i386-pc-linux-gnu")
        # target = llvm.Target.from_triple ("x86_64-pc-linux-gnu")
@@ -1096,6 +1098,24 @@ class InstructionsModule (object) :
        # target = llvm.Target.from_triple ("wasm64-unknown-unknown")
 
        machine = target.create_target_machine ()
+
+       # Optimize. Old pass manager (llvmlite < 0.45) vs new pass manager
+       # (create_pass_builder) — the old one no longer exists in 0.48.
+       try :
+          pmb = llvm.create_pass_manager_builder ()
+          pmb.opt_level = 2
+          pm = llvm.create_module_pass_manager ()
+          pmb.populate (pm)
+          pm.run (llmod)
+       except AttributeError :
+          pto = llvm.PipelineTuningOptions ()
+          pto.speed_level = 2
+          pass_builder = llvm.create_pass_builder (machine, pto)
+          pm = pass_builder.getModulePassManager ()
+          pm.run (llmod, pass_builder)
+       # print ("OPTIMIZED")
+       # print (llmod)
+
        with llvm.create_mcjit_compiler (llmod, machine) as ee:
            ee.finalize_object ()
            print (machine.emit_assembly (llmod))
