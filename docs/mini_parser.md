@@ -10,7 +10,7 @@ text line being processed. (Clicking in the tree highlights the source
 line.)
 We use the [lexical analyzer](lexer.md) described earlier.
 
-![hand-written parser](../pictures/mini_parser.png)
+![hand-written parser](pictures/mini_parser.png)
 
 https://gitlab.fjfi.cvut.cz/culikzde/simple-view/-/blob/main/tutorial/mini-parser/mini_parser.py#L205
 

@@ -14,7 +14,7 @@ table
 Our parser will read the description of the table from the input.
 It will display the obtained information in a tree:
 
-![table displayed in a tree](../pictures/mini_table.png)
+![table displayed in a tree](pictures/mini_table.png)
 
 http://gitlab.fjfi.cvut.cz/culikzde/simple-view/-/blob/master/tutorial/mini-parser/mini_parser.py#L264
 

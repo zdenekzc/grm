@@ -87,17 +87,17 @@ http://github.com/zdenekzc/simple-view
 *General notes on parsing, mostly without parsers generated
 from grammars.*
 
-[Lexical Analyzer](appendix/lexer.md)
+[Lexical Analyzer](lexer.md)
 
-[Syntactic Analysis of Expressions](appendix/expr.md)
+[Syntactic Analysis of Expressions](expr.md)
 
-[A Grammar Describing the Statements of a Simplified C Language](appendix/stat.md)
+[A Grammar Describing the Statements of a Simplified C Language](stat.md)
 
-[An Example of a Syntactic Analyzer](appendix/mini_parser.md)
+[An Example of a Syntactic Analyzer](mini_parser.md)
 
-[An Example of a Parser for the Description of Database Tables](appendix/mini_table.md)
+[An Example of a Parser for the Description of Database Tables](mini_table.md)
 
-[An Experiment](appendix/pokus.md)
+[An Experiment](pokus.md)
 
 # Literature
 
