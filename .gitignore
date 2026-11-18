@@ -1,7 +1,8 @@
 # Generated documentation build (docs/tools/md2lout.py)
 docs/_output/
 
-# Locally built Lout (docs/tools/build_lout.py)
+# Locally downloaded and built Lout (docs/tools/build_lout.py)
+docs/_import/
 docs/_library/
 
 # Python
