@@ -13,7 +13,7 @@ from cmm_product import *
 
 from input import quoteString
 
-from code import *
+from code_base import *
 # from code import initItem, initDeclaration, initNamespace, initClass, initEnum, initEnumItem, initVariable, initFunction, initTypedef
 # from code import Scope, Method
 # from code import SimpleType, NamedType, PointerType, ReferenceType, ArrayType, FunctionType

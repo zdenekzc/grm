@@ -3,7 +3,7 @@
 
 from __future__ import print_function
 
-from code import *
+from code_base import *
 
 # --------------------------------------------------------------------------
 

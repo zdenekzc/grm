@@ -46,7 +46,7 @@ except :
 # from lexer import LexerInput
 # from output import Output
 # from code import SimpleType, NamedType
-from code import *
+from code_base import *
 from cmm_parser import *
 
 # --------------------------------------------------------------------------

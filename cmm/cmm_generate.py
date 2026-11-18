@@ -24,7 +24,7 @@ except ImportError :
    print ("missing iced-x86 (try: pip install --user iced-x86)")
    use_iced = False
 
-from code import *
+from code_base import *
 from cmm_parser import *
 
 # ---------------------------------------------------------------------------

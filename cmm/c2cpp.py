@@ -8,7 +8,7 @@ from output import Output
 
 from util import use_qt4, use_qt5, use_qt6
 from input import quoteString
-from code import *
+from code_base import *
 from cmm_parser import *
 from cmm_product import Product
 

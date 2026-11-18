@@ -38,7 +38,7 @@ import os, sys, io, contextlib
 
 # ---------------------------------------------------------------------------
 # Cesty: sdílíme s test_generate.py přesně.
-# code/ musí být v sys.path PŘED grm/, aby `import code` našel code/code.py
+# grm/ musí být v sys.path PŘED code_base — repo modul, ne stdlib `code`
 # (stejné pořadí jako v cmm/cmm_run.py).
 
 HERE = os.path.dirname (os.path.abspath (__file__))

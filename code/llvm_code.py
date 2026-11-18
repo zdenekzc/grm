@@ -24,7 +24,7 @@ if use_clang :
 
 from util import get_time, findColor, use_qt5, use_qt6
 from input import fileNameToIndex, indexToFileName
-from code import *
+from code_base import *
 from code_cls import *
 
 # --------------------------------------------------------------------------

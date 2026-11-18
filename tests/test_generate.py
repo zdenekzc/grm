@@ -39,7 +39,7 @@ import os, sys, io, contextlib
 
 # ---------------------------------------------------------------------------
 # Cesty: testovací soubor leží v view-mini/test/, k modulům musíme nahoru.
-# code/ musí být v sys.path PŘED grm/, aby `import code` našel code/code.py
+# grm/ musí být v sys.path PŘED code_base — repo modul, ne stdlib `code`
 # (stejné pořadí jako v cmm/cmm_run.py).
 
 HERE = os.path.dirname (os.path.abspath (__file__))
@@ -67,7 +67,7 @@ from cmm_parser import (
    incExpr, decExpr, postIncExpr, postDecExpr,
    simpleStat, simpleDecl, compoundStat, returnStat, ifStat, whileStat,
 )
-import code as code_mod
+import code_base as code_mod
 import cmm_generate
 
 # ---------------------------------------------------------------------------

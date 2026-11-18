@@ -8,7 +8,7 @@ import os
 from input import quoteString
 from util import use_pyside2, use_pyside6, use_pyqt5, use_pyqt6, use_qt6, use_py2_qt4
 from output import Output
-from code import *
+from code_base import *
 from cmm_parser import *
 
 # --------------------------------------------------------------------------

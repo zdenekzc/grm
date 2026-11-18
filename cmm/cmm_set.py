@@ -8,7 +8,7 @@ import os, shutil
 from input import quoteString
 from lexer import LexerInput
 from output import Output
-from code import SimpleType, NamedType
+from code_base import SimpleType, NamedType
 
 # DescriptionModule
 from cmm_parser import *
