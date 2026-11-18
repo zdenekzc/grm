@@ -1,0 +1,71 @@
+"""Builds the top-level &Examples menu from tools.ini.
+
+The INI uses ConfigParser syntax — see tools.ini for the schema. Each
+section becomes a submenu, each path under `files` an action. The
+action runs cmm/cmm_run.py on the file via win.runCommand so output
+streams into the Info panel (with ANSI colors, courtesy of tools.py).
+
+Missing tools.ini -> no menu. Failure to parse a section is logged and
+that section is skipped; the rest of the menu is still built.
+"""
+
+import os
+import configparser
+
+from PyQt5.QtWidgets import QAction
+
+
+def listExamples (ini_path = "tools.ini") :
+    """Parse tools.ini and return a list of (title, [paths]) pairs, in
+    the same order sections appear in the file. Used by both the menu
+    builder and the batch smoke test (test_examples.py)."""
+    result = []
+    if not os.path.isfile (ini_path) :
+        return result
+    cfg = configparser.ConfigParser ()
+    try :
+        cfg.read (ini_path)
+    except configparser.Error as e :
+        print ("tools.ini parse error:", e)
+        return result
+    for section in cfg.sections () :
+        try :
+            title = cfg.get (section, "title", fallback = section)
+            raw   = cfg.get (section, "files", fallback = "")
+        except configparser.Error as e :
+            print ("tools.ini [" + section + "] error:", e)
+            continue
+        files = raw.split ()
+        if files :
+            result.append ((title, files))
+    return result
+
+
+def installExamplesMenu (win, ini_path = "tools.ini") :
+    sections = listExamples (ini_path)
+    if not sections :
+        print ("tools.ini empty or missing — Examples menu skipped")
+        return None
+
+    top = win.addTopMenu ("&Examples")
+    for title, files in sections :
+        sub = top.addMenu (title)
+        for path in files :
+            act = QAction (os.path.basename (path), win)
+            act.setToolTip (path)
+            act.triggered.connect (
+                lambda checked = False, f = path : _runCmm (win, f))
+            sub.addAction (act)
+    return top
+
+
+def _runCmm (win, path) :
+    "Compile the file with cmm_run.py; output to the file's directory."
+    out_dir = os.path.dirname (os.path.abspath (path)) or "."
+    cmd = ("python3 cmm/cmm_run.py -o " + _shquote (out_dir) +
+           " " + _shquote (path))
+    win.runCommand (cmd)
+
+
+def _shquote (s) :
+    return "'" + s.replace ("'", "'\\''") + "'"

@@ -302,8 +302,22 @@ class CParser (ToParser) :
              field_type = "bool"
           elif field.is_enum :
              field_type = field.field_type
+          elif field.is_utiny :
+             field_type = "unsigned char"
+          elif field.is_tiny :
+             field_type = "signed char"
+          elif field.is_ushort :
+             field_type = "unsigned short"
+          elif field.is_short :
+             field_type = "short"
+          elif field.is_uint :
+             field_type = "unsigned int"
           elif field.is_int :
              field_type = "int"
+          elif field.is_ulong :
+             field_type = "unsigned long long"
+          elif field.is_long :
+             field_type = "long long"
           elif field.is_str :
              field_type = "string"
           elif field.is_ptr :
@@ -335,7 +349,21 @@ class CParser (ToParser) :
                        value = field.field_type + "." + field.enum_type.values[0]
                     elif self.rust :
                        value = field.field_type + "::" + field.enum_type.values[0]
+              elif field.is_utiny :
+                 value = "0"
+              elif field.is_tiny :
+                 value = "0"
+              elif field.is_ushort :
+                 value = "0"
+              elif field.is_short :
+                 value = "0"
+              elif field.is_uint :
+                 value = "0"
               elif field.is_int :
+                 value = "0"
+              elif field.is_ulong :
+                 value = "0"
+              elif field.is_long :
                  value = "0"
               elif field.is_str :
                  value = self.quote ("") + self.string_suffix

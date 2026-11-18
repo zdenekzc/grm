@@ -16,6 +16,9 @@ from cmm_product import Product
 
 class ToCpp (Product) :
 
+   python = False # C++ output — mirrors ToPy.python = True in c2py.py,
+                  # cmm_set.py checks output.python for . vs ->
+
    normal_style = 0
    class_style = 1 # class member declarations
    init_style = 2 # code for construcor / intialize function

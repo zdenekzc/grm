@@ -5,26 +5,9 @@ from __future__ import print_function
 
 import os, sys, traceback
 
-from util import use_pyside2, use_pyside6, use_pyqt5, use_pyqt6
-if use_pyside2 :
-   from PySide2.QtCore import *
-   from PySide2.QtGui import *
-   from PySide2.QtWidgets import *
-elif use_pyside6 :
-   from PySide6.QtCore import *
-   from PySide6.QtGui import *
-   from PySide6.QtWidgets import *
-elif use_pyqt5 :
-   from PyQt5.QtCore import *
-   from PyQt5.QtGui import *
-   from PyQt5.QtWidgets import *
-elif use_pyqt6 :
-   from PyQt6.QtCore import *
-   from PyQt6.QtGui import *
-   from PyQt6.QtWidgets import *
-else :
-   from PyQt4.QtCore import *
-   from PyQt4.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 
 from input import fileNameToIndex, indexToFileName, quoteString
 from lexer import Lexer, MonitorClass

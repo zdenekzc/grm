@@ -4,8 +4,9 @@ from __future__ import print_function
 
 import os, sys, re, inspect
 
-from util import import_qt_modules
-import_qt_modules (globals ())
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 
 from input import fileNameToIndex, indexToFileName
 from util import use_qt4, Text, qstring_to_str, bytearray_to_str, qstringref_to_str, variant_to_str

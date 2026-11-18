@@ -5,8 +5,9 @@ from __future__ import print_function
 
 import os, sys, copy, importlib, traceback, inspect
 
-from util import import_qt_modules
-import_qt_modules (globals ())
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 
 from util import use_pyside6, use_pyside2, use_pyqt6, use_pyqt5, use_python3, opts, find_qt_modules
 from util import print_complete_traceback, findColor, findIcon
@@ -18,7 +19,7 @@ from output import sourceMark, pythonMark, codeMark, headerMark, parserMark, pro
 
 import lexer
 import monitor
-import code
+import code_base as code  # alias keeps `code.X` callsites working
 
 import symbols
 import grammar

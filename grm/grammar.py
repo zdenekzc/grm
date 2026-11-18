@@ -238,7 +238,14 @@ class Field (object) :
         self.field_type = ""
         self.is_bool = False
         self.is_enum = False
+        self.is_utiny = False
+        self.is_tiny = False
+        self.is_ushort = False
+        self.is_short = False
+        self.is_uint = False
         self.is_int = False
+        self.is_ulong = False
+        self.is_long = False
         self.is_str = False
         self.is_ptr = False
         self.is_list = False
@@ -409,8 +416,15 @@ class Grammar (Lexer) :
           field.field_name = field_name
           field.field_type = field_type
           field.is_bool = (field_type == "bool")
-          field.is_str = (field_type == "str")
+          field.is_utiny = (field_type == "utiny")
+          field.is_tiny = (field_type == "tiny")
+          field.is_ushort = (field_type == "ushort")
+          field.is_short = (field_type == "short")
+          field.is_uint = (field_type == "uint")
           field.is_int = (field_type == "int")
+          field.is_ulong = (field_type == "ulong")
+          field.is_long = (field_type == "long")
+          field.is_str = (field_type == "str")
           field.is_enum = field_type in type.enums
           field.is_list = is_list
           field.is_ptr = not is_list and (field_type in self.struct_dict)

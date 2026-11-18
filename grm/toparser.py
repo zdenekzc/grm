@@ -243,12 +243,22 @@ class ToParser (CodeOutput) :
           first = True
           for field in all_fields :
               if not field.hidden :
-                 if not field.is_bool and not field.is_enum and not field.is_int and not field.is_str :
-                    "only fields visible in tree"
-                    if not first :
-                       self.put (", ")
-                    self.put ('"' + field.field_name + '"')
-                    first = False
+                 if (not field.is_bool and
+                     not field.is_enum and
+                     not field.is_utiny and
+                     not field.is_tiny and
+                     not field.is_ushort and
+                     not field.is_short and
+                     not field.is_uint and
+                     not field.is_int and
+                     not field.is_ulong and
+                     not field.is_long and
+                     not field.is_str  ):
+                        "only fields visible in tree"
+                        if not first :
+                           self.put (", ")
+                        self.put ('"' + field.field_name + '"')
+                        first = False
           self.putLn ("]")
 
           # if type.tag_low != "" :
@@ -278,7 +288,13 @@ class ToParser (CodeOutput) :
                    self.put ("False")
                 elif field.is_enum :
                    self.put ("0")
+                elif field.is_ushort :
+                   self.put ("0")
+                elif field.is_short :
+                   self.put ("0")
                 elif field.is_int :
+                   self.put ("0")
+                elif field.is_long :
                    self.put ("0")
                 elif field.is_str :
                    self.put ('"' + '"')

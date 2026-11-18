@@ -1,0 +1,43 @@
+# Apache + PHP Pod that talks to MySQL via the `mysql` Service DNS.
+# `imagePullPolicy: Never` tells kind to use the locally loaded image
+# (setup-kube.sh runs `kind load docker-image qt2026-web:local`).
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  labels: { app: web }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: web }
+  template:
+    metadata:
+      labels: { app: web }
+    spec:
+      containers:
+        - name: web
+          image: qt2026-web:local
+          imagePullPolicy: Never
+          env:
+            - name: DB_HOST
+              value: mysql
+            - name: DB_NAME
+              value: shop
+            - name: DB_USER
+              value: shop
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef: { name: shop-db, key: password }
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+spec:
+  selector: { app: web }
+  ports:
+    - port: 80
+      targetPort: 80

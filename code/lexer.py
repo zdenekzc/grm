@@ -6,7 +6,6 @@ from __future__ import print_function
 import os, sys
 
 import subprocess
-from gcc_options import gcc_options, pkg_options
 
 from input import indexToFileName, fileNameToIndex, quoteString, Input
 
@@ -1650,16 +1649,8 @@ class Lexer (Input) :
           if inx+1 < cnt :
              next = options [inx+1]
 
-          if name == "-G" :
-             self.storeSimpleOptions (gcc_options ())
-          elif name == "-P" or name == "--pkg":
-             if next != None :
-                self.storeSimpleOptions (pkg_options (next, libs = True))
-                inx = inx + 1 # skip next option
-          elif name.startswith ("-P") :
-             self.storeSimpleOptions (pkg_options (name[2:], libs = True))
-          else :
-             self.storeOption (name)
+          # -G, -P, --pkg used to pull in gcc_options / pkg_options; now gone.
+          self.storeOption (name)
           inx = inx + 1
 
    def storeSimpleOptions (self, options) :
@@ -1869,15 +1860,6 @@ class Lexer (Input) :
                 self.expandToken ()
                 path = self.simpleString ("String with directory name expected")
                 self.addInclDir (path)
-
-             elif self.isToken ("gcc_options") :
-                self.readOptions (gcc_options ())
-                self.simpleToken ()
-
-             elif self.isToken ("pkg") :
-                self.expandToken ()
-                name = self.simpleString ("String with package name expected")
-                self.readOptions (pkg_options (name))
 
              elif self.isToken ("tolerate_missing_include") :
                 self.tolerate_missing_include = True
