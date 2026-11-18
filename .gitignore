@@ -1,3 +1,6 @@
+# Generated documentation build (docs/tools/md2lout.py)
+docs/_output/
+
 # Python
 __pycache__/
 *.py[cod]
