@@ -7,6 +7,11 @@ recursive-descent parsers and related code in several target languages.
 The toolkit is developed as supporting material for compiler-construction
 teaching.
 
+## Documentation
+
+An English translation of the accompanying course materials (originally a
+Czech wiki) is available in [docs/README.md](docs/README.md).
+
 ## Grammar file format
 
 A grammar is a set of rules written in an EBNF-like notation:
