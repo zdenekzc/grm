@@ -44,14 +44,13 @@ import os, sys, io, contextlib
 
 HERE = os.path.dirname (os.path.abspath (__file__))
 ROOT = os.path.abspath (os.path.join (HERE, ".."))   # view-mini/
-for sub in ["", "grm", "code", "_output", "cmm"] :
+for sub in ["", "grm", "code", "cmm"] :
    path = os.path.join (ROOT, sub) if sub else ROOT
    if path not in sys.path :
       sys.path.insert (0, path)
 
-# Standardní cmm moduly. cmm_parser musí být vygenerovaný v _output/
-# (`python3 cmm/cmm_run.py examples/instr.t` ho zařídí, pokud ještě
-# neexistuje).
+# Standardní cmm moduly. cmm_parser.py a cmm_product.py jsou vygenerované
+# z cmm/cmm.g a leží přímo v cmm/ (jsou uložené v gitu).
 from cmm_parser import (
    CmmIntValue, CmmName, CmmBinaryExpr, CmmAssignExpr, CmmCallExpr,
    CmmExprList, CmmIndexExpr, CmmDerefExpr, CmmAddrExpr,

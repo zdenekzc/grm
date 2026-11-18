@@ -11,11 +11,9 @@ sys.path.insert (2, os.path.join (work_dir, "..", "code"))
 sys.path.insert (3, os.path.join (work_dir, "..", "grm"))
 
 cmm_dir = os.path.join (work_dir, "..", "cmm")
-tmp_dir = os.path.join (work_dir, "..", "_output")
-# tmp_dir = "."
-
-if not os.path.isdir (tmp_dir) :
-   os.mkdir (tmp_dir)
+# The generated parser and product live directly in cmm/ and are kept in
+# git (they are the backbone of the compiler).
+tmp_dir = work_dir
 
 # sys.path.insert (4, cmm_dir)
 sys.path.insert (4, tmp_dir)
