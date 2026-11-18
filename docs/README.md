@@ -81,3 +81,20 @@ http://github.com/zdenekzc/simple-view
 [cindex](cindex.md)
 
 [peachpy](http://kmlinux.fjfi.cvut.cz/~culikzde/prekl/peachpy-fedora34.tgz)
+
+# Hand-Written Lexers and Parsers
+
+*Appendix — general notes on parsing, mostly without parsers generated
+from grammars.*
+
+[Lexical Analyzer](appendix/lexer.md)
+
+[Syntactic Analysis of Expressions](appendix/expr.md)
+
+[A Grammar Describing the Statements of a Simplified C Language](appendix/stat.md)
+
+[An Example of a Syntactic Analyzer](appendix/mini_parser.md)
+
+[An Example of a Parser for the Description of Database Tables](appendix/mini_table.md)
+
+[An Experiment](appendix/pokus.md)
