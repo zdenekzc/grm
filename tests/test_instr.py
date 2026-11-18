@@ -38,10 +38,12 @@ import os, sys, io, contextlib
 
 # ---------------------------------------------------------------------------
 # Cesty: sdílíme s test_generate.py přesně.
+# code/ musí být v sys.path PŘED grm/, aby `import code` našel code/code.py
+# (stejné pořadí jako v cmm/cmm_run.py).
 
 HERE = os.path.dirname (os.path.abspath (__file__))
 ROOT = os.path.abspath (os.path.join (HERE, ".."))
-for sub in [ "", "code", "grm", "_output", "cmm" ] :
+for sub in [ "", "grm", "code", "_output", "cmm" ] :
    path = os.path.join (ROOT, sub) if sub else ROOT
    if path not in sys.path :
       sys.path.insert (0, path)
