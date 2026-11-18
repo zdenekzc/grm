@@ -26,7 +26,8 @@ grammar : ( rule )* ;
 Terminals are quoted string literals, nonterminals are identifiers, and
 `( ... )` groups may be followed by `?`, `*` or `+`. A complete example is
 the grammar describing the notation itself; larger example grammars
-(`cmm.g`, `pas.g`, ...) can be found in the gibbon project.
+(`cmm.g`, `pas.g`, ...) can be found in the
+[simple-view](https://github.com/zdenekzc/simple-view) project.
 
 ## Tools
 
@@ -48,7 +49,7 @@ other by plain file name):
 | `tolout.py`     | Renders the grammar for the lout document formatting system |
 | `recognize.py`  | Runs a recognizer over a sample source file (test harness) |
 | `symbols.py`    | Symbol table utilities |
-| `gram_plugin.py`| Plugin integrating the toolkit into the gibbon GUI environment |
+| `gram_plugin.py`| Plugin integrating the toolkit into the [simple-view](https://github.com/zdenekzc/simple-view) GUI environment |
 
 Most generators follow the same command-line shape:
 
@@ -59,7 +60,7 @@ python3 tohtml.py   grammar.g -o grammar.html
 ```
 
 Requires Python 3. No third-party packages are needed for the command-line
-tools (`gram_plugin.py` additionally needs the gibbon environment and Qt).
+tools (`gram_plugin.py` additionally needs the simple-view environment and Qt).
 
 ## Layout
 
@@ -69,9 +70,9 @@ grm/    the toolkit (run the tools from this directory)
 
 ## Related projects
 
-- gibbon — GUI environment and example grammars; the support modules
-  (`input.py`, `output.py`, `lexer.py`, `code*.py`, `gcc_options.py`)
-  originate there.
+- [simple-view](https://github.com/zdenekzc/simple-view) — GUI environment
+  and example grammars; the support modules (`input.py`, `output.py`,
+  `lexer.py`, `code*.py`, `gcc_options.py`) originate there.
 
 ## License
 
