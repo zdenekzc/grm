@@ -161,4 +161,4 @@ A simple graphical interface for generating syntactic analyzers:
 
 ![easy_view](pictures/easy_view.png)
 
-![generating parsers](pictures/generovani.png)
+![generating parsers](pictures/generovani_en.png)
