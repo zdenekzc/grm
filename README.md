@@ -7,6 +7,30 @@ recursive-descent parsers and related code in several target languages.
 The toolkit is developed as supporting material for compiler-construction
 teaching.
 
+## Directories
+
+- `grm/` — the toolkit itself: the grammar data model and the
+  parser/product generators (`grammar.py`, `toparser.py`, `cparser.py`, ...).
+  Run the tools from within this directory.
+- `docs/` — the course documentation in English, translated from the
+  original Czech wiki (see [docs/README.md](docs/README.md)).
+- `wiki/` — the original Czech wiki text from which `docs/` was translated.
+
+- `code/` — shared support modules used by the toolkit and the examples
+  (lexer base, input/output, code-generation infrastructure, ...); they
+  originate from the [simple-view](https://github.com/zdenekzc/simple-view)
+  project.
+- `cmm/` — the C-- example language: its grammar, compiler and generated
+  parser/product, a working example of the toolkit in use.
+- `examples/` — small example source files and demos.
+
+- `qtdesigner/` — Qt Designer plugins for building the GUI environment.
+- `view/` — the IDE application files for the simple-view GUI environment.
+
+- `set/` — sample source files (JSON, XML, text I/O, ...) used as test
+  inputs for the recognizer test harness.
+- `tests/` — test scripts for the generators.
+
 ## Documentation
 
 An English translation of the accompanying course materials (originally a
@@ -66,12 +90,6 @@ python3 tohtml.py   grammar.g -o grammar.html
 
 Requires Python 3. No third-party packages are needed for the command-line
 tools (`gram_plugin.py` additionally needs the simple-view environment and Qt).
-
-## Layout
-
-```
-grm/    the toolkit (run the tools from this directory)
-```
 
 ## Related projects
 
