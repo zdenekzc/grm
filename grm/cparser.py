@@ -605,7 +605,10 @@ class CParser (ToParser) :
           tok = self.nested + "token"
        self.put_local ("int", "pos", tok + self.div + "8")
        self.put_local ("int", "bit", tok + self.mod + "8")
-       self.put_return ("table [pos] " + self.bit_and + " (1" + self.shl + "bit)")
+       bit_test = "table [pos] " + self.bit_and + " (1" + self.shl + "bit)"
+       if self.java or self.csharp or self.vala or self.rust :
+          bit_test = "(" + bit_test + ")" + self.unequal + "0"
+       self.put_return (bit_test)
        self.put_func_end ()
 
        self.put_func ("stop", cls = self.class_name, inline = True)

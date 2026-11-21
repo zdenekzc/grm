@@ -507,8 +507,23 @@ class Grammar (Lexer) :
    def declareMethod (self, method_name, param_type, no_param = False, optional_param = False, is_bool = False) :
        if method_name in self.method_dict :
           m = self.method_dict [method_name]
-          if m.param_type == "" :
-             m.param_type = param_type
+          # Track every declared type: the same execute hook may be used
+          # in rules with different result types (e.g. compound_stat vs
+          # declaration_list).  One concrete type then fits only some
+          # call sites — fall back to the base class (an empty
+          # param_type makes declareCustomMethods use base_name).
+          types = getattr (m, "param_types", None)
+          if types == None :
+             types = set ()
+             if m.param_type != "" :
+                types.add (m.param_type)
+             m.param_types = types
+          if param_type != "" :
+             types.add (param_type)
+          if len (types) == 1 :
+             m.param_type = next (iter (types))
+          else :
+             m.param_type = ""
        else :
           m = Method ()
           m.method_name = method_name

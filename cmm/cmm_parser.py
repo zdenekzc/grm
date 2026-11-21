@@ -2715,16 +2715,16 @@ class Parser (Lexer) :
       self.set_19 = self.alloc ([1, 2, 3, 4, 5, 8, 12, 15, 17, 19, 20, 23, 24, 34, 35, 47, 53, 58, 59, 63, 64, 65, 66, 69, 71, 72, 74, 75, 77, 78, 79, 81, 82, 83, 84, 85, 87, 88, 90, 91, 92, 93, 94, 96, 97, 98, 99, 100, 101, 102, 104, 105, 106, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118]) #  identifier  number  real_number  character_literal  string_literal  !  &  (  *  +  ++  -  --  ::  ;  [  {  ~  bool  char  class  const  const_cast  delete  double  dynamic_cast  enum  explicit  float  for  friend  if  inline  int  long  mutable  new  operator  private  protected  public  register  reinterpret_cast  short  signed  sizeof  static  static_cast  stencil  struct  template  this  throw  typedef  typeid  typename  union  unsigned  using  virtual  void  volatile  wchar_t  while
       self.set_20 = self.alloc ([1, 34, 59, 63, 64, 65, 71, 75, 77, 82, 83, 84, 85, 88, 93, 96, 97, 99, 104, 110, 112, 114, 115, 116, 117]) #  identifier  ::  bool  char  class  const  double  explicit  float  inline  int  long  mutable  operator  register  short  signed  static  template  typename  unsigned  virtual  void  volatile  wchar_t
 
-   def on_binary_expr (self) :
+   def on_binary_expr (self, item) :
       pass
 
-   def is_binary_expression (self) :
+   def is_binary_expression (self, item) :
       return False
 
-   def is_postfix_expression (self) :
+   def is_postfix_expression (self, item) :
       return False
 
-   def is_cast_expression (self) :
+   def is_cast_expression (self, item) :
       return False
 
    def on_ident_expr (self, item) :
@@ -2835,16 +2835,16 @@ class Parser (Lexer) :
    def is_template_name (self, item) :
       return False
 
-   def is_signal_slot (self) :
+   def is_signal_slot (self, item) :
       return False
 
    def on_middle_bit_not_expr (self, item) :
       pass
 
-   def is_mul (self) :
+   def is_mul (self, item) :
       return False
 
-   def is_add (self) :
+   def is_add (self, item) :
       return False
 
    def on_expr (self, item) :

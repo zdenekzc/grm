@@ -188,10 +188,37 @@ class CProduct (CodeOutput) :
 
        if self.actual_field != "" :
           self.put (self.arrow + self.actual_field)
+          dst = item.rule_ref.rule_type if item.rule_ref != None else ""
+          src = self.fieldType (grammar, self.actual_owner_type, self.actual_field)
+          if dst != "" and src != "" and dst != src and \
+                self.isTypeDerived (grammar, dst, src) :
+             self.put (self.arrow + "conv_" + dst + " ()")
        elif item.variable :
           self.put (self.arrow + item.variable)
+          # a stored field usually has the base type (CmmDeclarator *),
+          # but send_<rule> wants the concrete rule type
+          dst = ""
+          src = ""
+          if item.rule_ref != None :
+             dst = item.rule_ref.rule_type
+          if self.last_rule != None :
+             src = self.fieldType (grammar, self.last_rule.rule_type, item.variable)
+          if dst != "" and src != "" and dst != src and \
+                self.isTypeDerived (grammar, dst, src) :
+             self.put (self.arrow + "conv_" + dst + " ()")
        elif item.add :
           self.put (self.arrow + "items" + self.vector_item ("inx"))
+       else :
+          # narrower type than the rule result => conversion (conv_CmmX)
+          dst = ""
+          src = ""
+          if item.rule_ref != None :
+             dst = item.rule_ref.rule_type
+          if self.last_rule != None :
+             src = self.fieldType (grammar, self.last_rule.rule_type, item.variable)
+          if dst != "" and src != "" and dst != src and \
+                self.isTypeDerived (grammar, dst, src) :
+             self.put (self.arrow + "conv_" + dst + " ()")
 
        self.send (")")
        self.putLn (";")
@@ -396,10 +423,12 @@ class CProduct (CodeOutput) :
    def codeContinueStart (self, grammar, rule, cnt_alt, start_items) :
        if cnt_alt.continue_nonterm != None :
           self.actual_field = cnt_alt.continue_nonterm.rule_ref.store_name
+          self.actual_owner_type = cnt_alt.continue_nonterm.rule_ref.rule_type
           self.codeChangeType (cnt_alt.continue_nonterm.rule_ref.rule_type)
 
        if cnt_alt.continue_new != None :
           self.actual_field = cnt_alt.continue_new.store_name
+          self.actual_owner_type = cnt_alt.continue_new.new_type
           self.codeChangeType (cnt_alt.continue_new.new_type)
 
        skip = False
@@ -423,6 +452,12 @@ class CProduct (CodeOutput) :
           self.put_local (ptr_type, "param0", self.type_cast (type, "param"))
 
   # -----------------------------------------------------------------------
+
+   def isTypeDerived (self, grammar, type_name, base_name) :
+       type = grammar.struct_dict.get (type_name, None)
+       while type != None and type.type_name != base_name :
+          type = type.super_type
+       return type != None
 
    def isDerivedType (self, grammar, rule, target_name) :
        result = False
@@ -567,9 +602,30 @@ class CProduct (CodeOutput) :
        elif rule.rule_mode == "select" :
           self.codeSelectGroup (grammar, rule)
 
+   def fieldType (self, grammar, type_name, field_name) :
+       "type of a struct field, following the super types"
+       type = grammar.struct_dict.get (type_name, None)
+       while type != None :
+          fields = getattr (type, "fields", None)
+          if fields != None and field_name in fields :
+             return fields [field_name].field_type
+          type = type.super_type
+       return ""
+
+   def storeFieldType (self, grammar, rule) :
+       return self.fieldType (grammar, rule.rule_type, rule.store_name)
+
    def putStore (self, grammar, rule, r) :
        proc = self.ruleOrGroupName (grammar, r.name)
-       self.putLn ("send_" + proc + " (param0" + self.arrow + rule.store_name + ")")
+       expr = "param0" + self.arrow + rule.store_name
+       # the field is usually stored with the base type (CmmDeclarator *);
+       # send_<rule> wants the concrete rule type
+       dst = getattr (r, "rule_type", "")
+       src = self.storeFieldType (grammar, rule)
+       if dst != "" and src != "" and dst != src and \
+             self.isTypeDerived (grammar, dst, src) :
+          expr = expr + self.arrow + "conv_" + dst + " ()"
+       self.putLn ("send_" + proc + " (" + expr + ")")
 
    def codeStore (self, grammar, rule) :
        # self.putLn ("// store all ")
@@ -635,6 +691,7 @@ class CProduct (CodeOutput) :
    def __init__ (self) :
        super (CProduct, self).__init__ ()
        self.actual_field = ""
+       self.actual_owner_type = ""
        self.actual_object = "param"
        self.if_cnt = 0 # local
 
@@ -712,6 +769,12 @@ class CProduct (CodeOutput) :
 
        for group in grammar.group_list :
            self.headerFromGroup (group)
+           for artificial in group.artificial_list :
+               # send_<artificial> is called from send_<group> in the
+               # .cpp; the declaration has to be here (the implementations
+               # come from artificialFunctions () in productFromGroups).
+               self.putLn ("void send_" + artificial.call_name +
+                           " (" + self.groupType (group) + " * param);")
 
        self.put_method_declarations (self.class_name)
 
@@ -802,6 +865,12 @@ class CProduct (CodeOutput) :
 
        for group in grammar.group_list :
            self.headerFromGroup (group)
+           for artificial in group.artificial_list :
+               # send_<artificial> is called from send_<group> in the
+               # .cpp; the declaration has to be here (the implementations
+               # come from artificialFunctions () in productFromGroups).
+               self.putLn ("void send_" + artificial.call_name +
+                           " (" + self.groupType (group) + " * param);")
 
        self.put_method_declarations (self.class_name)
 

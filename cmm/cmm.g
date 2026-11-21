@@ -1051,7 +1051,7 @@ parameter_declaration_list <CmmStatSect>:
 parameter_declaration <choose CmmStat>:
       assignment_expr
       (
-         { is_value_parameter (CmmStat) }?
+         { is_value_parameter (CmmExpr) }?
          value_parameter
       |
          plain_parameter

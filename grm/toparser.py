@@ -1021,7 +1021,7 @@ class ToParser (CodeOutput) :
        self.putLn ()
 
        for m in grammar.method_list :
-          if m.param_type == "" :
+          if m.no_param :
              self.putLn ("def " +  m.method_name + " (self) :")
           else :
              self.putLn ("def " +  m.method_name + " (self, item) :")
