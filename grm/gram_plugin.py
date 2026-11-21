@@ -18,6 +18,8 @@ from toparser import ToParser
 from toproduct import ToProduct
 from cparser  import CParser
 from cproduct import CProduct
+from pparser  import PasParser
+from pproduct import PasProduct
 
 
 def installGrammarPlugin (win) :
@@ -32,6 +34,8 @@ def installGrammarPlugin (win) :
                 lambda : _toParser (win))
     _addAction (win, menu, "to &C++ Parser",    "Ctrl+F6",
                 lambda : _toCppParser (win))
+    _addAction (win, menu, "to &Pascal Parser", None,
+                lambda : _toPascalParser (win))
     _addAction (win, menu, "to &HTML",          None,
                 lambda : _toHtml (win))
     _addAction (win, menu, "to &Lout",          None,
@@ -89,6 +93,45 @@ def _writeAndReload (win, src_path, suffix, write_func) :
 
 
 # --- actions ---------------------------------------------------------------
+
+def _toPascalParser (win) :
+    """Pascal parser and product: two units next to the source —
+    <base>_parser.pas and <base>_product.pas (pparser/pproduct, the same
+    settings as their CLIs)."""
+    parsed = _openGrammar (win)
+    if parsed is None : return
+    src, grammar = parsed
+    grammar.parseRules ()
+
+    base = os.path.splitext (src) [0]
+    parser_path  = base + "_parser.pas"
+    product_path = base + "_product.pas"
+    parser_unit  = os.path.splitext (os.path.basename (parser_path)) [0]
+    product_unit = os.path.splitext (os.path.basename (product_path)) [0]
+
+    p = PasParser ()
+    p.lexer_header  = "textio"
+    p.parser_header = parser_unit
+    p.lexer_name    = "TTextInput"
+    p.base_name     = "TItem"
+    p.open (parser_path)
+    p.parserPascal (grammar)
+    p.close ()
+    print ("wrote", parser_path)
+
+    q = PasProduct ()
+    q.lexer_header   = "textio"
+    q.parser_header  = parser_unit
+    q.product_header = product_unit
+    q.super_name     = "TTextOutput"
+    q.open (product_path)
+    q.productFromGrammar (grammar)
+    q.close ()
+    print ("wrote", product_path)
+
+    if hasattr (win, "loadFile") :
+        win.loadFile (parser_path)
+
 
 def _toHtml (win) :
     parsed = _openGrammar (win)
