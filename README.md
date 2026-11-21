@@ -24,7 +24,10 @@ teaching.
   project.
 - `cmm/` — the C-- example language: its grammar, compiler and generated
   parser/product, a working example of the toolkit in use.
-- `examples/` — small example source files and demos.
+- `tests/` — test scripts with their example sources: `tests/examples/`
+  holds C-- programs (compiled and run by `cmm/cmm_iced.py`),
+  `tests/t-examples/` holds `.t` GUI examples wired into the IDE's
+  Examples menu.
 
 &nbsp;
 
@@ -35,7 +38,6 @@ teaching.
 
 - `set/` — sample source files (JSON, XML, text I/O, ...) used as test
   inputs for the recognizer test harness.
-- `tests/` — test scripts for the generators.
 
 ## Documentation
 

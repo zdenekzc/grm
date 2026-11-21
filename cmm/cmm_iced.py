@@ -6,8 +6,8 @@
 # --llvm se jde přes LLVM (cmm_llvm.InstructionsModule — MCJIT).
 # Oba backendy ukládají artefakty do _output/generate/ resp. _output/llvm/.
 #
-# Volání: python3 cmm/cmm_iced.py examples/dama.cc
-#         python3 cmm/cmm_iced.py --llvm examples/dama.cc
+# Volání: python3 cmm/cmm_iced.py tests/examples/dama.cc
+#         python3 cmm/cmm_iced.py --llvm tests/examples/dama.cc
 
 from __future__ import print_function
 
