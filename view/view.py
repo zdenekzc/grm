@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #!/usr/bin/env python
 
-import sys, os, importlib
+import sys, os, importlib, subprocess
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -27,6 +27,12 @@ from grep import GrepDialog
 # from tools import middleMenuItems, MenuItem
 from tree import Tree, TreeItem
 from window import MainWindow
+
+# --------------------------------------------------------------------------
+
+def _shell_quote (s) :
+   "Single-quote a string for /bin/sh (paths may contain spaces)."
+   return "'" + s.replace ("'", "'\\''") + "'"
 
 # --------------------------------------------------------------------------
 
@@ -87,12 +93,6 @@ class ViewWindow (MainWindow):
        act.triggered.connect (self.clean)
        menu.addAction (act)
 
-       act = QAction ("Run Python", self)
-       act.setIcon (findIcon ("text-x-python"))
-       act.setShortcut ("F7")
-       act.triggered.connect (self.run_python)
-       menu.addAction (act)
-
        # act = QAction ("Run C++", self)
        # act.setIcon (findIcon ("text-x-c++src"))
        # act.setShortcut ("F8")
@@ -112,16 +112,22 @@ class ViewWindow (MainWindow):
        act.triggered.connect (self.run_python_file)
        menu.addAction (act)
 
-       act = QAction ("Run &C++ File", self)
+       act = QAction ("Run C++ File using &GCC", self)
        act.setIcon (findIcon ("text-x-c++src"))
        act.setShortcut ("Shift+F8")
        act.triggered.connect (self.run_cpp_file)
        menu.addAction (act)
 
-       act = QAction ("&Debug C++ File", self)
-       act.setIcon (findIcon ("kbugbuster"))
+       act = QAction ("Run C++ File using C&Mini", self)
+       act.setIcon (findIcon ("text-x-c++src"))
        act.setShortcut ("Shift+F9")
-       act.triggered.connect (self.debug_cpp_file)
+       act.triggered.connect (self.run_cpp_file_cmini)
+       menu.addAction (act)
+
+       act = QAction ("Run &T File", self)
+       act.setIcon (findIcon ("text-x-script"))
+       act.setShortcut ("Shift+F10")
+       act.triggered.connect (self.run_t_file)
        menu.addAction (act)
 
        menu.addSeparator ()
@@ -243,16 +249,6 @@ class ViewWindow (MainWindow):
        self.showTab (self.grep)
        self.grep_dialog.openDialog (self.getEditor ())
 
-   def run_python (self) :
-       editor = self.getEditor ()
-       if editor != None :
-          # self.checkModifiedOnDisk (editor)
-          self.info.clearOutput ()
-          text = editor.toPlainText ()
-          print ("source code:", text)
-          print ("result:")
-          exec (text)
-
    def runCommand (self, cmd) :
        "Run a shell command; stdout/stderr are streamed into the bottom panel."
        self.info.clearOutput ()
@@ -286,21 +282,70 @@ class ViewWindow (MainWindow):
           binary   = self.outputBinary (fileName)
           self.runCommand (compiler + " " + options + " " + fileName + " -o " + binary + " && " + binary)
 
+   def run_cpp_file_cmini (self) :
+       """Compile + run the current file with the CMini compiler.
+
+       CMini lives next to this repository (../cmini from the project
+       root); cmini/cmini.bin without -o/-c compiles the source and
+       runs it, printing 'main returned N'. -I cmini/ownheaders gives
+       it the standard headers, the same way tests/02-cmini-asm.sh
+       invokes it."""
+       editor = self.getEditor ()
+       if editor != None :
+          self.checkModifiedOnDisk (editor)
+          cmini_root = os.path.abspath (os.path.join (
+             os.path.dirname (os.path.abspath (sys.path [0])), "..", "cmini"))
+          binary = os.path.join (cmini_root, "cmini", "cmini.bin")
+          fileName = os.path.abspath (editor.getFileName ())
+          self.runCommand ("cd " + _shell_quote (cmini_root) + " && " +
+                           _shell_quote (binary) +
+                           " -I cmini/ownheaders " + _shell_quote (fileName))
+
+   def run_t_file (self) :
+       """Convert the current .t source to .cpp and .py under _output/,
+       show both in the editor and run the generated .py.
+
+       The conversion is cmm/cmm_compile.py (wraps cmm_run.py so the
+       files land in _output/<source dir>/ and the .t stays clean); it
+       runs synchronously so the generated files exist before we load
+       them."""
+       editor = self.getEditor ()
+       if editor == None :
+          return
+       fileName = editor.getFileName ()
+       if not fileName.lower ().endswith (".t") :
+          print ("not a .t file:", fileName)
+          return
+       self.checkModifiedOnDisk (editor)
+
+       src = os.path.abspath (fileName)
+       name = os.path.basename (src)
+       out_dir = os.path.join (os.path.dirname (os.path.abspath (sys.path [0])),
+                               "_output", os.path.basename (os.path.dirname (src)))
+       cpp_path = os.path.join (out_dir, name + ".cpp")
+       py_path  = os.path.join (out_dir, name + ".py")
+
+       root = os.path.dirname (os.path.abspath (sys.path [0]))
+       compile_script = os.path.join (root, "cmm", "cmm_compile.py")
+       proc = subprocess.run ([sys.executable, compile_script, src],
+                              capture_output = True, text = True)
+       sys.stdout.write (proc.stdout)
+       sys.stdout.write (proc.stderr)
+       if proc.returncode != 0 :
+          print ("cmm compile failed — see the output above")
+          return
+
+       # Show both generated files (the .py ends up as the current tab),
+       # then run the .py unbuffered so its output streams into Info.
+       self.loadFile (cpp_path)
+       self.loadFile (py_path)
+       self.runCommand (sys.executable + " -u " + _shell_quote (py_path))
+
    def run_test_suite (self, script) :
        "Run one of the tests/ suites; output streams into the Info panel."
        path = os.path.join (os.path.dirname (os.path.abspath (sys.path [0])),
                             "tests", script)
        self.runCommand (sys.executable + " " + path)
-
-   def debug_cpp_file (self) :
-       editor = self.getEditor ()
-       if editor != None :
-          self.checkModifiedOnDisk (editor)
-          fileName = editor.getFileName ()
-          options  = readEmbeddedOptions (fileName)
-          binary   = self.outputBinary (fileName)
-          compiler = "g++" if fileName.endswith ((".cc", ".cpp", ".cxx")) else "gcc"
-          self.runCommand (compiler + " -g " + options + " " + fileName + " -o " + binary + " && gdb --batch -ex run -ex bt " + binary)
 
    def open_qt_designer (self) :
        "Launch Qt Designer; if current editor holds a .ui file, open it there."
