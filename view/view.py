@@ -113,24 +113,6 @@ class ViewWindow (MainWindow):
        act.triggered.connect (self.run_cpp_file)
        menu.addAction (act)
 
-       act = QAction ("&JIT C++ File", self)
-       act.setIcon (findIcon ("text-x-c++src"))
-       act.setShortcut ("Ctrl+F8")
-       act.triggered.connect (self.jit_cpp_file)
-       menu.addAction (act)
-
-       act = QAction ("Compile T&CC", self)
-       act.setIcon (findIcon ("text-x-csrc"))
-       act.setShortcut ("Ctrl+F9")
-       act.triggered.connect (self.compile_tcc)
-       menu.addAction (act)
-
-       act = QAction ("Run with TCC", self)
-       act.setIcon (findIcon ("text-x-csrc"))
-       act.setShortcut ("F9")
-       act.triggered.connect (self.run_tcc)
-       menu.addAction (act)
-
        act = QAction ("&Debug C++ File", self)
        act.setIcon (findIcon ("kbugbuster"))
        act.setShortcut ("Shift+F9")
@@ -141,20 +123,6 @@ class ViewWindow (MainWindow):
        act.setIcon (findIcon ("debug-run"))
        act.setShortcut ("Ctrl+F5")
        act.triggered.connect (self.debug_lldb)
-       menu.addAction (act)
-
-       menu.addSeparator ()
-
-       act = QAction ("Clan&g Tree", self)
-       act.setShortcut ("F6")
-       act.setIcon (findIcon ("code-class"))
-       act.triggered.connect (self.clang_tree)
-       menu.addAction (act)
-
-       act = QAction ("&Qt Usage Tree", self)
-       act.setShortcut ("Shift+F6")
-       act.setIcon (findIcon ("code-class"))
-       act.triggered.connect (self.qt_usage_tree)
        menu.addAction (act)
 
        menu.addSeparator ()
@@ -179,16 +147,6 @@ class ViewWindow (MainWindow):
 
        self.toolsMenu = self.addTopMenu ("&Tools")
 
-       act = QAction ("Build T&CC Module (one-time)", self)
-       act.setIcon (findIcon ("system-run"))
-       act.triggered.connect (self.build_tcc_module)
-       self.toolsMenu.addAction (act)
-
-       act = QAction ("CMM &Dependencies (one-time)", self)
-       act.setIcon (findIcon ("system-run"))
-       act.triggered.connect (self.install_cmm_deps)
-       self.toolsMenu.addAction (act)
-
        act = QAction ("&Test All Examples", self)
        act.setIcon (findIcon ("system-run"))
        act.triggered.connect (self.test_all_examples)
@@ -196,43 +154,14 @@ class ViewWindow (MainWindow):
 
        self.toolsMenu.addSeparator ()
 
-       act = QAction ("Build Toaru&OS (one-time, ~10 min)", self)
-       act.setIcon (findIcon ("system-run"))
-       act.triggered.connect (self.build_toaruos)
-       self.toolsMenu.addAction (act)
-
-       act = QAction ("Build && Install Example to ToaruOS", self)
-       act.setIcon (findIcon ("system-run"))
-       act.triggered.connect (self.install_example_to_toaruos)
-       self.toolsMenu.addAction (act)
-
-       act = QAction ("Run ToaruOS in Q&EMU", self)
-       act.setIcon (findIcon ("system-run"))
-       act.triggered.connect (self.run_toaruos_qemu)
-       self.toolsMenu.addAction (act)
-
-       self.toolsMenu.addSeparator ()
-
-       act = QAction ("&File Manager (SFTP)", self)
-       act.setIcon (findIcon ("system-file-manager"))
-       act.triggered.connect (self.open_file_manager)
-       self.toolsMenu.addAction (act)
-
        act = QAction ("Qt &Designer", self)
        act.setIcon (findIcon ("applications-development"))
        act.triggered.connect (self.open_qt_designer)
        self.toolsMenu.addAction (act)
 
-       # Container demos — entry points for student exercises with
-       # podman/docker. Each submenu wraps tools/container-tools/setup-container.sh.
-       self.toolsMenu.addSeparator ()
-       self._addContainerSubmenu ("&Ubuntu Container",    "ubuntu")
-       self._addContainerSubmenu ("&AlmaLinux Container", "alma")
-
-       # Kubernetes demo — wraps tools/kube-tools/setup-kube.sh. Builds a local
-       # kind cluster, deploys MySQL + Apache/PHP, serves a master/detail
-       # web page at http://localhost:8080.
-       self._addKubeSubmenu ()
+       # (Container and Kubernetes submenus removed — their
+       # tools/container-tools and tools/kube-tools scripts are not part
+       # of this repository.)
 
        # Code-tooling plugins (top-level &Grammar and &C-- menus).
        # Imports are lazy so a missing dependency in grm/cmm doesn't
@@ -248,7 +177,7 @@ class ViewWindow (MainWindow):
        except Exception as e :
           print ("cmm_plugin not loaded:", e)
 
-       # &Examples menu populated from tools.ini (cmm-examples + set).
+       # &Examples menu populated from tools.ini (t-examples, C-- examples, set).
        try :
           from tools_ini import installExamplesMenu
           installExamplesMenu (self)
@@ -263,8 +192,6 @@ class ViewWindow (MainWindow):
            ("&Python Documentation",  "https://docs.python.org/3/"),
            ("&Qt Documentation",      "https://doc.qt.io/qt-5/"),
            ("Py&Qt5 Documentation",   "https://www.riverbankcomputing.com/static/Docs/PyQt5/"),
-           ("&TinyCC",                "https://repo.or.cz/tinycc.git/blob/HEAD:/USES.md"),
-           ("Toaru&OS",               "https://toaruos.org/"),
        ] :
            act = QAction (title, self)
            act.setIcon (findIcon ("help-browser"))
@@ -353,89 +280,9 @@ class ViewWindow (MainWindow):
           binary   = self.outputBinary (fileName)
           self.runCommand (compiler + " " + options + " " + fileName + " -o " + binary + " && " + binary)
 
-   def compile_tcc (self) :
-       "Compile current C file with the system `tcc` binary."
-       editor = self.getEditor ()
-       if editor != None :
-          self.checkModifiedOnDisk (editor)
-          fileName = editor.getFileName ()
-          options  = readEmbeddedOptions (fileName)
-          binary   = self.outputBinary (fileName)
-          self.runCommand ("tcc " + options + " " + fileName + " -o " + binary)
-
-   def run_tcc (self) :
-       "Compile + run current C file via `tcc -run` (no executable left behind)."
-       editor = self.getEditor ()
-       if editor != None :
-          self.checkModifiedOnDisk (editor)
-          fileName = editor.getFileName ()
-          options  = readEmbeddedOptions (fileName)
-          self.runCommand ("tcc -run " + options + " " + fileName)
-
-   def build_tcc_module (self) :
-       "Bootstrap libtcc and build the tcc.so pybind11 wrapper (one-time)."
-       self.runCommand ("tools/tcc-tools/setup-tcc.sh")
-
-   def install_cmm_deps (self) :
-       "Install llvmlite (distro pkg) + peachpy (pip --user) for cmm/."
-       self.runCommand ("cmm/setup-cmm-deps.sh --install")
-
    def test_all_examples (self) :
        "Compile every tools.ini example, run each generated .py briefly."
        self.runCommand (sys.executable + " tests/test_t_examples.py --timeout 2")
-
-   # ToaruOS — cross-compile examples and boot a ToaruOS ISO in QEMU.
-   # Driven by tools/toaruos-tools/setup-toaruos.sh; uses podman/docker container
-   # with the toaruos/build-tools image. See that script for full docs.
-
-   def build_toaruos (self) :
-       "Clone ToaruOS sources and build the bootable ISO (~10 min, one-time)."
-       self.runCommand ("tools/toaruos-tools/setup-toaruos.sh --build")
-
-   def install_example_to_toaruos (self) :
-       "Cross-compile tools/toaruos-tools/*.c and repackage image.iso with them."
-       self.runCommand ("tools/toaruos-tools/setup-toaruos.sh --install")
-
-   def run_toaruos_qemu (self) :
-       "Boot the most recently built ToaruOS ISO in QEMU."
-       self.runCommand ("tools/toaruos-tools/setup-toaruos.sh --run")
-
-   def jit_cpp_file (self) :
-       "Compile current C/C++ file with the in-process Clang JIT and run it."
-       editor = self.getEditor ()
-       if editor != None :
-          self.checkModifiedOnDisk (editor)
-          self.info.clearOutput ()
-          fileName = editor.getFileName ()
-          options  = readEmbeddedOptions (fileName).split ()
-          try :
-             from jit import compileAndRun
-          except ImportError as e :
-             print ("jit module not built — run 'make' to build jit.so")
-             print ("(", e, ")")
-             return
-          print ("JIT:", fileName, options)
-          self.info.startCaptureFd ()
-          try :
-             result = compileAndRun (fileName, options, [], [], [])
-          finally :
-             self.info.stopCaptureFd ()
-          print ("JIT exit:", result)
-
-   def clang_tree (self) :
-       "Parse the current C/C++ file with libclang and fill the Classes tab."
-       editor = self.getEditor ()
-       if editor != None :
-          # Imported lazily so the editor still starts when libclang is missing.
-          from clang_tree import buildClangTree
-          buildClangTree (self, editor.getFileName ())
-
-   def qt_usage_tree (self) :
-       "Show Qt classes / methods actually referenced from the current file."
-       editor = self.getEditor ()
-       if editor != None :
-          from clang_tree import buildQtUsageTree
-          buildQtUsageTree (self, editor.getFileName ())
 
    def debug_cpp_file (self) :
        editor = self.getEditor ()
@@ -447,11 +294,6 @@ class ViewWindow (MainWindow):
           compiler = "g++" if fileName.endswith ((".cc", ".cpp", ".cxx")) else "gcc"
           self.runCommand (compiler + " -g " + options + " " + fileName + " -o " + binary + " && gdb --batch -ex run -ex bt " + binary)
 
-   def open_file_manager (self) :
-       "Open the two-pane SFTP file manager in a separate window."
-       from filemanager import openFileManager
-       openFileManager (self)
-
    def open_qt_designer (self) :
        "Launch Qt Designer; if current editor holds a .ui file, open it there."
        from qt_designer import openQtDesigner
@@ -462,52 +304,6 @@ class ViewWindow (MainWindow):
           if fileName.lower ().endswith (".ui") and os.path.isfile (fileName) :
              ui_file = fileName
        openQtDesigner (self, ui_file)
-
-   # Container demos — wraps tools/container-tools/setup-container.sh. Every action
-   # is streamed into the bottom Info panel via runCommand().
-
-   def _addContainerSubmenu (self, title, image) :
-       sub = self.toolsMenu.addMenu (title)
-       actions = [
-           ("&Build Image",            "build"),
-           ("&Clone Repo Inside",      "clone"),
-           ("Run &make in 10-edit",    "make"),
-           ("Run &view.py (X11)",      "view"),
-           ("Open &Shell",             "shell"),
-       ]
-       for label, flag in actions :
-           act = QAction (label, self)
-           act.triggered.connect (lambda checked = False, i = image, f = flag :
-                                  self._run_container (i, f))
-           sub.addAction (act)
-
-   def _run_container (self, image, action) :
-       self.runCommand ("tools/container-tools/setup-container.sh --image "
-                        + image + " --" + action)
-
-   # Kubernetes demo submenu — kind cluster + MySQL + Apache/PHP.
-
-   def _addKubeSubmenu (self) :
-       sub = self.toolsMenu.addMenu ("&Kubernetes (kind)")
-       actions = [
-           ("&Check Tools",            "check"),
-           ("&Create Cluster",         "create"),
-           ("&Build Web Image",        "build"),
-           ("&Apply Manifests",        "apply"),
-           ("&Open App (port-fwd)",    "open"),
-           ("&Status",                 "status"),
-           ("&Destroy Cluster",        "destroy"),
-           ("Fix &Network (sudo)",     "fix-network"),
-           ("&All (full pipeline)",    "all"),
-       ]
-       for label, flag in actions :
-           act = QAction (label, self)
-           act.triggered.connect (lambda checked = False, f = flag :
-                                  self._run_kube (f))
-           sub.addAction (act)
-
-   def _run_kube (self, action) :
-       self.runCommand ("tools/kube-tools/setup-kube.sh --" + action)
 
    def debug_lldb (self) :
        "Compile current C/C++ file with -g and open it in the LLDB UI."
@@ -567,13 +363,12 @@ class ViewWindow (MainWindow):
    def showAbout (self) :
        msg = ("10-edit — minimal PyQt5 editor\n\n"
               "Python " + sys.version.split () [0] + ", Qt " + qVersion () + "\n"
-              "Project menu: gcc, JIT, TCC, Clang/Qt usage trees\n"
-              "Tools menu: TCC build, ToaruOS cross-build")
+              "Project menu: gcc build, run and debug")
        QMessageBox.about (self, "About 10-edit", msg)
 
 # --------------------------------------------------------------------------
 
-# Compiled artifacts (g++/tcc/JIT inputs, generated parsers, .bin outputs)
+# Compiled artifacts (g++/JIT inputs, generated parsers, .bin outputs)
 # all land in ./_output/. Created at startup so Project menu actions can
 # write into it without checking. The .bin extension on Linux executables
 # makes `rm _output/*.bin` a clean rule for makefiles.

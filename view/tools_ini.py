@@ -2,8 +2,9 @@
 
 The INI uses ConfigParser syntax — see tools.ini for the schema. Each
 section becomes a submenu, each path under `files` an action. The
-action runs cmm/cmm_run.py on the file via win.runCommand so output
-streams into the Info panel (with ANSI colors, courtesy of tools.py).
+action runs cmm/cmm_run.py on a .t source (or cmm/cmm_iced.py on a .cc
+C-- program) via win.runCommand so output streams into the Info panel
+(with ANSI colors, courtesy of tools.py).
 
 Missing tools.ini -> no menu. Failure to parse a section is logged and
 that section is skipped; the rest of the menu is still built.
@@ -63,10 +64,19 @@ def installExamplesMenu (win, ini_path = "tools.ini") :
 
 
 def _runCmm (win, path) :
-    "Compile the file with cmm_run.py; output to the file's directory."
-    out_dir = os.path.dirname (os.path.abspath (path)) or "."
-    cmd = ("python3 cmm/cmm_run.py -o " + _shquote (out_dir) +
-           " " + _shquote (path))
+    """Compile the example; .cc C-- programs run natively, .t sources
+    go through cmm_run.py.
+
+    cmm_run.py joins out_dir + path, so both must be absolute —
+    os.path.join then keeps the source path intact and the generated
+    .t.py / .t.cpp land next to the source (cwd stays the project root
+    for the relative includes inside the .t files)."""
+    if path.endswith (".cc") :
+        cmd = "python3 cmm/cmm_iced.py " + _shquote (path)
+    else :
+        src = os.path.abspath (path)
+        cmd = ("python3 cmm/cmm_run.py -o " + _shquote (os.path.dirname (src)) +
+               " " + _shquote (src))
     win.runCommand (cmd)
 
 
