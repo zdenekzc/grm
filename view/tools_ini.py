@@ -18,7 +18,7 @@ from PyQt5.QtWidgets import QAction
 def listExamples (ini_path = None) :
     """Parse tools.ini and return a list of (title, [paths]) pairs, in
     the same order sections appear in the file. Used by both the menu
-    builder and the batch smoke test (test_examples.py). Example paths
+    builder and the batch smoke test (test_t_examples.py). Example paths
     stay relative to the process working directory (the project root)."""
     if ini_path is None :
         ini_path = os.path.join (os.path.dirname (os.path.abspath (__file__)), "tools.ini")

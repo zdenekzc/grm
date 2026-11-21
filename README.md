@@ -27,7 +27,7 @@ teaching.
 - `tests/` — test scripts with their example sources: `tests/examples/`
   holds C-- programs (compiled and run by `cmm/cmm_iced.py`),
   `tests/t-examples/` holds `.t` GUI examples wired into the IDE's
-  Examples menu.
+  Examples menu. See [tests/README.md](tests/README.md).
 
 &nbsp;
 

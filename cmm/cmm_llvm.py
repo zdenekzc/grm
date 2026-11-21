@@ -1040,7 +1040,11 @@ class InstructionsModule (object) :
           except RuntimeError :
              pass
 
-       self.module = ir.Module ()
+       # Vlastní Context pro každý modul: ir.Module () by defaultně
+       # sdílel llvmlite global_context — pojmenované struktury
+       # (identified_types) by pak kolidovaly mezi překlady více
+       # programů v jednom procesu ("Item is already defined").
+       self.module = ir.Module (context = ir.Context ())
        # Host triple do modulu: jinak má .ll "unknown-unknown-unknown"
        # a nejde přehrát přes lli (MCJIT host triple bral jen implicitně).
        try :
@@ -1167,55 +1171,50 @@ class InstructionsModule (object) :
            #    f.write (obj)
            #    f.close ()
            # CLI režim (cmm_run.py, tests, win is None): ukládáme do
-           # _output/llvm/ — <program>.o (objektový soubor), <program>.ll
-           # (LLVM IR), <program>.bin (spustitelný ELF zlinkovaný z .o)
-           # a <program>.sh (spouštěč), jméno ze vstupního souboru
-           # (dama.cc → dama). Odlišené od iced-x86 backendu
-           # (_output/generate/).
+           # _output/llvm/ — <program>.ll (LLVM IR), spustitelný
+           # <program>.bin (objekt zlinkujeme gcc přes dočasný soubor,
+           # samotné .o neukládáme) a kopii zdrojáku <program>.cc,
+           # jméno ze vstupního souboru (dama.cc → dama). Odlišené od
+           # iced-x86 backendu (_output/generate/).
            if self.compiler.win is None :
-              import subprocess
+              import subprocess, tempfile, shutil
               outDir = "_output/llvm"
               if not os.path.isdir (outDir) :
                  os.makedirs (outDir)
               src = self.compiler.getFileName ()
               base = os.path.splitext (os.path.basename (src)) [0]
-              fileName = os.path.join (outDir, base + ".o")
-              f = open (fileName, "wb")
-              f.write (obj)
-              f.close ()
               # <program>.ll — LLVM IR, jde přehrát přes lli / llc
               # (str (self.module) je ten samý text, co jde parse_assembly).
               llName = os.path.join (outDir, base + ".ll")
               f = open (llName, "w")
               f.write (strmod)
               f.close ()
-              # <program>.bin — zlinkuj objektový soubor na spustitelný
-              # ELF (definice main + libc za printf; volací konvence
-              # System V, takže obyčejné gcc stačí).
+              saved = [ llName ]
+              # <program>.bin — zlinkuj objekt na spustitelný ELF
+              # (definice main + libc za printf; volací konvence
+              # System V, takže obyčejné gcc stačí). Objektový soubor
+              # putuje přes dočasný soubor — neukládáme ho.
               binName = os.path.join (outDir, base + ".bin")
-              link = subprocess.run (["gcc", "-o", binName, fileName],
+              tmp = tempfile.NamedTemporaryFile (suffix = ".o", delete = False)
+              tmp.write (obj)
+              tmp.close ()
+              link = subprocess.run (["gcc", "-o", binName, tmp.name],
                  capture_output = True, text = True)
+              os.unlink (tmp.name)
               if link.returncode == 0 :
                  os.chmod (binName, 0o755)
-                 linked = True
+                 saved.append (binName)
               else :
-                 linked = False
-                 print ("could not link", fileName, ":", link.stderr.strip ())
-              # <program>.sh — spouštěč; jen když existuje i zdroják,
-              # na který se skript může odvolat (testy pseudo-jméno nemají).
-              if linked and os.path.isfile (src) :
-                 shName = os.path.join (outDir, base + ".sh")
-                 f = open (shName, "w")
-                 f.write ("#!/bin/sh\n"
-                          "# Spustí přeložený program (%s, zlinkováno z %s).\n"
-                          "exec \"$(dirname \"$0\")/%s.bin\" \"$@\"\n"
-                          % (binName, fileName, base))
-                 f.close ()
-                 os.chmod (shName, 0o755)
-                 print ("object, LLVM IR, executable and launcher written to",
-                    fileName, llName, binName, shName)
-              else :
-                 print ("object and LLVM IR written to", fileName, "and", llName)
+                 print ("could not link:", link.stderr.strip ())
+              # Kopie zdrojáku — jen pro reálné zdrojáky (testy s
+              # pseudo-jménem žádný soubor nemají).
+              if os.path.isfile (src) :
+                 copyName = os.path.join (outDir, base + ".cc")
+                 if os.path.abspath (src) != os.path.abspath (copyName) :
+                    shutil.copyfile (src, copyName)
+                 saved.append (copyName)
+              print ("LLVM IR, executable and source copy written to",
+                 " ".join (saved))
 
        # see llvmlite/tests/test_binding.py
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Smoke-test every example listed in tools.ini.
+"""Smoke-test every example listed in view/tools.ini.
 
 For each path:
   1. compile  — run cmm/cmm_run.py to produce <path>.py
@@ -7,6 +7,9 @@ For each path:
   3. judge    — TIMEOUT (still alive after timeout = "running OK"),
                 EXIT0 (exited cleanly within timeout), or
                 FAIL (non-zero exit + first stderr lines).
+
+The generated .t.py / .t.cpp files land in a subdirectory of _output/
+(gitignored) — the .t sources themselves stay clean.
 
 Usage:
   ./test_examples.py                # default 2 s run timeout
@@ -21,7 +24,16 @@ import subprocess
 import argparse
 import time
 
+HERE = os.path.dirname (os.path.abspath (__file__))
+ROOT = os.path.abspath (os.path.join (HERE, ".."))
+sys.path.insert (0, os.path.join (ROOT, "view"))   # tools_ini
+
 from tools_ini import listExamples
+
+# Generated outputs go to _output/ (gitignored); cmm_run.py joins
+# out_dir + path, so a .t source at tests/t-examples/button.t produces
+# _output/tests/t-examples/button.t.py — the directory must exist.
+OUT_DIR = os.path.join (ROOT, "_output")
 
 
 # ANSI colors (tools.py renders them in the editor's Info panel; harmless
@@ -35,12 +47,15 @@ _RESET   = "\x1b[0m"
 def compile_one (path) :
     """Run cmm/cmm_run.py on `path`. Returns (ok, generated_py, stderr_tail).
 
-    Stay in the editor's cwd (so relative includes like "set/json.t"
-    inside the .t file resolve correctly) and pass `-o .` plus the
-    relative path. cmm_run.py joins them as out_dir + path = "./<path>",
-    which lands the .py / .cpp next to the .t source."""
-    generated = path + ".py"
-    cmd = [sys.executable, "cmm/cmm_run.py", "-o", ".", path]
+    Stay in the repository root (so relative includes like "set/json.t"
+    inside the .t file resolve correctly) and pass `-o _output` plus the
+    relative path. cmm_run.py joins them as out_dir + path, which lands
+    the generated .py / .cpp under _output/tests/t-examples/."""
+    generated = os.path.join (OUT_DIR, path + ".py")
+    target_dir = os.path.dirname (generated)
+    if not os.path.isdir (target_dir) :
+        os.makedirs (target_dir)
+    cmd = [sys.executable, "cmm/cmm_run.py", "-o", OUT_DIR, path]
     try :
         proc = subprocess.run (cmd, capture_output = True, text = True,
                                timeout = 30)
@@ -49,6 +64,8 @@ def compile_one (path) :
     if proc.returncode != 0 or not os.path.isfile (generated) :
         tail = (proc.stderr or proc.stdout or "").splitlines () [-3:]
         return False, generated, "\n        ".join (tail)
+    # Vygenerovaný .t.py je spustitelný skript (má #! na prvním řádku).
+    os.chmod (generated, 0o755)
     return True, generated, ""
 
 

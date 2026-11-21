@@ -382,7 +382,7 @@ class ViewWindow (MainWindow):
 
    def test_all_examples (self) :
        "Compile every tools.ini example, run each generated .py briefly."
-       self.runCommand (sys.executable + " test_examples.py --timeout 2")
+       self.runCommand (sys.executable + " tests/test_t_examples.py --timeout 2")
 
    # ToaruOS — cross-compile examples and boot a ToaruOS ISO in QEMU.
    # Driven by tools/toaruos-tools/setup-toaruos.sh; uses podman/docker container

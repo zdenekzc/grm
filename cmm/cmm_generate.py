@@ -280,49 +280,51 @@ class GenerateModule (object) :
        print ("emitted", len (code_bytes), "bytes at", hex (base_addr))
        self._disassemble (code_bytes, base_addr)
 
-       # Přeložený program uložíme i na disk, aby šel rozebrat objdumpem:
-       # CLI režim (win is None) → _output/generate/<program>.bin
-       # (surový strojový kód), <program>.asm (dis-asm listing) a
-       # <program>.sh (spouštěč přes cmm/cmm_iced.py). Jméno vezmeme
-       # ze vstupního souboru (dama.cc → dama). (.gitignore maskuje
-       # _output/ i *.bin.) V IDE režimu soubory řídí okno — tam generator
+       # Přeložený program uložíme i na disk: CLI režim (win is None) →
+       # _output/generate/<program>.asm (dis-asm listing), kopie zdrojáku
+       # <program>.cc a spouštěč <program>.sh (spustí příklad přes
+       # cmm/cmm_iced.py). Jméno vezmeme ze vstupního souboru
+       # (dama.cc → dama). Surový strojový kód (.bin) neukládáme —
+       # má zapecované absolutní adresy libc funkcí (printf, ...),
+       # samostatně by nespustil; samostatný ELF by vyžadoval
+       # relokace/PLT, musíme později promyslet. (.gitignore maskuje
+       # _output/.) V IDE režimu soubory řídí okno — tam generator
        # zatím nic neukládá.
        if self.compiler.win is None :
+          import shutil
           outDir = "_output/generate"
           if not os.path.isdir (outDir) :
              os.makedirs (outDir)
           src = self.compiler.getFileName ()
           base = os.path.splitext (os.path.basename (src)) [0]
-          fileName = os.path.join (outDir, base + ".bin")
-          f = open (fileName, "wb")
-          f.write (code_bytes)
-          f.close ()
           listName = os.path.join (outDir, base + ".asm")
           f = open (listName, "w")
           f.write (self._disassembly (code_bytes, base_addr))
           f.close ()
-          # <program>.sh — spouštěč; jen když existuje i zdroják, na
-          # který se skript může odvolat (testy pseudo-jméno nemají).
-          # Samostatný spustitelný ELF z .bin zatím nejde: kód má
-          # zapecované absolutní adresy libc funkcí (printf, ...) —
-          # vyžadovalo by to relokace/PLT, musíme později promyslet.
-          saved = [ fileName, listName ]
+          saved = [ listName ]
+          # Kopie zdrojáku a spouštěč; jen pro reálné zdrojáky (testy
+          # s pseudo-jménem žádný soubor nemají).
           if os.path.isfile (src) :
              rel = os.path.relpath (src, os.getcwd ())
+             copyName = os.path.join (outDir, base + ".cc")
+             if os.path.abspath (src) != os.path.abspath (copyName) :
+                shutil.copyfile (src, copyName)
              shName = os.path.join (outDir, base + ".sh")
              f = open (shName, "w")
              f.write ("#!/bin/sh\n"
                 "# Spustí příklad %s přes C-- kompilátor a iced-x86 JIT\n"
                 "# backend (cmm/cmm_iced.py). Samostatný spustitelný\n"
-                "# soubor z %s.bin zatím nejde — kód má zapecované\n"
-                "# adresy libc funkcí (relokace musíme později promyslet).\n"
+                "# soubor ze strojového kódu zatím nejde — kód má\n"
+                "# zapecované adresy libc funkcí (relokace musíme\n"
+                "# později promyslet).\n"
                 "cd \"$(dirname \"$0\")/../..\" || exit 1\n"
                 "exec python3 cmm/cmm_iced.py %s\n"
-                % (rel, base, rel))
+                % (rel, rel))
              f.close ()
              os.chmod (shName, 0o755)
+             saved.append (copyName)
              saved.append (shName)
-          print ("machine code, listing and launcher written to",
+          print ("listing, source copy and launcher written to",
              " ".join (saved))
 
        # Pokud existuje main () s 0 parametry, zavolej ji a vypiš návrat.
