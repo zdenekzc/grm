@@ -1,15 +1,15 @@
 """
-test_instr.py — testy pro cmm/cmm_instr.py (LLVM backend).
+test_llvm.py — testy pro cmm/cmm_llvm.py (LLVM backend).
 
 Sourozenec test_generate.py: stejné AST builders, stejné testy,
 jiný backend.
 
 Zatímco cmm_generate.py emituje x86_64 strojový kód přímo přes
-iced-x86 + mmap, cmm_instr.py jde přes LLVM:
+iced-x86 + mmap, cmm_llvm.py jde přes LLVM:
 
     AST (CmmExpr/CmmStat/...)
         │
-        │  cmm_instr.code_program ()
+        │  cmm_llvm.code_program ()
         ▼
     LLVM IR  (alloca / load / store / GEP / call / ...)
         │
@@ -28,8 +28,8 @@ do obou test runnerů zároveň.
 
 Spuštění:
 
-    python3 view-mini/test/test_instr.py            # tichý souhrn
-    python3 view-mini/test/test_instr.py -v         # + LLVM IR + assembly
+    python3 view-mini/test/test_llvm.py            # tichý souhrn
+    python3 view-mini/test/test_llvm.py -v         # + LLVM IR + assembly
 """
 
 from __future__ import print_function
@@ -62,7 +62,7 @@ from test_generate import (
 from cmm_parser import (
    addExpr, subExpr, mulExpr, ltExpr, gtExpr, addAssignExpr,
 )
-import cmm_instr
+import cmm_llvm
 
 # ---------------------------------------------------------------------------
 # Test runner — stejný pattern jako test_generate, jen volá InstructionsModule.
@@ -85,7 +85,7 @@ def run_test (label, decls, expected, verbose = False) :
       try :
          os.chdir (tmpdir)
          with contextlib.redirect_stdout (buf) :
-            cmm_instr.InstructionsModule (compiler).compile ()
+            cmm_llvm.InstructionsModule (compiler).compile ()
       finally :
          os.chdir (olddir)
    captured = buf.getvalue ()

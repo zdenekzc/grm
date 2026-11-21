@@ -84,12 +84,12 @@ for m in sys.modules :
    if m.startswith ("PyQt") or m.startswith ("PySide") :
       foreign_modules.append (sys.modules [m])
 
-import cmm_comp, c2cpp, c2py, cmm_set, cmm_instr, cmm_generate
+import cmm_comp, c2cpp, c2py, cmm_set, cmm_llvm, cmm_generate
 
 compiler = cmm_comp.CmmCustomCompiler ()
 compiler.foreign_modules = foreign_modules
 compiler.extension_modules = [ sys.modules ["cmm_set"],
-                               sys.modules ["cmm_instr"],
+                               sys.modules ["cmm_llvm"],
                                sys.modules ["cmm_generate"] ]
 
 compiler.openFile (inputFileName)

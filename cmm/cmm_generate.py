@@ -281,11 +281,22 @@ class GenerateModule (object) :
        self._disassemble (code_bytes, base_addr)
 
        # Pokud existuje main () s 0 parametry, zavolej ji a vypiš návrat.
+       # main (int argc, char * argv []) zavoláme taky, s umělými
+       # argumenty (argc = 1, argv[0] = "cmm") — odpovídá spuštění
+       # programu bez parametrů; shodné chování s cmm_llvm.py.
        for decl in self.func_decls :
-           if decl.item_name == "main" and len (decl.item_list) == 0 :
+           if decl.item_name == "main" and len (decl.item_list) in (0, 2) :
               fn_addr = label_addr [self._func_label (decl)]
-              fn = ctypes.CFUNCTYPE (ctypes.c_int64) (fn_addr)
-              result = fn ()
+              if len (decl.item_list) == 0 :
+                 fn = ctypes.CFUNCTYPE (ctypes.c_int64) (fn_addr)
+                 result = fn ()
+              else :
+                 argv0 = ctypes.create_string_buffer (b"cmm")
+                 argv = (ctypes.c_void_p * 2) (
+                    ctypes.cast (argv0, ctypes.c_void_p).value, None)
+                 fn = ctypes.CFUNCTYPE (ctypes.c_int64,
+                    ctypes.c_int64, ctypes.c_void_p) (fn_addr)
+                 result = fn (1, ctypes.cast (argv, ctypes.c_void_p))
               print ("main returned:", result)
               return
 

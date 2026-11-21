@@ -59,8 +59,8 @@ class Plugin (CodePlugin) :
        self.compilerClassName = "CmmCustomCompiler" # parameter from tools.ini
        self.compilerFuncName = "compile_program" # parameter from tools.ini
 
-       self.extensionFileNames = [ "cmm/cmm_instr.py" , "cmm/cmm_generate.py"  ]
-       # self.extensionFileNames = [ "cmm/cmm_kit.py", "cmm/cmm_set.py", "cmm/cmm_instr.py" , "cmm/cmm_generate.py"  ]
+       self.extensionFileNames = [ "cmm/cmm_llvm.py" , "cmm/cmm_generate.py"  ]
+       # self.extensionFileNames = [ "cmm/cmm_kit.py", "cmm/cmm_set.py", "cmm/cmm_llvm.py" , "cmm/cmm_generate.py"  ]
 
        self.cppWriterFileName = "cmm/c2cpp.py"
        # self.cppClassName = "ToCpp"

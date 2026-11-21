@@ -989,6 +989,10 @@ class CmmCompiler (Parser) :
        # expr.type_flag = expr.param.type_flag
        expr.constructor_flag = expr.param.constructor_flag
        expr.destructor_flag = expr.param.destructor_flag
+       # inline / static / ... před typem: propaguj typ z type_specifiers,
+       # jinak příjde funkce jako int h (...) s type_from = None
+       # a backendy ji deklarují s void návratem.
+       expr.item_type = expr.param.item_type
 
    def on_type_specifier (self, expr) :
        expr.type_flag = True

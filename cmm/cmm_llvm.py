@@ -1,5 +1,5 @@
 
-# cmm_instr.py
+# cmm_llvm.py
 
 from __future__ import print_function
 
@@ -1127,7 +1127,7 @@ class InstructionsModule (object) :
            for d in self.compiler.global_scope.item_list :
                if (isinstance (d, CmmSimpleItem) and getattr (d, 'is_function', False)
                        and d.item_name == "main"
-                       and len (d.item_list) == 0
+                       and len (d.item_list) in (0, 2)
                        and getattr (d, 'item_body', None) is not None) :
                   main_decl = d
                   break
@@ -1135,8 +1135,18 @@ class InstructionsModule (object) :
               try :
                  fn_addr = ee.get_function_address ("main")
                  if fn_addr :
-                    fn = ctypes.CFUNCTYPE (ctypes.c_int32) (fn_addr)
-                    result = fn ()
+                    if len (main_decl.item_list) == 0 :
+                       fn = ctypes.CFUNCTYPE (ctypes.c_int32) (fn_addr)
+                       result = fn ()
+                    else :
+                       # main (int argc, char * argv []) — umělé argumenty,
+                       # volání odpovídá spuštění programu bez parametrů.
+                       argv0 = ctypes.create_string_buffer (b"cmm")
+                       argv = (ctypes.c_void_p * 2) (
+                          ctypes.cast (argv0, ctypes.c_void_p).value, None)
+                       fn = ctypes.CFUNCTYPE (ctypes.c_int32,
+                          ctypes.c_int32, ctypes.c_void_p) (fn_addr)
+                       result = fn (1, ctypes.cast (argv, ctypes.c_void_p))
                     print ("main returned:", result)
               except Exception as e :
                  print ("main JIT call failed:", e)
