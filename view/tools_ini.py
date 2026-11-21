@@ -1,10 +1,9 @@
 """Builds the top-level &Examples menu from tools.ini.
 
 The INI uses ConfigParser syntax — see tools.ini for the schema. Each
-section becomes a submenu, each path under `files` an action. The
-action runs cmm/cmm_run.py on a .t source (or cmm/cmm_iced.py on a .cc
-C-- program) via win.runCommand so output streams into the Info panel
-(with ANSI colors, courtesy of tools.py).
+section becomes a submenu, each path under `files` an action that
+opens the example file in the editor (nothing is compiled or run from
+this menu).
 
 Missing tools.ini -> no menu. Failure to parse a section is logged and
 that section is skipped; the rest of the menu is still built.
@@ -14,6 +13,10 @@ import os
 import configparser
 
 from PyQt5.QtWidgets import QAction
+
+# Project root (the directory above view/); the example paths in
+# tools.ini are relative to it.
+ROOT = os.path.dirname (os.path.dirname (os.path.abspath (__file__)))
 
 
 def listExamples (ini_path = None) :
@@ -58,27 +61,15 @@ def installExamplesMenu (win, ini_path = "tools.ini") :
             act = QAction (os.path.basename (path), win)
             act.setToolTip (path)
             act.triggered.connect (
-                lambda checked = False, f = path : _runCmm (win, f))
+                lambda checked = False, f = path : _openExample (win, f))
             sub.addAction (act)
     return top
 
 
-def _runCmm (win, path) :
-    """Compile the example; .cc C-- programs run natively, .t sources
-    go through cmm_run.py.
-
-    cmm_run.py joins out_dir + path, so both must be absolute —
-    os.path.join then keeps the source path intact and the generated
-    .t.py / .t.cpp land next to the source (cwd stays the project root
-    for the relative includes inside the .t files)."""
-    if path.endswith (".cc") :
-        cmd = "python3 cmm/cmm_iced.py " + _shquote (path)
-    else :
-        src = os.path.abspath (path)
-        cmd = ("python3 cmm/cmm_run.py -o " + _shquote (os.path.dirname (src)) +
-               " " + _shquote (src))
-    win.runCommand (cmd)
-
-
-def _shquote (s) :
-    return "'" + s.replace ("'", "'\\''") + "'"
+def _openExample (win, path) :
+    """Open the example in the editor (paths in tools.ini are relative
+    to the project root; the menu only opens files, it does not compile
+    or run them)."""
+    if not os.path.isabs (path) :
+        path = os.path.join (ROOT, path)
+    win.loadFile (path)

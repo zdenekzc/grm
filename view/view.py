@@ -35,6 +35,11 @@ class ViewWindow (MainWindow):
    def __init__ (self, parent) :
        super (ViewWindow, self).__init__ (parent)
 
+       # Menu commands run from the project root: the example paths in
+       # tools.ini are relative to it, even when the IDE is started from
+       # view/ (path on sys.path [0] is the view/ directory itself).
+       self.info.work_dir = os.path.dirname (os.path.abspath (sys.path [0]))
+
        self.grep_dialog = GrepDialog (self)
 
        # resizeMainWindow (self)
@@ -119,12 +124,6 @@ class ViewWindow (MainWindow):
        act.triggered.connect (self.debug_cpp_file)
        menu.addAction (act)
 
-       act = QAction ("Debug with &LLDB", self)
-       act.setIcon (findIcon ("debug-run"))
-       act.setShortcut ("Ctrl+F5")
-       act.triggered.connect (self.debug_lldb)
-       menu.addAction (act)
-
        menu.addSeparator ()
 
        act = QAction ("&Grep", self)
@@ -147,10 +146,17 @@ class ViewWindow (MainWindow):
 
        self.toolsMenu = self.addTopMenu ("&Tools")
 
-       act = QAction ("&Test All Examples", self)
-       act.setIcon (findIcon ("system-run"))
-       act.triggered.connect (self.test_all_examples)
-       self.toolsMenu.addAction (act)
+       for title, script in [
+           ("Test &Generate (iced-x86)", "test_generate.py"),
+           ("Test &LLVM",                "test_llvm.py"),
+           ("Test &.t Examples",         "test_t_examples.py"),
+           ("Test &Set Examples",        "test_set.py"),
+       ] :
+           act = QAction (title, self)
+           act.setIcon (findIcon ("system-run"))
+           act.triggered.connect (lambda checked = False, s = script :
+                                  self.run_test_suite (s))
+           self.toolsMenu.addAction (act)
 
        self.toolsMenu.addSeparator ()
 
@@ -280,9 +286,11 @@ class ViewWindow (MainWindow):
           binary   = self.outputBinary (fileName)
           self.runCommand (compiler + " " + options + " " + fileName + " -o " + binary + " && " + binary)
 
-   def test_all_examples (self) :
-       "Compile every tools.ini example, run each generated .py briefly."
-       self.runCommand (sys.executable + " tests/test_t_examples.py --timeout 2")
+   def run_test_suite (self, script) :
+       "Run one of the tests/ suites; output streams into the Info panel."
+       path = os.path.join (os.path.dirname (os.path.abspath (sys.path [0])),
+                            "tests", script)
+       self.runCommand (sys.executable + " " + path)
 
    def debug_cpp_file (self) :
        editor = self.getEditor ()
@@ -304,30 +312,6 @@ class ViewWindow (MainWindow):
           if fileName.lower ().endswith (".ui") and os.path.isfile (fileName) :
              ui_file = fileName
        openQtDesigner (self, ui_file)
-
-   def debug_lldb (self) :
-       "Compile current C/C++ file with -g and open it in the LLDB UI."
-       from debugger import openDebugger
-       editor = self.getEditor ()
-       if editor == None :
-          # No active editor — still allow opening an empty debugger.
-          openDebugger (self, "")
-          return
-       self.checkModifiedOnDisk (editor)
-       fileName = editor.getFileName ()
-       binary   = self.outputBinary (fileName)
-       ext      = os.path.splitext (fileName) [1].lower ()
-       # If the current file is a source we can compile, rebuild with -g
-       # (debug info) before launching the UI. Otherwise just treat the
-       # current file path as the binary to load.
-       if ext in (".c", ".cc", ".cpp", ".cxx") :
-          options  = readEmbeddedOptions (fileName)
-          compiler = "g++" if ext in (".cc", ".cpp", ".cxx") else "gcc"
-          self.runCommand (compiler + " -g " + options + " " + fileName + " -o " + binary)
-          target = binary
-       else :
-          target = fileName
-       openDebugger (self, target)
 
    # Properties
 
