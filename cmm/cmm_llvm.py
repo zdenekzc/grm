@@ -1176,7 +1176,11 @@ class InstructionsModule (object) :
            # samotné .o neukládáme) a kopii zdrojáku <program>.cc,
            # jméno ze vstupního souboru (dama.cc → dama). Odlišené od
            # iced-x86 backendu (_output/generate/).
-           if self.compiler.win is None :
+           # Jen pro .cc zdroje: .t příklady (instr.t, ...) volají
+           # InstructionsModule jen jako ukázku pipeline — jejich IR se
+           # vypíše na stdout a ukládat ho do _output/ nemá smysl.
+           if self.compiler.win is None and \
+                 os.path.splitext (self.compiler.getFileName ()) [1] == ".cc" :
               import subprocess, tempfile, shutil
               outDir = "_output/llvm"
               if not os.path.isdir (outDir) :

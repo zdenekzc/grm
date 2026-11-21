@@ -290,7 +290,11 @@ class GenerateModule (object) :
        # relokace/PLT, musíme později promyslet. (.gitignore maskuje
        # _output/.) V IDE režimu soubory řídí okno — tam generator
        # zatím nic neukládá.
-       if self.compiler.win is None :
+       # Jen pro .cc zdroje: .t příklady (generate.t, instr.t, ...)
+       # volají GenerateModule jen jako ukázku pipeline — jejich kód
+       # se vypíše na stdout a ukládat ho do _output/ nemá smysl.
+       if self.compiler.win is None and \
+             os.path.splitext (self.compiler.getFileName ()) [1] == ".cc" :
           import shutil
           outDir = "_output/generate"
           if not os.path.isdir (outDir) :
