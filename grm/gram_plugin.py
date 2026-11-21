@@ -140,21 +140,46 @@ def _toCppParser (win) :
     parsed = _openGrammar (win)
     if parsed is None : return
     src, grammar = parsed
-    parser_path  = os.path.splitext (src) [0] + "_parser.cpp"
-    product_path = os.path.splitext (src) [0] + "_product.cpp"
+    grammar.parseRules ()
+
+    # C++ is a two-file target: the header holds the class declaration,
+    # the .cpp the implementations (same flow as cparser.py's and
+    # cproduct.py's CLI: parserHeader/parserCode, productHeader/productCode).
+    base = os.path.splitext (src) [0]
+    parser_h    = base + "_parser.h"
+    parser_cpp  = base + "_parser.cpp"
+    product_h   = base + "_product.h"
+    product_cpp = base + "_product.cpp"
 
     p = CParser ()
-    p.open (parser_path)
-    p.parserFromGrammar (grammar)
-    p.close ()
-    print ("wrote", parser_path)
+    p.cpp = True
+    p.set_consts ()
+    p.parser_header = os.path.basename (parser_h)
 
-    parserModuleName = os.path.splitext (os.path.basename (parser_path)) [0]
+    p.open (parser_h)
+    p.parserHeader (grammar, os.path.basename (parser_h))
+    p.close ()
+
     q = CProduct ()
-    q.open (product_path)
-    q.productFromGrammar (grammar, parserModuleName)
+    q.cpp = True
+    q.set_consts ()
+    q.parser_header  = os.path.basename (parser_h)
+    q.product_header = os.path.basename (product_h)
+
+    q.open (product_h)
+    q.productHeader (grammar, os.path.basename (product_h))
     q.close ()
-    print ("wrote", product_path)
+
+    p.open (parser_cpp)
+    p.parserCode (grammar)
+    p.close ()
+
+    q.open (product_cpp)
+    q.productCode (grammar)
+    q.close ()
+
+    for path in (parser_h, parser_cpp, product_h, product_cpp) :
+        print ("wrote", path)
 
     if hasattr (win, "loadFile") :
-        win.loadFile (parser_path)
+        win.loadFile (parser_cpp)

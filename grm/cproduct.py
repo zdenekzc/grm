@@ -777,9 +777,13 @@ class CProduct (CodeOutput) :
 
    # -----------------------------------------------------------------------
 
-   def productHeader (self, grammar) :
-
-       header_symbol = self.get_header_symbol (headerFileName)
+   def productHeader (self, grammar, header_name = "") :
+       # header_name = the header file being written (the CLI passes its
+       # --header value; library users pass their target name). It only
+       # feeds the include-guard symbol.
+       if header_name == "" :
+          header_name = self.product_header
+       header_symbol = self.get_header_symbol (header_name)
        self.put_header_ifdef (header_symbol)
 
        self.putLn ("#include " + quoteString (self.parser_header))
@@ -910,7 +914,7 @@ if __name__ == "__main__" :
       product.close ()
    else :
       product.open (headerFileName)
-      product.productHeader (grammar)
+      product.productHeader (grammar, headerFileName)
       product.close ()
 
       product.open (codeFileName)
