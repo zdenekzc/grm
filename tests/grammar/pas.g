@@ -1,64 +1,76 @@
 
-options
-{
-   common_header = pas_data;
-   common_name = pas_data;
+/* ---
+   pas.g - Pascal grammar in the grm format (converted from the
+   newer dialect at /abc/gibbon/src/pas/pas.g: options {} and
+   extension {} blocks removed, struct / enum / literals in < >
+   form, primitive rules replaced by grm built-ins, start rule
+   marked with <start>).
 
-   lexer_name = pas_lexer;
-   lexer_class = PasLexer;
+   Generate with (names from the original options):
+     python3 cparser.py  --cpp --class PasParser --lexer-class EnvInput
+             --lexer envio.h --base TBasic --symbol TSymbol
+             --header pas_parser.hpp --code pas_parser.cpp pas.g
+     python3 cproduct.py --cpp --class PasProduct --super TextOutput
+             --parser pas_parser.hpp --header pas_product.hpp
+             --code pas_product.cpp pas.g
 
-   parser_name = pas_parser;
-   parser_class = PasParser;
+   Original options block:
+   {
+      common_header = pas_data;
+      common_name = pas_data;
 
-   product_name = pas_product;
-   product_class = PasProduct;
+      lexer_name = pas_lexer;
+      lexer_class = PasLexer;
 
-   basic_type = TBasic;
+      parser_name = pas_parser;
+      parser_class = PasParser;
 
-   ignore_execute_options = true;
+      product_name = pas_product;
+      product_class = PasProduct;
 
-   #if 1
-   automatic_namespace = true;
-   lexer_super_class = EnvInput;
-   product_super_class = TextOutput;
-   #endif
+      basic_type = TBasic;
 
-   #if 1
-   mark_type = CmmMark; // type identifier for mark / rewind
-   #endif
+      ignore_execute_options = true;
 
-   #if 1
-   // store_first_location = storeLocation;
+      #if 1
+      automatic_namespace = true;
+      lexer_super_class = EnvInput;
+      product_super_class = TextOutput;
+      #endif
 
-   // locations = true;
-   // location_type = CmmLocation; // type identifier for locations
-   // location_init = "NULL"; // initialization value for locations
-   #endif
-}
+      #if 1
+      mark_type = CmmMark; // type identifier for mark / rewind
+      #endif
+
+      #if 1
+      // store_first_location = storeLocation;
+
+      // locations = true;
+      // location_type = CmmLocation; // type identifier for locations
+      // location_init = "NULL"; // initialization value for locations
+      #endif
+   }
+   --- */
+
 
 #if 1
-extension lexer_include
-{
-#include "envio.h"
-#include "ioexception.h"
-}
 
-extension common_header
-{
-class InputItem;
-typedef InputItem * CmmMark;
-typedef InputItem * CmmLocation;
-}
 
-extension product_include
-{
-#include "textio.h"
-}
 
 #endif
 
-literals
-{
+< header "pas_decl.h" >
+
+/* base class of the generated structures (in the original project it is
+   hand-written; grm declares the shared root in the grammar) */
+
+< struct TBasic {
+   int src_file;
+   int src_line;
+   int src_column;
+} >
+
+< literals
    DOT       : "." ;
    COMMA     : "," ;
    COLON     : ":" ;
@@ -85,50 +97,50 @@ literals
    GREATER_OR_EQUAL : ">=" ;
 
    ADDRESS : "@" ;
-}
+>
 
-enum TFce        { UnknownExp };
-enum TAccess     { };
-enum TStyle      { };
-enum TCall       { };
-enum TParamMode  { };
-enum TDeclTag    { };
-enum TModuleKind { };
+< enum TFce { UnknownExp } >
+< enum TAccess {  } >
+< enum TStyle {  } >
+< enum TCall {  } >
+< enum TParamMode {  } >
+< enum TDeclTag {  } >
+< enum TModuleKind {  } >
 
-struct TExpr
-{
-}
-
-struct TBinaryExpr : TExpr
+< struct TExpr
 {
    TFce fce;
+} >
+
+< struct TBinaryExpr : TExpr
+{
    TExpr * left;
    TExpr * right;
-}
+} >
 
-struct TComponentsItem
+< struct TComponentsItem
 {
    TAccess acs;
-}
+} >
 
-struct TProcType
+< struct TProcType
 {
    TStyle style;
    TCall  call_conv;
-};
+} >
 
-struct TParamItem
+< struct TParamItem
 {
    TParamMode mode;
-};
+} >
 
-struct TProcDecl
+< struct TProcDecl
 {
    TStyle style;
    TCall  call_conv;
-};
+} >
 
-struct TModule
+< struct TModule
 {
   TImportSect * intf_imports;
   TImportSect * impl_imports;
@@ -136,23 +148,14 @@ struct TModule
   TDeclGroup * impl_decl;
   TStatSeq * init;
   TStatSeq * finish;
-};
+} >
 
 /* ---------------------------------------------------------------------- */
 
-parser ;
 
-identifier <primitive> <identifier> :
-   <symbol IDENT> <function readIdent> ;
 
-number <primitive> :
-   <symbol NUMBER> <function readNumber> ;
 
-real_number <primitive> :
-   <symbol REAL_NUMBER> <function readReal> ;
 
-string_literal <primitive> :
-   <symbol STRING_LITERAL> <function readQuotedString> ;
 
 label_ident <TLabelIdent> :
    id: identifier
@@ -178,13 +181,13 @@ result_type <select TType> :
    simple_alias_type |
    simple_string_type ;
 
-simple_alias_type <new TAliasType> :
+simple_alias_type <new TAliasType:TType> :
    alias_name:qualified_name ;
 
-simple_string_type <new TStringType> :
+simple_string_type <new TStringType:TType> :
    "string" ;
 
-simple_file_type <new TFileType> :
+simple_file_type <new TFileType:TType> :
    "file" ;
 
 /* ---------------------------------------------------------------------- */
@@ -679,7 +682,7 @@ field_decl <TFieldDecl:TDeclSect> :
 
 method_decl <TProcDecl> :
    <execute open_proc>
-   <call> proc_head
+   proc_head
    (
      "virtual" <set a_virtual=true> ';' |
      "dynamic" <set a_dynamic=true> ';' |
@@ -931,11 +934,11 @@ proc_head <modify TProcDecl:TDeclSect> :
 
 proc_decl <TProcDecl> :
    <execute open_proc>
-   <call> proc_head
+   proc_head
    (
       "forward" <set a_forward=true>
    |
-      <call> proc_external <set external_spec=true>
+      proc_external <set external_spec=true>
    |
      ( "inline" ';' <set a_inline=true> )?
      local:decl_part
@@ -969,9 +972,9 @@ proc_external <modify TProcDecl> :
 
 proc_intf_decl <TProcDecl> :
    <execute open_proc>
-   <call> proc_head
+   proc_head
    ( "inline" ';' <set a_inline=true> )?
-   ( <call> proc_external <set external_spec=true> )?
+   ( proc_external <set external_spec=true> )?
    <execute close_proc>
    ;
 
@@ -1078,7 +1081,7 @@ library_decl <new TLibraryModule:TModule> :
 
 /* module */
 
-module_decl <select TModule> :
+module_decl <select TModule> <start> :
    unit_decl |
    program_decl |
    library_decl ;

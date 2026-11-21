@@ -245,6 +245,11 @@ class CParser (ToParser) :
    # -----------------------------------------------------------------------
 
    def declareEnumTypes (self, grammar) :
+       for enum in grammar.enum_list :
+           self.put_enum (enum.enum_name)
+           for value in enum.values :
+               self.put_enum_item (value)
+           self.put_enum_end ()
        for type in grammar.struct_list :
            self.declareEnum (grammar, type)
 
@@ -783,7 +788,7 @@ class CParser (ToParser) :
            self.put_func ("test_" + str (inx), type = "bool", cls = self.class_name)
            self.put_func_body ()
            self.put_local ("bool", "result", "true")
-           self.put_local ("int", "position", "mark" + self.call)
+           self.put_local (self.mark_type, "position", "mark" + self.call)
            self.checkFromExpression (grammar, expr)
            self.putLn (self.access + "rewind (position);")
            self.put_return ("result")
@@ -1269,6 +1274,7 @@ class CParser (ToParser) :
        self.lexer_name = "Lexer"
        self.symbol_name = "CmmSymbol"
        self.base_name = "CmmBasic"
+       self.mark_type = "int" # type of mark () / rewind () parameter
        self.class_name = "Parser"
 
    # -----------------------------------------------------------------------
@@ -1543,6 +1549,11 @@ if __name__ == "__main__" :
 
    options.add_option ("--ns", "--namespace", "--package", "--unit", dest="ns", default = "", action="store", help="C# namespace, Java package, Pascal unit")
    options.add_option ("--lexer",  dest="lexer", default = "", action="store", help="lexer header name")
+   options.add_option ("--class",  dest="class_name", default = "", action="store", help="Parser class name")
+   options.add_option ("--lexer-class", dest="lexer_name", default = "", action="store", help="Base class of the parser (lexer)")
+   options.add_option ("--base",   dest="base_name", default = "", action="store", help="Base class of the generated structures")
+   options.add_option ("--symbol", dest="symbol_name", default = "", action="store", help="Name of the symbol enumeration")
+   options.add_option ("--mark-type", dest="mark_type", default = "", action="store", help="Type of mark () / rewind () (default int)")
 
    (opts, args) = options.parse_args ()
 
@@ -1556,6 +1567,17 @@ if __name__ == "__main__" :
    codeFileName = opts.code
 
    product = CParser ()
+
+   if opts.class_name != "" :
+      product.class_name = opts.class_name
+   if opts.lexer_name != "" :
+      product.lexer_name = opts.lexer_name
+   if opts.base_name != "" :
+      product.base_name = opts.base_name
+   if opts.symbol_name != "" :
+      product.symbol_name = opts.symbol_name
+   if opts.mark_type != "" :
+      product.mark_type = opts.mark_type
 
    if opts.csharp :
       product.csharp = True

@@ -213,6 +213,13 @@ class ToParser (CodeOutput) :
              self.putLn ("self." + method_name + " (result)")
 
    def declareEnums (self, grammar) :
+       for enum in grammar.enum_list :
+           self.putLn ("# " + enum.enum_name)
+           inx = 0
+           for value in enum.values :
+               self.putLn (value + " = " + str (inx))
+               inx = inx + 1
+           self.putLn ()
        for type in grammar.struct_list :
           for enum_name in type.enums :
               enum = type.enums [enum_name]

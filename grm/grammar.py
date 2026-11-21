@@ -303,6 +303,8 @@ class Grammar (Lexer) :
        self.typedef_dict = { }
        self.header_list = [ ]
        self.literals = { }
+       self.enums = { } # global enums: < enum Name { item, ... } >
+       self.enum_list = [ ]
 
        self.collections = [ ]
        self.predicates = [ ]
@@ -425,7 +427,7 @@ class Grammar (Lexer) :
           field.is_ulong = (field_type == "ulong")
           field.is_long = (field_type == "long")
           field.is_str = (field_type == "str")
-          field.is_enum = field_type in type.enums
+          field.is_enum = field_type in type.enums or field_type in self.enums
           field.is_list = is_list
           field.is_ptr = not is_list and (field_type in self.struct_dict)
           field.hidden = hidden
@@ -433,7 +435,10 @@ class Grammar (Lexer) :
 
           field.struct_type = type
           if field.is_enum :
-             field.enum_type = type.enums [field_type]
+             if field_type in type.enums :
+                field.enum_type = type.enums [field_type]
+             else :
+                field.enum_type = self.enums [field_type]
 
           type.fields [field_name] = field
           type.field_list.append (field)
@@ -851,7 +856,7 @@ class Grammar (Lexer) :
              stop = False
              while not stop :
                 item_name = self.readIdentifier ()
-                self.declareEnumValue (enum_type, item_name, class_type)
+                self.declareEnumValue (enum_type, item_name)
                 if self.isSeparator (',') :
                    self.nextToken ()
                 else :
@@ -860,6 +865,29 @@ class Grammar (Lexer) :
        # if self.isSeparator (';') :
        #    self.nextToken ()
 
+
+   def enumDirective (self) :
+       " < enum TFce { UnknownExp } > "
+       enum_name = self.readIdentifier ("Enum type identifier expected")
+       if enum_name in self.enums :
+          enum = self.enums [enum_name]
+       else :
+          enum = Enum ()
+          enum.enum_name = enum_name
+          self.enums [enum_name] = enum
+          self.enum_list.append (enum)
+       if self.isSeparator ('{') :
+          self.nextToken ()
+          if not self.isSeparator ('}') :
+             stop = False
+             while not stop :
+                item_name = self.readIdentifier ("Enum item expected")
+                self.declareEnumValue (enum, item_name)
+                if self.isSeparator (',') :
+                   self.nextToken ()
+                else :
+                   stop = True
+          self.checkSeparator ('}')
 
    def structDirective (self) :
        type_name = self.readIdentifier ("Type identifier expected")

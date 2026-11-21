@@ -215,7 +215,7 @@ class CProduct (CodeOutput) :
           if item.rule_ref != None :
              dst = item.rule_ref.rule_type
           if self.last_rule != None :
-             src = self.fieldType (grammar, self.last_rule.rule_type, item.variable)
+             src = self.last_rule.rule_type
           if dst != "" and src != "" and dst != src and \
                 self.isTypeDerived (grammar, dst, src) :
              self.put (self.arrow + "conv_" + dst + " ()")
@@ -910,6 +910,8 @@ if __name__ == "__main__" :
 
    options.add_option ("--ns", "--namespace", "--package", "--unit", dest="ns", default = "", action="store", help="C# namespace, Java package")
    options.add_option ("--parser", "--parser-header", dest="parser", default = "", action="store", help="Parser header file name")
+   options.add_option ("--class",  dest="class_name", default = "", action="store", help="Product class name")
+   options.add_option ("--super",  dest="super_name", default = "", action="store", help="Base class of the product")
 
    (opts, args) = options.parse_args ()
 
@@ -928,6 +930,11 @@ if __name__ == "__main__" :
    grammar.close ()
 
    product = CProduct ()
+
+   if opts.class_name != "" :
+      product.class_name = opts.class_name
+   if opts.super_name != "" :
+      product.super_name = opts.super_name
 
    if opts.csharp :
       product.csharp = True
