@@ -60,7 +60,9 @@ class CParser (ToParser) :
           if type != None :
              result = result + type.fields [name].composed_name
 
-       return result
+       # "params" (C#) / "type" (Rust) must be escaped at the use site,
+       # consistently with the declaration in declareStruct ().
+       return self.identifier (result)
 
    def newItem (self, grammar, type_name) :
        if self.rust :
@@ -325,11 +327,19 @@ class CParser (ToParser) :
           elif field.is_list :
              field_type = self.vector (self.pointer (self.subst (grammar, field.field_type)))
           else :
-             field_type = self.pointer_permanent (self.subst (grammar, field.field_type)) # !?
+             # Reference-like field. An untyped pointer ('ptr' / the bare
+             # '*') substitutes to nothing or to 'ptr'/'void' — use the
+             # base class so e.g. Java does not get an illegal
+             # 'public void field;'.
+             elem = self.subst (grammar, field.field_type)
+             if elem in ("", "ptr", "void") :
+                elem = self.base_name
+             field_type = self.pointer_permanent (elem)
 
           name = field.field_name
           if field.composed_name != "" :
              name = field.composed_name
+          name = self.identifier (name)
 
           self.put_member (field_type, name)
        self.empty_line ()
@@ -377,10 +387,13 @@ class CParser (ToParser) :
                  elif self.js :
                     value = "[]"
                  else :
-                    value = "" # !?
+                    value = "" # C/C++: default-initialized member
               else :
-                 value = "" # !?
-              self.put_init (field.composed_name, value)
+                 # reference-like field (ptr / struct reference): default
+                 # is the language's null — an empty value would emit the
+                 # invalid "field =;" outside C/C++ initializer lists.
+                 value = self.null
+              self.put_init (self.identifier (field.composed_name), value)
        "constructor body"
        self.put_func_body ()
        if type.tag_name != "" :
@@ -553,11 +566,20 @@ class CParser (ToParser) :
        self.put_func_end ()
 
        self.put_func ("testSymbols", type = "bool", cls = self.class_name, inline = True)
+       # The parameter type must match how condition () emits the set_N
+       # tables in this language (short[] in Java/C#, array of byte in
+       # Pascal, const unsigned char in C/C++).
        if self.rust :
           cnt = int ((grammar.symbol_cnt + 7) / 8)
           self.put_param ("table", "[u8;" + str (cnt) + "]")
        elif self.vala :
           self.put_param ("table", "const uchar", array = True)
+       elif self.java :
+          self.put_param ("table", "short", array = True)
+       elif self.csharp :
+          self.put_param ("table", "byte", array = True)
+       elif self.pascal :
+          self.put_param ("table", "array of byte")
        else :
           self.put_param ("table", "const unsigned char", array = True)
        self.put_func_body ()
@@ -1013,10 +1035,25 @@ class CParser (ToParser) :
        self.empty_line ()
 
    def parserFromExpression (self, grammar, rule, expr) :
-       cnt = len (expr.alternatives)
+       # Nullable alternatives go last (same as toparser.py): a nullable
+       # alternative has no condition of its own and becomes the final
+       # "else" branch. Without the reorder a nullable alternative in the
+       # middle would be emitted as "else" and the alternatives after it
+       # as another "else" — "else { } else { }" is invalid in every
+       # brace language.
+       reordered = [ ]
+       reordered_end = [ ]
+       for alt in expr.alternatives :
+           if alt.nullable :
+               reordered_end.append (alt)
+           else :
+               reordered.append (alt)
+       reordered += reordered_end
+
+       cnt = len (reordered)
        start = True
        stop = False
-       for alt in expr.alternatives :
+       for alt in reordered :
            if cnt > 1 :
               if stop :
                  grammar.warning ("Cannot construct alternative condition")
@@ -1136,7 +1173,8 @@ class CParser (ToParser) :
        if item.select_item or item.continue_item or item.return_item :
           self.put (item.current_result + self.assign)
        if item.variable != ""  :
-          self.put (item.current_result + self.arrow + item.variable + self.assign)
+          self.put (item.current_result + self.arrow +
+                    self.identifier (item.variable) + self.assign)
 
        if item.variable != "" :
           self.put_store_pointer ()
@@ -1236,7 +1274,7 @@ class CParser (ToParser) :
 
        self.declareCustomMethods (grammar)
 
-       if self.csharp or self.java :
+       if self.csharp or self.java or self.vala :
           self.implementCollections (grammar)
 
        # constructor

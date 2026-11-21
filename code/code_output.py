@@ -10,6 +10,34 @@ from code_cls import *
 
 # --------------------------------------------------------------------------
 
+# Reserved words a grammar-derived identifier may collide with. Escaped by
+# CodeOutput.identifier (): C# "@name", Rust "r#name". Words that cannot be
+# raw identifiers in Rust (self, crate, super, ...) are left out on purpose.
+csharp_keywords = {
+   "abstract", "as", "base", "bool", "break", "byte", "case", "catch",
+   "char", "checked", "class", "const", "continue", "decimal", "default",
+   "delegate", "do", "double", "else", "enum", "event", "explicit",
+   "extern", "false", "finally", "fixed", "float", "for", "foreach",
+   "goto", "if", "implicit", "in", "int", "interface", "internal", "is",
+   "lock", "long", "namespace", "new", "null", "object", "operator",
+   "out", "override", "params", "private", "protected", "public",
+   "readonly", "ref", "return", "sbyte", "sealed", "short", "sizeof",
+   "stackalloc", "static", "string", "struct", "switch", "this", "throw",
+   "true", "try", "typeof", "uint", "ulong", "unchecked", "unsafe",
+   "ushort", "using", "virtual", "void", "volatile", "while",
+}
+
+rust_keywords = {
+   "as", "break", "const", "continue", "else", "enum", "extern", "false",
+   "fn", "for", "if", "impl", "in", "let", "loop", "match", "mod",
+   "move", "mut", "pub", "ref", "return", "static", "struct", "trait",
+   "true", "type", "unsafe", "use", "where", "while", "async", "await",
+   "dyn", "abstract", "become", "box", "do", "final", "macro",
+   "override", "priv", "typeof", "unsized", "virtual", "yield", "try",
+}
+
+# --------------------------------------------------------------------------
+
 class CodeOutput (Output) :
 
    def __init__ (self) :
@@ -460,8 +488,12 @@ class CodeOutput (Output) :
                 self.send ("*")
              if self.cpp :
                 self.send ("&")
+          # C#/Vala need the array specifier as part of the type
+          # ("short[] table"); Java also accepts it after the name.
+          if array and (self.csharp or self.vala) :
+             self.send ("[ ]")
           self.send (name)
-          if array :
+          if array and not (self.csharp or self.vala) :
              self.send ("[ ]")
 
    def put_func_header (self, func_obj, with_cls = False) :
@@ -481,6 +513,10 @@ class CodeOutput (Output) :
           if self.cpp :
              if not with_cls :
                 self.send ("virtual")
+          elif self.csharp :
+             # C# needs the base method marked virtual for the derived
+             # "override" methods (conv_*).
+             self.send ("virtual")
 
        if func_obj.override :
           if self.csharp or self.vala :
@@ -897,6 +933,20 @@ class CodeOutput (Output) :
              name = "const char *"
        if name == "ptr" : # !?
              name = "void"
+       return name
+
+   def identifier (self, name) :
+       """Escape a grammar-derived identifier that collides with a
+       keyword of the target language ("params" in C#, "type" in Rust).
+       Applies to the last dotted component only, so composed names like
+       "inner.type" become "inner.r#type"."""
+       if "." in name :
+          head, _, tail = name.rpartition (".")
+          return head + "." + self.identifier (tail)
+       if self.csharp and name in csharp_keywords :
+          return "@" + name
+       if self.rust and name in rust_keywords :
+          return "r#" + name
        return name
 
    # -----------------------------------------------------------------------
