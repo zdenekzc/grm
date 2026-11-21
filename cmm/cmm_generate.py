@@ -280,6 +280,51 @@ class GenerateModule (object) :
        print ("emitted", len (code_bytes), "bytes at", hex (base_addr))
        self._disassemble (code_bytes, base_addr)
 
+       # Přeložený program uložíme i na disk, aby šel rozebrat objdumpem:
+       # CLI režim (win is None) → _output/generate/<program>.bin
+       # (surový strojový kód), <program>.asm (dis-asm listing) a
+       # <program>.sh (spouštěč přes cmm/cmm_iced.py). Jméno vezmeme
+       # ze vstupního souboru (dama.cc → dama). (.gitignore maskuje
+       # _output/ i *.bin.) V IDE režimu soubory řídí okno — tam generator
+       # zatím nic neukládá.
+       if self.compiler.win is None :
+          outDir = "_output/generate"
+          if not os.path.isdir (outDir) :
+             os.makedirs (outDir)
+          src = self.compiler.getFileName ()
+          base = os.path.splitext (os.path.basename (src)) [0]
+          fileName = os.path.join (outDir, base + ".bin")
+          f = open (fileName, "wb")
+          f.write (code_bytes)
+          f.close ()
+          listName = os.path.join (outDir, base + ".asm")
+          f = open (listName, "w")
+          f.write (self._disassembly (code_bytes, base_addr))
+          f.close ()
+          # <program>.sh — spouštěč; jen když existuje i zdroják, na
+          # který se skript může odvolat (testy pseudo-jméno nemají).
+          # Samostatný spustitelný ELF z .bin zatím nejde: kód má
+          # zapecované absolutní adresy libc funkcí (printf, ...) —
+          # vyžadovalo by to relokace/PLT, musíme později promyslet.
+          saved = [ fileName, listName ]
+          if os.path.isfile (src) :
+             rel = os.path.relpath (src, os.getcwd ())
+             shName = os.path.join (outDir, base + ".sh")
+             f = open (shName, "w")
+             f.write ("#!/bin/sh\n"
+                "# Spustí příklad %s přes C-- kompilátor a iced-x86 JIT\n"
+                "# backend (cmm/cmm_iced.py). Samostatný spustitelný\n"
+                "# soubor z %s.bin zatím nejde — kód má zapecované\n"
+                "# adresy libc funkcí (relokace musíme později promyslet).\n"
+                "cd \"$(dirname \"$0\")/../..\" || exit 1\n"
+                "exec python3 cmm/cmm_iced.py %s\n"
+                % (rel, base, rel))
+             f.close ()
+             os.chmod (shName, 0o755)
+             saved.append (shName)
+          print ("machine code, listing and launcher written to",
+             " ".join (saved))
+
        # Pokud existuje main () s 0 parametry, zavolej ji a vypiš návrat.
        # main (int argc, char * argv []) zavoláme taky, s umělými
        # argumenty (argc = 1, argv[0] = "cmm") — odpovídá spuštění
@@ -301,12 +346,19 @@ class GenerateModule (object) :
               return
 
    def _disassemble (self, code_bytes, base_addr) :
+       print (self._disassembly (code_bytes, base_addr), end = "")
+
+   def _disassembly (self, code_bytes, base_addr) :
+       """Dis-asm jako text — tiskne se na stdout a ukládá do
+       _output/generate/<program>.asm."""
+       result = ""
        decoder = ix.Decoder (64, code_bytes, ip = base_addr)
        formatter = ix.Formatter (ix.FormatterSyntax.INTEL)
        formatter.first_operand_char_index = 8
        for inst in decoder :
            text = formatter.format (inst)
-           print ("  %016x: %s" % (inst.ip, text))
+           result += "  %016x: %s\n" % (inst.ip, text)
+       return result
 
    # -----------------------------------------------------------------------
    # labely

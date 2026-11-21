@@ -91,6 +91,8 @@ compiler.foreign_modules = foreign_modules
 compiler.extension_modules = [ sys.modules ["cmm_set"],
                                sys.modules ["cmm_llvm"],
                                sys.modules ["cmm_generate"] ]
+# Stub hlavičky (stdio.h, stdlib.h, ...) pro #include v C-- zdrojácích.
+compiler.addInclDir (os.path.join (work_dir, "include"))
 
 compiler.openFile (inputFileName)
 compiler.compile_program ()

@@ -34,7 +34,7 @@ Spuštění:
 
 from __future__ import print_function
 
-import os, sys, io, contextlib
+import os, sys, io, re, contextlib
 
 # ---------------------------------------------------------------------------
 # Cesty: sdílíme s test_generate.py přesně.
@@ -72,22 +72,23 @@ def run_test (label, decls, expected, verbose = False) :
    InstructionsModule.compile (), zachytí stdout a porovná
    návratovou hodnotu main () proti expected.
 
-   Test bezpečně přepneme do tempdir, protože LLVM backend píše
-   instr.o do cwd a my nechceme znečišťovat repository."""
-   import tempfile
-
+   Přepneme se do kořene repozitáře: backend ukládá přeložený
+   program do _output/llvm/ (gitignored), ať test běží odkokolik."""
    compiler = FakeCompiler ()
    compiler.global_scope.item_list = decls
+   # Jméno pro uložené soubory: label do první dvojtečky bez mezer
+   # ("basic arith: 6 * 7" → basic_arith.o / basic_arith.ll).
+   compiler.file_name = re.sub (r"\W+", "_", label.split (":") [0].strip ()).strip ("_")
+   # → .o / .ll
 
    buf = io.StringIO ()
    olddir = os.getcwd ()
-   with tempfile.TemporaryDirectory () as tmpdir :
-      try :
-         os.chdir (tmpdir)
-         with contextlib.redirect_stdout (buf) :
-            cmm_llvm.InstructionsModule (compiler).compile ()
-      finally :
-         os.chdir (olddir)
+   try :
+      os.chdir (ROOT)
+      with contextlib.redirect_stdout (buf) :
+         cmm_llvm.InstructionsModule (compiler).compile ()
+   finally :
+      os.chdir (olddir)
    captured = buf.getvalue ()
 
    if verbose :

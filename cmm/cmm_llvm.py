@@ -1041,6 +1041,12 @@ class InstructionsModule (object) :
              pass
 
        self.module = ir.Module ()
+       # Host triple do modulu: jinak má .ll "unknown-unknown-unknown"
+       # a nejde přehrát přes lli (MCJIT host triple bral jen implicitně).
+       try :
+          self.module.triple = llvm.get_default_triple ()
+       except RuntimeError :
+          pass
 
        # Pre-pass: jen DEKLARACE všech funkcí (ir.Function bez basic
        # bloků, decl.code bude pointovat na ni). Tím dovolíme funkcím
@@ -1152,15 +1158,64 @@ class InstructionsModule (object) :
                  print ("main JIT call failed:", e)
 
            obj = machine.emit_object (llmod)
-           # win.outputFileName routes the .o into the IDE's _output dir;
-           # in CLI mode (cmm_run.py) win is None — fall back to cwd.
-           if self.compiler.win is not None :
-              fileName = self.compiler.win.outputFileName ("instr.o")
-           else :
-              fileName = "instr.o"
-           f = open (fileName, "wb")
-           f.write (obj)
-           f.close()
+           # IDE režim: win.outputFileName ("instr.o") — metoda ve view/
+           # neexistuje, IDE ukládání musíme později vyřešit. Zatím se
+           # v IDE režimu nic neukládá.
+           # if self.compiler.win is not None :
+           #    fileName = self.compiler.win.outputFileName ("instr.o")
+           #    f = open (fileName, "wb")
+           #    f.write (obj)
+           #    f.close ()
+           # CLI režim (cmm_run.py, tests, win is None): ukládáme do
+           # _output/llvm/ — <program>.o (objektový soubor), <program>.ll
+           # (LLVM IR), <program>.bin (spustitelný ELF zlinkovaný z .o)
+           # a <program>.sh (spouštěč), jméno ze vstupního souboru
+           # (dama.cc → dama). Odlišené od iced-x86 backendu
+           # (_output/generate/).
+           if self.compiler.win is None :
+              import subprocess
+              outDir = "_output/llvm"
+              if not os.path.isdir (outDir) :
+                 os.makedirs (outDir)
+              src = self.compiler.getFileName ()
+              base = os.path.splitext (os.path.basename (src)) [0]
+              fileName = os.path.join (outDir, base + ".o")
+              f = open (fileName, "wb")
+              f.write (obj)
+              f.close ()
+              # <program>.ll — LLVM IR, jde přehrát přes lli / llc
+              # (str (self.module) je ten samý text, co jde parse_assembly).
+              llName = os.path.join (outDir, base + ".ll")
+              f = open (llName, "w")
+              f.write (strmod)
+              f.close ()
+              # <program>.bin — zlinkuj objektový soubor na spustitelný
+              # ELF (definice main + libc za printf; volací konvence
+              # System V, takže obyčejné gcc stačí).
+              binName = os.path.join (outDir, base + ".bin")
+              link = subprocess.run (["gcc", "-o", binName, fileName],
+                 capture_output = True, text = True)
+              if link.returncode == 0 :
+                 os.chmod (binName, 0o755)
+                 linked = True
+              else :
+                 linked = False
+                 print ("could not link", fileName, ":", link.stderr.strip ())
+              # <program>.sh — spouštěč; jen když existuje i zdroják,
+              # na který se skript může odvolat (testy pseudo-jméno nemají).
+              if linked and os.path.isfile (src) :
+                 shName = os.path.join (outDir, base + ".sh")
+                 f = open (shName, "w")
+                 f.write ("#!/bin/sh\n"
+                          "# Spustí přeložený program (%s, zlinkováno z %s).\n"
+                          "exec \"$(dirname \"$0\")/%s.bin\" \"$@\"\n"
+                          % (binName, fileName, base))
+                 f.close ()
+                 os.chmod (shName, 0o755)
+                 print ("object, LLVM IR, executable and launcher written to",
+                    fileName, llName, binName, shName)
+              else :
+                 print ("object and LLVM IR written to", fileName, "and", llName)
 
        # see llvmlite/tests/test_binding.py
 

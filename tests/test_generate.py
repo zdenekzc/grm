@@ -35,7 +35,7 @@ Spuštění:
 
 from __future__ import print_function
 
-import os, sys, io, contextlib
+import os, sys, io, re, contextlib
 
 # ---------------------------------------------------------------------------
 # Cesty: testovací soubor leží v view-mini/test/, k modulům musíme nahoru.
@@ -86,6 +86,12 @@ class FakeCompiler (object) :
        code_mod.initNamespace (self.global_scope)
        self.global_scope.item_list = [ ]
        self.win = None
+       # Jméno „vstupního souboru“ — backendy z něj odvozují jména
+       # uložených souborů v _output/ (run_test ho nastaví na test).
+       self.file_name = "test"
+
+   def getFileName (self) :
+       return self.file_name
 
 # ---------------------------------------------------------------------------
 # AST builders — funkce pro stavbu uzlů. Pojmenování zhruba kopíruje
@@ -287,13 +293,26 @@ def run_test (label, decls, expected, verbose = False) :
    GenerateModule píše dis-asm a hlášky na stdout. Pro test parser
    linky 'main returned: N' vždy zachytíme stdout do bufferu; v
    -v módu pak buffer ještě vypíšeme tak, jak by se chovala
-   normální stdout."""
+   normální stdout.
+
+   Přepneme se do kořene repozitáře: backend ukládá přeložený
+   program do _output/generate/ (gitignored), ať test běží
+   odkokolik."""
    compiler = FakeCompiler ()
    compiler.global_scope.item_list = decls
+   # Jméno pro uložené soubory: label do první dvojtečky bez mezer
+   # ("basic arith: 6 * 7" → basic_arith.bin / basic_arith.asm).
+   compiler.file_name = re.sub (r"\W+", "_", label.split (":") [0].strip ()).strip ("_")
+   # → .bin / .asm
 
    buf = io.StringIO ()
-   with contextlib.redirect_stdout (buf) :
-      cmm_generate.GenerateModule (compiler).compile ()
+   olddir = os.getcwd ()
+   try :
+      os.chdir (ROOT)
+      with contextlib.redirect_stdout (buf) :
+         cmm_generate.GenerateModule (compiler).compile ()
+   finally :
+      os.chdir (olddir)
    captured = buf.getvalue ()
 
    if verbose :
