@@ -16,6 +16,8 @@ teaching.
   original Czech wiki (see [docs/README.md](docs/README.md)).
 - `wiki/` — the original Czech wiki text from which `docs/` was translated.
 
+&nbsp;
+
 - `code/` — shared support modules used by the toolkit and the examples
   (lexer base, input/output, code-generation infrastructure, ...); they
   originate from the [simple-view](https://github.com/zdenekzc/simple-view)
@@ -24,8 +26,12 @@ teaching.
   parser/product, a working example of the toolkit in use.
 - `examples/` — small example source files and demos.
 
+&nbsp;
+
 - `qtdesigner/` — Qt Designer plugins for building the GUI environment.
 - `view/` — the IDE application files for the simple-view GUI environment.
+
+&nbsp;
 
 - `set/` — sample source files (JSON, XML, text I/O, ...) used as test
   inputs for the recognizer test harness.
