@@ -46,8 +46,16 @@ IDE's Examples menu uses), compiles each `.t` example with
 GUI examples are expected to stay alive (TIMEOUT = pass), console
 examples to exit cleanly.
 
-The generated `.t.py` / `.t.cpp` files land in a subdirectory of
-`_output/` (gitignored), so the `.t` sources themselves stay clean.
+The generated `.t.py` / `.t.cpp` files land in `_output/t-examples/`
+(gitignored), so the `.t` sources themselves stay clean; the generated
+`.t.py` gets the executable bit.
+
+### test_set.py — `set/` examples smoke test
+
+The same machinery, for the `set/` sample sources (JSON, XML, text
+I/O). Generated outputs go to `_output/set/`. The compile must run
+from the repository root — `cmm/cmm_set.py` reads its data files
+(`set/json.t`, ...) relative to the cwd.
 
 ## Example sources
 
@@ -85,7 +93,8 @@ From the repository root:
 ```
 ./tests/test_generate.py        # iced-x86 backend, 7 examples
 ./tests/test_llvm.py            # LLVM backend, 7 examples
-./tests/test_t_examples.py        # .t examples smoke test
+./tests/test_t_examples.py      # .t GUI examples smoke test
+./tests/test_set.py             # set/ examples smoke test
 ```
 
 Each script takes `-v` for verbose output and exits with the number of

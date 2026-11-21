@@ -1,21 +1,25 @@
 #!/usr/bin/env python3
-"""Smoke-test every example listed in view/tools.ini.
+"""Smoke-test the .t GUI examples (tests/t-examples/).
 
-For each path:
-  1. compile  — run cmm/cmm_run.py to produce <path>.py
-  2. start    — execute the generated .py with a short timeout
+For each example listed in view/tools.ini:
+  1. compile  — run cmm/cmm_run.py to produce <name>.t.py
+  2. start    — execute the generated .t.py with a short timeout
   3. judge    — TIMEOUT (still alive after timeout = "running OK"),
                 EXIT0 (exited cleanly within timeout), or
                 FAIL (non-zero exit + first stderr lines).
 
-The generated .t.py / .t.cpp files land in a subdirectory of _output/
-(gitignored) — the .t sources themselves stay clean.
+The generated .t.py / .t.cpp files land in _output/t-examples/
+(gitignored) — the .t sources themselves stay clean, and the generated
+.t.py gets the executable bit (it has a #! line).
 
 Usage:
-  ./test_examples.py                # default 2 s run timeout
-  ./test_examples.py --timeout 5    # longer per-example wait
+  ./tests/test_t_examples.py                # default 2 s run timeout
+  ./tests/test_t_examples.py --timeout 5    # longer per-example wait
 
 Exit code is the number of FAIL examples (0 = all good).
+
+The set/ examples (.t files with JSON/XML/textio data) are tested the
+same way by tests/test_set.py, which reuses run_examples () from here.
 """
 
 import os
@@ -30,11 +34,16 @@ sys.path.insert (0, os.path.join (ROOT, "view"))   # tools_ini
 
 from tools_ini import listExamples
 
-# Generated outputs go to _output/ (gitignored); cmm_run.py joins
-# out_dir + path, so a .t source at tests/t-examples/button.t produces
-# _output/tests/t-examples/button.t.py — the directory must exist.
-OUT_DIR = os.path.join (ROOT, "_output")
+# The [section] of view/tools.ini this test covers — matched by the
+# path prefix of the listed files (listExamples () returns section
+# titles, not section names).
+SECTION_PREFIX = "tests/t-examples/"
 
+# Generated outputs go to _output/t-examples/ (gitignored). cmm_run.py
+# joins out_dir + path, so we run it from the source's directory with
+# the bare file name: out_dir=_output/t-examples + button.t →
+# _output/t-examples/button.t.py.
+OUT_DIR = os.path.join (ROOT, "_output")
 
 # ANSI colors (tools.py renders them in the editor's Info panel; harmless
 # in a plain terminal too).
@@ -45,22 +54,48 @@ _RESET   = "\x1b[0m"
 
 
 def compile_one (path) :
-    """Run cmm/cmm_run.py on `path`. Returns (ok, generated_py, stderr_tail).
+    """Run cmm/cmm_run.py on `path` (repo-relative). Returns
+    (ok, generated_py, stderr_tail).
 
-    Stay in the repository root (so relative includes like "set/json.t"
-    inside the .t file resolve correctly) and pass `-o _output` plus the
-    relative path. cmm_run.py joins them as out_dir + path, which lands
-    the generated .py / .cpp under _output/tests/t-examples/."""
-    generated = os.path.join (OUT_DIR, path + ".py")
-    target_dir = os.path.dirname (generated)
-    if not os.path.isdir (target_dir) :
-        os.makedirs (target_dir)
-    cmd = [sys.executable, "cmm/cmm_run.py", "-o", OUT_DIR, path]
+    Compile from the repository root: cmm_set.py reads its data files
+    ("set/json.t", ...) relative to the cwd, so it must not change.
+    cmm_run.py joins out_dir + path, which would nest the output as
+    _output/tests/t-examples/... — after the compile we move the
+    generated files one directory up, to _output/t-examples/
+    (resp. _output/set/ for the set/ sources)."""
+    src_dir = os.path.dirname (path)
+    name = os.path.basename (path)
+    out_sub = os.path.basename (src_dir)
+    final_dir = os.path.join (OUT_DIR, out_sub)
+    if not os.path.isdir (final_dir) :
+        os.makedirs (final_dir)
+    # cmm_run.py nevytváří adresáře — ten vnořený (_output/tests/…)
+    # musí existovat, i když ho hned poté přesuneme o úroveň výš.
+    nested = os.path.join (OUT_DIR, src_dir)
+    if not os.path.isdir (nested) :
+        os.makedirs (nested)
+    generated = os.path.join (final_dir, name + ".py")
+    cmd = [sys.executable, os.path.join (ROOT, "cmm", "cmm_run.py"),
+           "-o", OUT_DIR, path]
     try :
         proc = subprocess.run (cmd, capture_output = True, text = True,
-                               timeout = 30)
+                               timeout = 30, cwd = ROOT)
     except subprocess.TimeoutExpired :
         return False, generated, "compile timed out (30 s)"
+    # cmm_run.py wrote OUT_DIR/<src_dir>/<name>.t.{py,cpp} — move them
+    # one directory up, to _output/<out_sub>/.
+    for ext in (".py", ".cpp") :
+        nested_file = os.path.join (nested, name + ext)
+        if os.path.isfile (nested_file) :
+            os.replace (nested_file, os.path.join (final_dir, name + ext))
+    # Uklid prázdných vnořených adresářů (_output/tests/t-examples → …).
+    d = nested
+    while d != OUT_DIR and os.path.isdir (d) :
+        try :
+            os.rmdir (d)   # projde jen když je adresář prázdný
+        except OSError :
+            break
+        d = os.path.dirname (d)
     if proc.returncode != 0 or not os.path.isfile (generated) :
         tail = (proc.stderr or proc.stdout or "").splitlines () [-3:]
         return False, generated, "\n        ".join (tail)
@@ -91,54 +126,59 @@ def run_one (py_path, timeout) :
     return "FAIL", "\n        ".join (tail) or ("rc=" + str (proc.returncode))
 
 
+def run_examples (section_prefix, timeout, verbose = False) :
+    """Compile and run every tools.ini example whose path starts with
+    `section_prefix`. Returns (ok_count, total). Shared with
+    tests/test_set.py."""
+    sections = listExamples (None)
+    files = [ ]
+    title = None
+    for name, section_files in sections :
+        if section_files and section_files [0].startswith (section_prefix) :
+            title = name
+            files = section_files
+            break
+    if not files :
+        sys.exit ("no examples with prefix " + section_prefix + " in tools.ini")
+
+    ok_count = 0
+    for path in files :
+        ok, gen, err = compile_one (path)
+        if not ok :
+            print ("  " + _RED + "COMPILE-FAIL" + _RESET +
+                   "  " + path + " — " + err)
+            continue
+        verdict, detail = run_one (gen, timeout)
+        if verdict == "FAIL" :
+            color = _RED
+        else :
+            # TIMEOUT — usually means a GUI loop, that's the success case
+            ok_count += 1
+            color = _GREEN if verdict == "EXIT0" else _YELLOW
+        print ("  " + color + verdict.ljust (12) + _RESET +
+               "  " + path + " — " + detail)
+    return ok_count, len (files)
+
+
 def main () :
     p = argparse.ArgumentParser (description = __doc__)
     p.add_argument ("--timeout", type = float, default = 2.0,
                     help = "seconds to keep each generated program alive (default 2)")
-    p.add_argument ("--ini", default = None,
-                    help = "path to the examples manifest (default: tools.ini next to tools_ini.py)")
     args = p.parse_args ()
 
-    sections = listExamples (args.ini)
-    if not sections :
-        sys.exit ("no examples found in " + args.ini)
-
-    fails = 0
-    total = 0
     started = time.time ()
-
-    for title, files in sections :
-        print ()
-        print ("== " + title + " (" + str (len (files)) + " examples) ==")
-        for path in files :
-            total += 1
-            tag = path
-            ok, gen, err = compile_one (path)
-            if not ok :
-                print ("  " + _RED + "COMPILE-FAIL" + _RESET +
-                       "  " + tag + " — " + err)
-                fails += 1
-                continue
-            verdict, detail = run_one (gen, args.timeout)
-            if verdict == "FAIL" :
-                fails += 1
-                color = _RED
-            elif verdict == "EXIT0" :
-                color = _GREEN
-            else :  # TIMEOUT — usually means a GUI loop, that's the success case here
-                color = _GREEN
-            print ("  " + color + verdict.ljust (12) + _RESET +
-                   "  " + tag + " — " + detail)
+    print ("== " + SECTION_PREFIX + " ==")
+    ok, total = run_examples (SECTION_PREFIX, args.timeout)
 
     elapsed = time.time () - started
     print ()
-    summary = ("summary: " + str (total - fails) + "/" + str (total) +
+    summary = ("summary: " + str (ok) + "/" + str (total) +
                " ok in " + ("%.1f" % elapsed) + " s")
-    if fails == 0 :
+    if ok == total :
         print (_GREEN + summary + _RESET)
     else :
-        print (_RED + summary + " (" + str (fails) + " failed)" + _RESET)
-    sys.exit (fails)
+        print (_RED + summary + " (" + str (total - ok) + " failed)" + _RESET)
+    sys.exit (total - ok)
 
 
 if __name__ == "__main__" :
