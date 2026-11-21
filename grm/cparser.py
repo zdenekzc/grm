@@ -136,7 +136,7 @@ class CParser (ToParser) :
    def selectKeywords (self, grammar) :
        self.put_func ("lookupKeyword", cls = self.class_name)
        self.put_func_body ()
-       self.put_local ("string", "s", self.nested + "tokenText")
+       self.put_local ("string", "s", self.nested + "tokenTxt")
        self.put_local ("int", "n", self.string_length ("s"))
 
        lim = 0
@@ -184,16 +184,16 @@ class CParser (ToParser) :
        for c in sorted (dictionary.keys ()) :
            self.put_if ()
            if level == 1 :
-              self.send (self.string_compare (self.nested + "tokenText", self.quote (c)))
+              self.send (self.string_compare (self.nested + "tokenTxt", self.quote (c)))
            else :
-              self.send (self.nested + "ch" + self.equal + "'" + c + "'")
+              self.send (self.nested + "inpCh" + self.equal + "'" + c + "'")
            self.put_then ()
            self.put_begin ()
            name = prefix + c
            if name in grammar.separator_dict :
               self.put_assign (self.access + "token", self.symbolItem (grammar.separator_dict[name].ident))
            if level > 1 :
-              self.put_assign (self.nested + "tokenText", self.nested + "tokenText + " + self.nested + "ch")
+              self.put_assign (self.nested + "tokenTxt", self.nested + "tokenTxt + " + self.nested + "inpCh")
               self.putLn (self.nested + "nextCh" + self.call + ";")
            if len (dictionary[c]) != 0 :
               self.selectBranch (grammar, dictionary[c], level+1, prefix+c)
@@ -496,7 +496,7 @@ class CParser (ToParser) :
        self.put_func_body ()
 
        self.put_if ()
-       self.send (self.access + "tokenKind" + self.equal + self.nested + "identToken") # !?
+       self.send (self.access + "tokenKind" + self.equal + self.nested + "nameToken")
        self.put_then ()
        self.put_begin ()
        self.put_assign (self.access + "token", self.symbolItem ("identifier"))
@@ -509,6 +509,14 @@ class CParser (ToParser) :
        self.put_then ()
        self.put_begin ()
        self.put_assign (self.access + "token", self.symbolItem ("number"))
+       self.put_end ()
+
+       self.send ("else")
+       self.put_if ()
+       self.send (self.access + "tokenKind" + self.equal + self.nested + "realToken")
+       self.put_then ()
+       self.put_begin ()
+       self.put_assign (self.access + "token", self.symbolItem ("real_number"))
        self.put_end ()
 
        self.send ("else")
@@ -583,8 +591,20 @@ class CParser (ToParser) :
        else :
           self.put_param ("table", "const unsigned char", array = True)
        self.put_func_body ()
-       self.put_local ("int", "pos", self.nested + "token" + self.div + "8")
-       self.put_local ("int", "bit", self.nested + "token" + self.mod + "8;")
+       # token is an enum in the typed targets; arithmetic needs the
+       # underlying integer (Java/C#/Vala cast, Pascal ord, Rust as-cast).
+       if self.java :
+          tok = self.nested + "token.ordinal ()"
+       elif self.csharp or self.vala :
+          tok = "(int) " + self.nested + "token"
+       elif self.rust :
+          tok = self.nested + "token as i32"
+       elif self.pascal :
+          tok = "ord (" + self.nested + "token)"
+       else :
+          tok = self.nested + "token"
+       self.put_local ("int", "pos", tok + self.div + "8")
+       self.put_local ("int", "bit", tok + self.mod + "8")
        self.put_return ("table [pos] " + self.bit_and + " (1" + self.shl + "bit)")
        self.put_func_end ()
 
@@ -607,7 +627,7 @@ class CParser (ToParser) :
        self.put_func_body ()
        self.put_assign ("item" + self.arrow + "src_file", self.nested + "getTokenFileInx" + self.call)
        self.put_assign ("item" + self.arrow + "src_line", self.nested + "getTokenLine" + self.call)
-       self.put_assign ("item" + self.arrow + "src_col", self.nested + "getTokenCol" + self.call)
+       self.put_assign ("item" + self.arrow + "src_column", self.nested + "getTokenCol" + self.call)
        self.put_func_end ()
 
    # --------------------------------------------------------------------------
@@ -688,7 +708,7 @@ class CParser (ToParser) :
                     # code = code + "token ==" + symbol.ident
                     code = code + self.access + "isSymbol (" + self.symbolItem (symbol.ident) + ")"
                  else :
-                    code = code + self.access + "tokenText" + self.equal + self.quote (symbol.text)
+                    code = code + self.access + "tokenTxt" + self.equal + self.quote (symbol.text)
        else :
           num = self.findCollection (grammar, collection)
           # code = "set_" + str (num) + " [token / 8] & 1 << token % 8"
@@ -863,7 +883,7 @@ class CParser (ToParser) :
           if symbol.ident != "" and (symbol.multiterminal or not self.use_strings or symbol.text == "") :
              self.put ("token" + self.unequal + self.symbolItem (symbol.ident))
           elif symbol.text != "" :
-             self.put ("tokenText" + self.unequal + self.quote (symbol.text))
+             self.put ("tokenTxt" + self.unequal + self.quote (symbol.text))
           else :
              self.put (self.access + "check (" + str (symbol.inx) + ");")
           self.put_then ()
@@ -960,7 +980,7 @@ class CParser (ToParser) :
           if symbol.ident != "" and (symbol.multiterminal or not self.use_strings or symbol.text == "") :
              self.put (self.access + "token" + self.unequal + self.symbolItem (symbol.ident))
           elif symbol.text != "" :
-             self.put (self.access + "tokenText" + self.unequal + self.quote (symbol.text))
+             self.put (self.access + "tokenTxt" + self.unequal + self.quote (symbol.text))
           else :
              self.put (self.access + "check (" + str (symbol.inx) + ")")
           self.put_then ()
@@ -1217,15 +1237,16 @@ class CParser (ToParser) :
 
           name = symbol.ident
           if name == "identifier" :
-             func = "readIdentifier"
+             func = "readIdent"
           elif name == "number" :
              func = "readNumber"
           elif name == "real_number" :
-             func = "readNumber"
+             func = "readReal"
           elif name == "character_literal" :
-             func = "readChar"
+             # with quotes (like C++): C-- stores '\n' whole, not just the char
+             func = "readQuotedCharAsString"
           elif name == "string_literal" :
-             func = "readString"
+             func = "readQuotedString"
           else :
              func = "unknown"
 
