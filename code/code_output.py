@@ -298,14 +298,15 @@ class CodeOutput (Output) :
 
    def put_set (self, name, cnt) :
        self.simpleSection (name)
-       if self.csharp or self.vala :
+       if self.csharp :
           self.put ("private byte [] " + name + " = {" )
+       elif self.vala :
+          # 'byte' is not a Vala type; uchar == uint8
+          self.put ("private uchar [] " + name + " = {" )
        elif self.java :
           self.put ("private short [] " + name + " = {" )
        elif self.pascal :
           self.put ("const " + name + " : array [0 .. " + str (cnt-1) + "] of byte = (" )
-       elif self.vala :
-          self.put ("private byte [] " + name + " = {" )
        elif self.js :
           self.put ("const " + name + " = [" )
        elif self.rust :
@@ -513,8 +514,8 @@ class CodeOutput (Output) :
           if self.cpp :
              if not with_cls :
                 self.send ("virtual")
-          elif self.csharp :
-             # C# needs the base method marked virtual for the derived
+          elif self.csharp or self.vala :
+             # C#/Vala need the base method marked virtual for the derived
              # "override" methods (conv_*).
              self.send ("virtual")
 
@@ -899,8 +900,11 @@ class CodeOutput (Output) :
    def vector (self, type) :
        if self.pascal :
           return "array of " + type
-       elif self.csharp or self.vala :
+       elif self.csharp :
           return "List < " + type + " >"
+       elif self.vala :
+          # no List<T> container without libgee; plain arrays (+= appends)
+          return type + " []"
        elif self.java :
           return "ArrayList < " + type + " >"
        elif self.rust :
@@ -969,8 +973,10 @@ class CodeOutput (Output) :
           return "[" + index + "]"
 
    def vector_size (self) :
-       if self.csharp or self.vala :
+       if self.csharp :
           return ".Count"
+       elif self.vala :
+          return ".length"
        else :
           return ".size ()"
 
@@ -980,6 +986,11 @@ class CodeOutput (Output) :
           self.put (param + " [ high (" + param + ")] := ")
        elif self.c :
           self.put (self.push_back + " (" + param + ", ")
+       elif self.vala :
+          # array append via resize (+= does not work on public fields):
+          # items.resize (items.length + 1); items [items.length - 1] = (value);
+          self.putLn (param + ".resize (" + param + ".length + 1);")
+          self.put (param + " [" + param + ".length - 1] = (")
        else :
           self.put (param + "." + self.push_back + " (")
 
@@ -1004,8 +1015,10 @@ class CodeOutput (Output) :
           return first + self.equal + second
 
    def string_length (self, expr) :
-       if self.csharp or self.vala :
+       if self.csharp :
           return expr + ".Length"
+       elif self.vala :
+          return expr + ".length"
        elif self.java :
           return expr + ".length ()"
        elif self.rust :
@@ -1123,9 +1136,9 @@ class CodeOutput (Output) :
           else :
              self.push_back = "push_back"
 
-          if self.csharp or self.vala :
+          if self.csharp :
              self.substr = "Substring"
-          elif self.java  :
+          elif self.java or self.vala :
              self.substr = "substring"
           else :
              self.substr = "substr"

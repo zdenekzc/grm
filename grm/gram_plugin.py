@@ -36,6 +36,8 @@ def installGrammarPlugin (win) :
                 lambda : _toCppParser (win))
     _addAction (win, menu, "to &Pascal Parser", None,
                 lambda : _toPascalParser (win))
+    _addAction (win, menu, "to &Vala Parser",   None,
+                lambda : _toValaParser (win))
     _addAction (win, menu, "to &HTML",          None,
                 lambda : _toHtml (win))
     _addAction (win, menu, "to &Lout",          None,
@@ -93,6 +95,42 @@ def _writeAndReload (win, src_path, suffix, write_func) :
 
 
 # --- actions ---------------------------------------------------------------
+
+def _toValaParser (win) :
+    """Vala parser and product: two files next to the source —
+    <base>_parser.vala and <base>_product.vala (the --vala targets of
+    cparser.py/cproduct.py, the same settings as their CLIs)."""
+    parsed = _openGrammar (win)
+    if parsed is None : return
+    src, grammar = parsed
+    grammar.parseRules ()
+
+    base = os.path.splitext (src) [0]
+    parser_path  = base + "_parser.vala"
+    product_path = base + "_product.vala"
+
+    p = CParser ()
+    p.vala = True
+    p.set_consts ()
+    p.parser_header = os.path.splitext (os.path.basename (parser_path)) [0]
+    p.open (parser_path)
+    p.parserVala (grammar, "")
+    p.close ()
+    print ("wrote", parser_path)
+
+    q = CProduct ()
+    q.vala = True
+    q.set_consts ()
+    q.parser_header = os.path.splitext (os.path.basename (parser_path)) [0]
+    q.ns = ""
+    q.open (product_path)
+    q.productVala (grammar)
+    q.close ()
+    print ("wrote", product_path)
+
+    if hasattr (win, "loadFile") :
+        win.loadFile (parser_path)
+
 
 def _toPascalParser (win) :
     """Pascal parser and product: two units next to the source —

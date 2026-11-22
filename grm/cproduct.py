@@ -237,7 +237,11 @@ class CProduct (CodeOutput) :
                 self.put (self.nested + "send (")
              self.put (self.actual_object + self.arrow + item.variable)
              if item.multiterminal_name == "character_literal" :
-                self.put (" [0]")
+                if self.vala :
+                   # value [0] is a char; putChar takes a string in Vala
+                   self.put (" [0].to_string ()")
+                else :
+                   self.put (" [0]")
              self.putLn (");")
        else :
           self.putLn (self.nested + "send (" + self.quote (item.text) + ");")
@@ -672,7 +676,10 @@ class CProduct (CodeOutput) :
 
    def artificialFunctions (self, grammar, group) :
        for artificial in group.artificial_list :
-           self.put_func("send_" + artificial.call_name)
+           # cls is required, otherwise the function is registered on the
+           # root and never printed (send_<artificial> stayed undefined in
+           # C++/C# and Vala)
+           self.put_func ("send_" + artificial.call_name, cls = self.class_name)
            self.put_param ("param", self.pointer (self.groupType (group)))
            self.put_func_body ()
            func = artificial.func_name

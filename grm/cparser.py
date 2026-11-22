@@ -193,7 +193,11 @@ class CParser (ToParser) :
            if name in grammar.separator_dict :
               self.put_assign (self.access + "token", self.symbolItem (grammar.separator_dict[name].ident))
            if level > 1 :
-              self.put_assign (self.nested + "tokenTxt", self.nested + "tokenTxt + " + self.nested + "inpCh")
+              if self.vala :
+                 # string + char is not allowed in Vala
+                 self.put_assign (self.nested + "tokenTxt", self.nested + "tokenTxt + " + self.nested + "inpCh.to_string ()")
+              else :
+                 self.put_assign (self.nested + "tokenTxt", self.nested + "tokenTxt + " + self.nested + "inpCh")
               self.putLn (self.nested + "nextCh" + self.call + ";")
            if len (dictionary[c]) != 0 :
               self.selectBranch (grammar, dictionary[c], level+1, prefix+c)
@@ -246,6 +250,12 @@ class CParser (ToParser) :
 
    def declareEnumTypes (self, grammar) :
        for enum in grammar.enum_list :
+           if self.vala and len (enum.values) == 0 :
+              # an empty enum is illegal in Vala: emit a placeholder value
+              self.put_enum (enum.enum_name)
+              self.put_enum_item ("none")
+              self.put_enum_end ()
+              continue
            self.put_enum (enum.enum_name)
            for value in enum.values :
                self.put_enum_item (value)
@@ -256,6 +266,11 @@ class CParser (ToParser) :
    def declareEnum (self, grammar, type) :
        for enum_name in type.enums :
            enum = type.enums [enum_name]
+           if self.vala and len (enum.values) == 0 :
+              self.put_enum (enum.enum_name)
+              self.put_enum_item ("none")
+              self.put_enum_end ()
+              continue
            self.put_enum (enum.enum_name)
            for value in enum.values :
                self.put_enum_item (value)
@@ -364,6 +379,9 @@ class CParser (ToParser) :
                        value = field.field_type + "." + field.enum_type.values[0]
                     elif self.rust :
                        value = field.field_type + "::" + field.enum_type.values[0]
+                 elif self.vala :
+                    # empty enum got a placeholder 'none' value for Vala
+                    value = field.field_type + ".none"
               elif field.is_utiny :
                  value = "0"
               elif field.is_tiny :
@@ -385,7 +403,10 @@ class CParser (ToParser) :
               elif field.is_ptr :
                  value = self.null
               elif field.is_list :
-                 if self.csharp or self.java or self.vala :
+                 if self.vala :
+                    # plain array: new T [] { }
+                    value = "new " + self.vector (self.pointer (field.field_type)) + " { }"
+                 elif self.csharp or self.java :
                     value = "new " + self.vector (self.pointer (field.field_type)) + " ()"
                  elif self.rust :
                     value = "Vec::<Box<" + self.subst (grammar, field.field_type) + ">>::new()"
@@ -417,9 +438,16 @@ class CParser (ToParser) :
              c = type.type_name
 
              over = False
+             # the conv_ declaration lives on the ROOT of the hierarchy
+             # (add_conv walks up), so "override" must be decided against
+             # every ancestor, not just the direct superclass — otherwise
+             # C#/Vala/Pascal emit "virtual" and the method HIDES the base
+             # version instead of overriding it (conv_ then returns null)
              s = type.super_type
-             if s != None and c in s.conv_list :
-                over = True
+             while s != None and s != "" :
+                if c in s.conv_list :
+                   over = True
+                s = s.super_type
 
              self.put_func ("conv_" + c, self.pointer (c), override = over, virtual = not over, cls = cls, inline = True)
              self.put_func_body ()
@@ -497,7 +525,9 @@ class CParser (ToParser) :
    # --------------------------------------------------------------------------
 
    def declareTranslate (self) :
-       self.put_func ("translate", cls = self.class_name)
+       # Vala: Lexer.nextToken () calls the virtual translate ();
+       # the generated parser overrides it
+       self.put_func ("translate", cls = self.class_name, override = self.vala)
        self.put_func_body ()
 
        self.put_if ()
@@ -586,7 +616,7 @@ class CParser (ToParser) :
           cnt = int ((grammar.symbol_cnt + 7) / 8)
           self.put_param ("table", "[u8;" + str (cnt) + "]")
        elif self.vala :
-          self.put_param ("table", "const uchar", array = True)
+          self.put_param ("table", "uchar", array = True)
        elif self.java :
           self.put_param ("table", "short", array = True)
        elif self.csharp :

@@ -20,6 +20,3 @@ __pycache__/
 *~
 .kate-swp
 .swp
-
-# Local material, not part of the repository (old IDE projects per language)
-/lang/
