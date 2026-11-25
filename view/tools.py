@@ -741,6 +741,15 @@ class Info (QPlainTextEdit) :
        if self.stopClear <= 0 :
           self.clear ()
 
+   def resetCleaning (self) :
+       self.stopClear = 0
+
+   def disableCleaning (self) :
+       self.stopClear = self.stopClear + 1
+
+   def enableCleaning (self) :
+       self.stopClear = self.stopClear - 1
+
 # --------------------------------------------------------------------------
 
 def HtmlTree (tree, dom) :

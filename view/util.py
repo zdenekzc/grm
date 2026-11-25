@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, os, re, time, importlib, optparse, traceback, subprocess
+import sys, os, re, time, importlib, inspect, optparse, traceback, subprocess
 from collections import namedtuple
 
 from PyQt5.QtCore import *
@@ -414,6 +414,53 @@ def get_win () :
 def find_qt_modules () :
     return [m for name, m in sys.modules.items ()
             if name.startswith ("PyQt5.") and m is not None]
+
+# --------------------------------------------------------------------------
+
+# Qt symbol injection. Plugins (cmm_plugin, cmm_plugin-style code) use
+# "from util import import_qt_modules; import_qt_modules (globals ())" to
+# get the Qt namespaces without hard-coding the binding. PyQt5-only port
+# of the gibbon machinery — QtCore/QtGui/QtWidgets are imported above.
+
+qt_modules = [ ]
+qt_symbols = { }
+qt_common_symbols = { }
+
+def qt_module_name (name) :
+    return "PyQt5." + name
+
+def store_qt_module (module_name, m) :
+    symbols = { }
+    for name in dir (m) :
+        if not name.startswith ("_") :
+           symbols [name] = getattr (m, name)
+    qt_modules.append (m)
+    qt_symbols [module_name] = symbols
+    return symbols
+
+def store_qt_modules () :
+    # "from PyQt5.QtWidgets import *" does not bind the module names,
+    # so pick them from sys.modules instead.
+    for name in [ "QtCore", "QtGui", "QtWidgets" ] :
+        m = sys.modules.get (qt_module_name (name))
+        if m is not None :
+           qt_common_symbols.update (store_qt_module (qt_module_name (name), m))
+
+def additional_qt_module (target, name) :
+    name = qt_module_name (name)
+    if name in qt_symbols :
+       symbols = qt_symbols [name]
+    else :
+       m = importlib.import_module (name)
+       symbols = store_qt_module (name, m)
+    target.update (symbols)
+
+def import_qt_modules (target, additional_names = [ ]) :
+    target.update (qt_common_symbols)
+    for name in additional_names :
+        additional_qt_module (target, name)
+
+store_qt_modules ()
 
 # --------------------------------------------------------------------------
 
