@@ -406,7 +406,7 @@ class Files (QTreeView):
        project_dir = os.path.dirname (prog_dir)
        dir_list = [ prog_dir, project_dir,
                     os.path.join (prog_dir, "_output"),
-                    os.path.join (project_dir, "examples")]
+                    os.path.join (project_dir, "tests", "examples")]
        dir_list = dir_list + qstringlist_to_list (QIcon.themeSearchPaths())
        dir_list = dir_list + qstringlist_to_list (QIcon.fallbackSearchPaths())
 
