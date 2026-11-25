@@ -430,10 +430,9 @@ class Files (QTreeView):
 #
 # Detection by file extension:
 #   .py        -> Python class / def names (regex-based, no import)
-#   .c .cc     -> Clang Tree (lazy import; no-op if libclang missing)
-#   .cpp .cxx
-#   .h  .hpp
 #   other      -> outlineProperty / defnProperty fragments in the document
+#                 (C/C++ files included — clang_tree is not part of
+#                 this repository)
 
 class Navigator (Tree) :
    def __init__ (self, win, toolTabs) :
@@ -470,8 +469,6 @@ class Navigator (Tree) :
 
        if ext == ".py" :
           self.pythonOutline (editor, fileName)
-       elif ext in (".c", ".cc", ".cpp", ".cxx", ".h", ".hpp") :
-          self.cppOutline (editor, fileName)
        else :
           self.outlineProperties (editor, fileName)
 
@@ -499,21 +496,6 @@ class Navigator (Tree) :
        # auto-expand top level
        for i in range (self.topLevelItemCount ()) :
            self.expandItem (self.topLevelItem (i))
-
-   def cppOutline (self, editor, fileName) :
-       try :
-          from clang_tree import buildClangTree
-       except ImportError as e :
-          TreeItem (self, "(clang_tree unavailable: " + str (e) + ")")
-          return
-       # buildClangTree fills win.classes — we want it in *this* tree instead.
-       # Cheapest port: temporarily redirect by saving / restoring.
-       saved = self.win.classes
-       try :
-          self.win.classes = self
-          buildClangTree (self.win, fileName)
-       finally :
-          self.win.classes = saved
 
    def outlineProperties (self, editor, fileName) :
        fileInx = fileNameToIndex (fileName)
