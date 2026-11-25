@@ -31,7 +31,6 @@ teaching.
 
 &nbsp;
 
-- `qtdesigner/` — Qt Designer plugins for building the GUI environment.
 - `view/` — the IDE application files for the simple-view GUI environment.
 
 &nbsp;
