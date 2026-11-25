@@ -1,1 +1,0 @@
-print ("Another hello from example.py")
