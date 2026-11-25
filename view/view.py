@@ -12,8 +12,7 @@ from util import *
 # work_dir = os.getcwd ()
 work_dir = os.path.abspath (sys.path [0])
 # The application lives in view/, the shared modules one level up.
-module_dirs = [ os.path.join ("..", "qtdesigner"),
-                os.path.join ("..", "code"),
+module_dirs = [ os.path.join ("..", "code"),
                 os.path.join ("..", "grm"),
                 os.path.join ("..", "cmm") ]
 
@@ -165,11 +164,6 @@ class ViewWindow (MainWindow):
            self.toolsMenu.addAction (act)
 
        self.toolsMenu.addSeparator ()
-
-       act = QAction ("Qt &Designer", self)
-       act.setIcon (findIcon ("applications-development"))
-       act.triggered.connect (self.open_qt_designer)
-       self.toolsMenu.addAction (act)
 
        # (Container and Kubernetes submenus removed — their
        # tools/container-tools and tools/kube-tools scripts are not part
@@ -346,17 +340,6 @@ class ViewWindow (MainWindow):
        path = os.path.join (os.path.dirname (os.path.abspath (sys.path [0])),
                             "tests", script)
        self.runCommand (sys.executable + " " + path)
-
-   def open_qt_designer (self) :
-       "Launch Qt Designer; if current editor holds a .ui file, open it there."
-       from qt_designer import openQtDesigner
-       editor = self.getEditor ()
-       ui_file = ""
-       if editor != None :
-          fileName = editor.getFileName ()
-          if fileName.lower ().endswith (".ui") and os.path.isfile (fileName) :
-             ui_file = fileName
-       openQtDesigner (self, ui_file)
 
    # Properties
 
