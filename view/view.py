@@ -19,12 +19,12 @@ module_dirs = [ os.path.join ("..", "code"),
 for local_dir in module_dirs :
     sys.path.insert (1, os.path.join (work_dir, local_dir)) # Debian 10, Python 2
 
-# from input import indexToFileName, fileNameToIndex
+from input import fileNameToIndex
 
 from edit import Editor, FindBox, Bookmark
 from grep import GrepDialog
 # from tools import middleMenuItems, MenuItem
-from tree import Tree, TreeItem
+from tree import Tree, TreeItem, branchContinue
 from window import MainWindow
 
 # --------------------------------------------------------------------------
@@ -46,6 +46,10 @@ class ViewWindow (MainWindow):
        self.info.work_dir = os.path.dirname (os.path.abspath (sys.path [0]))
 
        self.grep_dialog = GrepDialog (self)
+
+       # compiler scope shown in the Classes / Tree tabs (set by
+       # displayCompilerData after a compilation)
+       self.compiler_data = None
 
        # resizeMainWindow (self)
 
@@ -342,6 +346,12 @@ class ViewWindow (MainWindow):
        # then run the .py unbuffered so its output streams into Info.
        self.loadFile (cpp_path)
        self.loadFile (py_path)
+
+       # Tree tab: class/def outline of the generated parser (.py)
+       editor = self.getEditor ()
+       if editor != None and editor.getFileName () == py_path :
+          self.displayPythonCode (editor)
+
        self.runCommand (sys.executable + " -u " + _shell_quote (py_path))
 
    def run_test_suite (self, script) :
@@ -355,6 +365,46 @@ class ViewWindow (MainWindow):
    def showProperties (self, data) :
        self.prop.showProperties (data)
        self.showTab (self.prop)
+
+   # Classes, Tree and Navigator display (filled after compilation)
+
+   def showClasses (self, data, activate = False) :
+       "Fill the Classes tab with the identifier scope (global_scope)."
+       from code_tree import IdentifierTree
+       self.classes.clear ()
+       IdentifierTree (self.classes, data)
+       if activate :
+          self.showTab (self.classes)
+
+   def displayPythonCode (self, editor) :
+       "Add a Python class/def tree of the editor's file to the Tree tab."
+       from code_tree import PythonTree
+       fileName = editor.getFileName ()
+       node = TreeItem (self.tree, "Python code " + os.path.basename (fileName))
+       node.src_file = fileNameToIndex (fileName)
+       node.addIcon ("code")
+       node.continue_func = lambda : PythonTree (node, editor)
+       branchContinue (node)
+
+   def displayCompilerData (self, editor, data) :
+       "Add a compiler-data (identifier scope) tree to the Tree tab."
+       from code_tree import CompilerTree
+       self.compiler_data = data
+       editor.compiler_data = data
+       fileName = editor.getFileName ()
+       node = TreeItem (self.tree, "compiler data " + os.path.basename (fileName))
+       node.src_file = fileNameToIndex (fileName)
+       CompilerTree (node, data)
+
+   def addNavigatorData (self, editor, data) :
+       "Remember compiler scope for the Navigator / lookup consumers."
+       editor.navigator_data = data
+
+   def showVariable (self, text, data) :
+       "No Variables tab in this reduced IDE — keep the reference only."
+       if not hasattr (self, "variables") :
+          self.variables = { }
+       self.variables [text] = data
 
    # Help menu
 
