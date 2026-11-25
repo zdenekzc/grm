@@ -51,6 +51,14 @@ class ViewWindow (MainWindow):
        # displayCompilerData after a compilation)
        self.compiler_data = None
 
+       # env.py (CodePlugin) interface state
+       self.current_mod = None    # extra plugin parameter
+       self.project_files = { }   # fileName -> project tree node
+       self.currentProject = None
+       self.last_python = ""
+       self.last_cpp = ""
+       self.last_scope = None
+
        # resizeMainWindow (self)
 
        # project menu
@@ -400,6 +408,123 @@ class ViewWindow (MainWindow):
        "Remember compiler scope for the Navigator / lookup consumers."
        editor.navigator_data = data
 
+   # Project lifecycle for env.py (CodePlugin) — ports of the
+   # simple-view / gibbon window interface, reduced to this IDE.
+
+   def unloadModules (self) :
+       "Forget project modules so they reload fresh on the next build."
+       importlib.invalidate_caches ()
+       names = [ "cmm_plugin", "cmm_set", "cmm_comp", "cmm_parser",
+                 "cmm_product", "cmm_generate", "cmm_llvm",
+                 "cmm_run", "cmm_compile", "c2cpp", "c2py" ]
+       for name in names :
+          if name in sys.modules :
+             # print ("FORGET", name)
+             del sys.modules [name]
+
+   def initProject (self, prj) :
+       "Open a new project: reset trees, output panel and loaded modules."
+       self.unloadModules ()
+       self.info.resetCleaning ()
+       self.info.clearOutput ()
+       self.classes.clear ()
+       self.tree.clear ()
+       self.project_files = { }
+       if isinstance (prj, str) :
+          fileName = prj
+       else :
+          fileName = prj.getFileName ()
+       node = TreeItem (self.project, os.path.basename (fileName))
+       node.setToolTip (0, fileName)
+       node.setIcon (0, findIcon ("folder"))
+       node.src_file = fileNameToIndex (fileName)
+       self.currentProject = node
+       return node
+
+   def joinProject (self, param) :
+       "Add an editor or file to the current project branch."
+       if isinstance (param, str) :
+          fileName = param
+          edit = None
+       else :
+          edit = param
+          fileName = edit.getFileName ()
+       if fileName in self.project_files :
+          node = self.project_files [fileName]
+       else :
+          node = TreeItem (self.currentProject, os.path.basename (fileName))
+          self.project_files [fileName] = node
+          node.setToolTip (0, fileName)
+          node.setIcon (0, findIcon ("document-open"))
+          node.src_file = fileNameToIndex (fileName)
+          if edit != None :
+             node.obj = edit
+       return node
+
+   def inputFile (self, fileName) :
+       "Editor for an existing file; IOError when it cannot be opened."
+       edit = self.refreshFile (fileName)
+       if edit == None :
+          raise IOError ("File not found: " + fileName)
+       return edit
+
+   def rebuildFile (self, source, target) :
+       "True when target is missing or older than source."
+       return not os.path.isfile (target) or \
+              os.path.getmtime (source) > os.path.getmtime (target)
+
+   def createDir (self, fileName) :
+       dirName = os.path.dirname (fileName)
+       if not os.path.isdir (dirName) :
+          os.makedirs (dirName)
+
+   def outputFileName (self, fileName, extension = "") :
+       "Target under _output/ in the project root (work_dir of the Info panel)."
+       root = self.info.work_dir if self.info.work_dir != "" else os.getcwd ()
+       fileName = os.path.join (root, "_output", os.path.basename (fileName))
+       if extension != "" :
+          fileName, ext = os.path.splitext (fileName)
+          if fileName.find ('-') >= 0 and extension.startswith ('_') :
+             extension = extension.replace ('_', '-')
+          fileName = fileName + extension
+       fileName = os.path.abspath (fileName)
+       self.createDir (fileName)
+       return fileName
+
+   def loadModule (self, fileName) :
+       "Import a module by file path; reload on repeated use."
+       fileName = os.path.abspath (fileName)
+       dirName = os.path.dirname (fileName)
+       if dirName not in sys.path :
+          sys.path.insert (1, dirName)
+       name = os.path.splitext (os.path.basename (fileName)) [0]
+       if name in sys.modules :
+          if not opts.no_reload :
+             print ("RELOAD", name)
+             module = importlib.reload (sys.modules [name])
+          else :
+             module = sys.modules [name]
+       else :
+          print ("LOAD", name)
+          module = importlib.import_module (name)
+       return module
+
+   def runPython (self, fileName) :
+       "Run a generated Python file, output into the Info panel."
+       self.runCommand (sys.executable + " -u " + _shell_quote (fileName))
+
+   def displayGrammarData (self, editor, grammar, module = None) :
+       "Add a grammar-rules tree of the editor's grammar to the Tree tab."
+       from code_tree import GrammarTree
+       editor.grammar_data = grammar
+       fileName = editor.getFileName ()
+       fileInx = fileNameToIndex (fileName)
+       node = TreeItem (self.tree, "grammar " + os.path.basename (fileName))
+       node.src_file = fileInx
+       node.obj = grammar
+       GrammarTree (node, grammar, fileInx, module)
+       return node
+
    def showVariable (self, text, data) :
        "No Variables tab in this reduced IDE — keep the reference only."
        if not hasattr (self, "variables") :
@@ -446,18 +571,7 @@ class ViewWindow (MainWindow):
 output_dir = os.path.join (os.path.abspath (sys.path [0]), "_output")
 os.makedirs (output_dir, exist_ok = True)
 
-app = QApplication (sys.argv)
-
-app.setStyleSheet ("QTabBar::tab:selected {color: blue }"
-                   "QWidget {font-size: 12pt}"
-                   "Editor {font-family: \"Luxi Mono\" ; font-size: 14pt}"
-                   # "QToolTip { color: #000; background-color: yellow; border 1px solid}"
-                   )
-
-win = ViewWindow (None)
-win.show ()
-
-# Print the full call stack on uncaught exceptions, but keep the editor running.
+# Print the full call stack on uncaught exceptions, keep the editor running.
 # print_traceback (from util) walks back through caller frames so we see WHICH
 # function was running when the error occurred, not just the failure point.
 def excepthook (exc_type, exc_value, exc_tb) :
@@ -465,19 +579,39 @@ def excepthook (exc_type, exc_value, exc_tb) :
 
 sys.excepthook = excepthook
 
-# Redirect stdout/stderr into the bottom Info panel (also keeps original stream).
-if not opts.no_redirect :
-   win.info.redirectOutput ()
+app = None
+win = None
 
-"open files"
-win.loadFile ("examples/example.py")
-win.loadFile ("examples/tree.py")
-win.loadFile ("tools/llvm-tools/example.cc")
+def main () :
+    global app, win
 
-app.exec_ ()
+    app = QApplication (sys.argv)
 
-if not opts.no_redirect :
-   win.info.stopRedirect ()
+    app.setStyleSheet ("QTabBar::tab:selected {color: blue }"
+                       "QWidget {font-size: 12pt}"
+                       "Editor {font-family: \"Luxi Mono\" ; font-size: 14pt}"
+                       # "QToolTip { color: #000; background-color: yellow; border 1px solid}"
+                       )
+
+    win = ViewWindow (None)
+    win.show ()
+
+    # Redirect stdout/stderr into the bottom Info panel (also keeps
+    # original stream).
+    if not opts.no_redirect :
+       win.info.redirectOutput ()
+
+    "open files"
+    win.loadFile ("tests/examples/btree.cc")
+    win.loadFile ("tests/t-examples/application.t")
+
+    app.exec_ ()
+
+    if not opts.no_redirect :
+       win.info.stopRedirect ()
+
+if __name__ == "__main__" :
+   main ()
 
 # --------------------------------------------------------------------------
 
