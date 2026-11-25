@@ -1,8 +1,9 @@
 # grm — grammar toolkit
 
-A small toolkit for working with grammars: parsing a grammar file (an
-EBNF-like notation with attributes), analyzing it, and generating
-recursive-descent parsers and related code in several target languages.
+A small toolkit for working with grammars, written in **Python**: parsing
+a grammar file (an EBNF-like notation with attributes), analyzing it, and
+generating recursive-descent parsers and related code in several target
+languages.
 
 The toolkit is developed as supporting material for compiler-construction
 teaching.
@@ -22,8 +23,9 @@ teaching.
   (lexer base, input/output, code-generation infrastructure, ...); they
   originate from the [simple-view](https://github.com/zdenekzc/simple-view)
   project.
-- `cmm/` — the C-- example language: its grammar, compiler and generated
-  parser/product, a working example of the toolkit in use.
+- `cmm/` — the C-- example language written in **Python**: its grammar,
+  compiler and generated parser/product, a working example of the toolkit
+  in use.
 - `tests/` — test scripts with their example sources: `tests/examples/`
   holds C-- programs (compiled and run by `cmm/cmm_iced.py`),
   `tests/t-examples/` holds `.t` GUI examples wired into the IDE's

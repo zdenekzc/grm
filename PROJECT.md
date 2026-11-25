@@ -29,6 +29,8 @@ slouží jako orientační mapa projektu.
   simple-view). Pozor: kopie modulů přímo v `cmm/` nejsou referencí,
   referencí je `code/` (viz poznámka v README a MEMORY).
 - Příklady programů v C--: `tests/examples/`, další v `cmm/examples/`.
+- Tento projekt se odlišuje právě cmm napsaným v Pythonu — cmm vzniklo
+  jako jeden z prvních experimentů s AI, již v květnu 2026.
 
 ### view — malé IDE (PyQt5)
 
