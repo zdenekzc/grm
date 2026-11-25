@@ -48,7 +48,9 @@ def listExamples (ini_path = None) :
     return result
 
 
-def installExamplesMenu (win, ini_path = "tools.ini") :
+def installExamplesMenu (win, ini_path = None) :
+    """None -> tools.ini next to this module (not relative to the
+    working directory, so the IDE works from any cwd)."""
     sections = listExamples (ini_path)
     if not sections :
         print ("tools.ini empty or missing — Examples menu skipped")
