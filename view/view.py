@@ -117,15 +117,23 @@ class ViewWindow (MainWindow):
        act.triggered.connect (self.run_cpp_file)
        menu.addAction (act)
 
-       act = QAction ("Run C++ File using C&Mini", self)
+       act = QAction ("Run C++ File using Cmm &Generate (iced-x86)", self)
        act.setIcon (findIcon ("text-x-c++src"))
        act.setShortcut ("Shift+F9")
-       act.triggered.connect (self.run_cpp_file_cmini)
+       act.triggered.connect (lambda checked = False :
+                              self.run_cpp_file_cmm ("--iced"))
+       menu.addAction (act)
+
+       act = QAction ("Run C++ File using Cmm &LLVM IR", self)
+       act.setIcon (findIcon ("text-x-c++src"))
+       act.setShortcut ("Shift+F10")
+       act.triggered.connect (lambda checked = False :
+                              self.run_cpp_file_cmm ("--llvm"))
        menu.addAction (act)
 
        act = QAction ("Run &T File", self)
        act.setIcon (findIcon ("text-x-script"))
-       act.setShortcut ("Shift+F10")
+       act.setShortcut ("Shift+F11")
        act.triggered.connect (self.run_t_file)
        menu.addAction (act)
 
@@ -147,27 +155,9 @@ class ViewWindow (MainWindow):
 
        self.additionalMenuItems ()
 
-       # tools menu
-
-       self.toolsMenu = self.addTopMenu ("&Tools")
-
-       for title, script in [
-           ("Test &Generate (iced-x86)", "test_generate.py"),
-           ("Test &LLVM",                "test_llvm.py"),
-           ("Test &.t Examples",         "test_t_examples.py"),
-           ("Test &Set Examples",        "test_set.py"),
-       ] :
-           act = QAction (title, self)
-           act.setIcon (findIcon ("system-run"))
-           act.triggered.connect (lambda checked = False, s = script :
-                                  self.run_test_suite (s))
-           self.toolsMenu.addAction (act)
-
-       self.toolsMenu.addSeparator ()
-
-       # (Container and Kubernetes submenus removed — their
-       # tools/container-tools and tools/kube-tools scripts are not part
-       # of this repository.)
+       # (Container and Kubernetes submenus of the Tools menu removed —
+       # their tools/container-tools and tools/kube-tools scripts are
+       # not part of this repository.)
 
        # Code-tooling plugins (top-level &Grammar and &C-- menus).
        # Imports are lazy so a missing dependency in grm/cmm doesn't
@@ -189,6 +179,24 @@ class ViewWindow (MainWindow):
           installExamplesMenu (self)
        except Exception as e :
           print ("tools.ini menu not loaded:", e)
+
+       # tools menu — placed after &Examples
+
+       self.toolsMenu = self.addTopMenu ("&Tools")
+
+       for title, script in [
+           ("Test &Generate (iced-x86)", "test_generate.py"),
+           ("Test LLVM &IR",             "test_llvm.py"),
+           ("Test &.t Examples",         "test_t_examples.py"),
+           ("Test &Set Examples",        "test_set.py"),
+       ] :
+           act = QAction (title, self)
+           act.setIcon (findIcon ("system-run"))
+           act.triggered.connect (lambda checked = False, s = script :
+                                  self.run_test_suite (s))
+           self.toolsMenu.addAction (act)
+
+       self.toolsMenu.addSeparator ()
 
        # help menu
 
@@ -276,24 +284,25 @@ class ViewWindow (MainWindow):
           binary   = self.outputBinary (fileName)
           self.runCommand (compiler + " " + options + " " + fileName + " -o " + binary + " && " + binary)
 
-   def run_cpp_file_cmini (self) :
-       """Compile + run the current file with the CMini compiler.
+   def run_cpp_file_cmm (self, backend) :
+       """Compile + run the current file with the C-- compiler.
 
-       CMini lives next to this repository (../cmini from the project
-       root); cmini/cmini.bin without -o/-c compiles the source and
-       runs it, printing 'main returned N'. -I cmini/ownheaders gives
-       it the standard headers, the same way tests/02-cmini-asm.sh
-       invokes it."""
+       backend is "--iced" (native code into RWX memory via iced-x86,
+       the default of cmm_iced.py) or "--llvm" (LLVM IR through
+       llvmlite MCJIT). cmm/cmm_iced.py resolves its own paths from
+       its script directory, so the working directory does not
+       matter."""
+       if backend not in ("--iced", "--llvm") :
+          raise ValueError (backend)
        editor = self.getEditor ()
        if editor != None :
           self.checkModifiedOnDisk (editor)
-          cmini_root = os.path.abspath (os.path.join (
-             os.path.dirname (os.path.abspath (sys.path [0])), "..", "cmini"))
-          binary = os.path.join (cmini_root, "cmini", "cmini.bin")
+          root = os.path.dirname (os.path.abspath (sys.path [0]))
+          iced = os.path.join (root, "cmm", "cmm_iced.py")
           fileName = os.path.abspath (editor.getFileName ())
-          self.runCommand ("cd " + _shell_quote (cmini_root) + " && " +
-                           _shell_quote (binary) +
-                           " -I cmini/ownheaders " + _shell_quote (fileName))
+          llvm_args = "--llvm " if backend == "--llvm" else ""
+          self.runCommand (sys.executable + " " + _shell_quote (iced) + " " +
+                           llvm_args + _shell_quote (fileName))
 
    def run_t_file (self) :
        """Convert the current .t source to .cpp and .py under _output/,
