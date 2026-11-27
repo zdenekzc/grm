@@ -1,6 +1,6 @@
-int main ()
-{
-   int x;
-   x = 1 + 2 * 3;
-   return x;
-}
+int N;
+int a [N];
+int t;
+void swap (int & r, int & s) { }
+void quicksort (int r, int s) { }
+int main () { }
