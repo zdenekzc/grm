@@ -288,11 +288,24 @@ class ToProduct (CodeOutput) :
               # if rule_ref.rule_mode == "select" :
               if rule_type.tag_value == "" :
                  next = True
+              # alternativa stejneho typu jako select (stat <select CmmItem>: flexible_stat
+              # s typem CmmItem) pokryva vsechny potomky: jeji tag (itemKind) neni tag
+              # potomku, takze ma byt az posledni (else)
+              if rule_ref.rule_type == rule.rule_type :
+                 next = True
            if next :
               reorder_next.append (sel_alt)
            else :
               reorder_start.append (sel_alt)
        reorder = reorder_start + reorder_next
+
+       # posledni alternativa stejneho typu / nulovatelna je else
+       self.catch_all_alt = None
+       if reorder and getattr (reorder [-1], "nullable", False) :
+          self.catch_all_alt = reorder [-1]
+       if reorder and reorder [-1].select_ebnf == None and \
+          reorder [-1].select_nonterm.rule_ref.rule_type == rule.rule_type :
+          self.catch_all_alt = reorder [-1]
 
        self.if_cnt = 0
        for sel_alt in reorder :
@@ -339,9 +352,12 @@ class ToProduct (CodeOutput) :
        self.if_cnt = self.if_cnt + 1
 
    def codeSimpleSelection (self, grammar, rule, sel_alt) :
-       self.codeIf ()
-       cond = self.condSelectionAlternative (grammar, sel_alt)
-       self.putLn (cond + " :")
+       if sel_alt is getattr (self, "catch_all_alt", None) and self.if_cnt > 0 :
+          self.putLn ("else :")
+       else :
+          self.codeIf ()
+          cond = self.condSelectionAlternative (grammar, sel_alt)
+          self.putLn (cond + " :")
        self.incIndent ()
        for item in sel_alt.items :
            self.productFromItem (grammar, rule, item)
@@ -563,12 +579,9 @@ class ToProduct (CodeOutput) :
        if rule.store_from != None :
           self.putStore (grammar, rule, rule.store_from)
        else :
-          # if len (rule.store_orig) > 1 :
-          #    self.putLn ("# store all")
-          # for r in rule.store_orig :
-          #    self.putStore (grammar, rule, r)
-          r = rule.store_orig [0]
-          self.putStore (grammar, rule, r)
+          # rewrite group nemusi mit store_orig (stejne jako cproduct.py)
+          for r in rule.store_orig :
+              self.putStore (grammar, rule, r)
 
    def codeOneStore (self, grammar, rule) :
        if rule.store_from != None :
@@ -651,6 +664,8 @@ if __name__ == "__main__" :
 
    options = optparse.OptionParser (usage = "usage: %prog [options] input_grammar_file")
    options.add_option ("-o", "--output", "--code", dest="output", default = "", action="store", help="Output file name")
+   options.add_option ("--parser", "--parser-module", dest="parser", default = "", action="store",
+                       help="Parser module to import (e.g. cmm_parser); needed for enum constants and node classes")
 
    (opts, args) = options.parse_args ()
 
@@ -667,9 +682,13 @@ if __name__ == "__main__" :
    grammar.parseRules ()
    grammar.close ()
 
+   parser_module = ""
+   if opts.parser != "" :
+      parser_module = os.path.splitext (os.path.basename (opts.parser)) [0]
+
    product = ToProduct ()
    product.openFile (outputFileName)
-   product.productFromGrammar (grammar)
+   product.productFromGrammar (grammar, parser_module)
    product.close ()
 
 # --------------------------------------------------------------------------
