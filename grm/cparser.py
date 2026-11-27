@@ -214,7 +214,7 @@ class CParser (ToParser) :
        self.selectBranch (grammar, tree, 1, "")
 
        self.put_if ()
-       self.send (self.nested + "token" + self.equal + self.nested + "separator") # !?
+       self.send (self.nested + "token" + self.equal + self.symbolItem ("separator")) # !?
        self.put_then ()
        self.put_begin ()
        self.putLn (self.access + "stop (" + self.quote ("Unknown separator") + self.string_suffix + ");")
@@ -382,6 +382,12 @@ class CParser (ToParser) :
                  elif self.vala :
                     # empty enum got a placeholder 'none' value for Vala
                     value = field.field_type + ".none"
+                 elif self.csharp :
+                    # an empty C# enum has no member to name: cast zero
+                    value = "(" + field.field_type + ") 0"
+                 elif self.java :
+                    # Java enums are objects; there is no zero value
+                    value = "null"
               elif field.is_utiny :
                  value = "0"
               elif field.is_tiny :
@@ -525,9 +531,11 @@ class CParser (ToParser) :
    # --------------------------------------------------------------------------
 
    def declareTranslate (self) :
-       # Vala: Lexer.nextToken () calls the virtual translate ();
-       # the generated parser overrides it
-       self.put_func ("translate", cls = self.class_name, override = self.vala)
+       # Vala and C#: Lexer.nextToken () calls the virtual translate ();
+       # the generated parser overrides it (Java methods are virtual
+       # implicitly, so Java needs no override keyword)
+       self.put_func ("translate", cls = self.class_name,
+                      override = self.vala or self.csharp)
        self.put_func_body ()
 
        self.put_if ()

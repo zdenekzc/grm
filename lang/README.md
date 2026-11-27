@@ -37,6 +37,7 @@ getTokenFileInx/Line/Col (), error (), stop ()
 | `cpp/lexer0/cmm_lexer0.cc,h` | gibbon `src/klanguage/parsing/` | samostatný C++ lexer (jen standardní hlavičky), starší API: `tokenKind`/`tokenText`/`readIdent`/`translate` | použitelné pro starší generátor; současný C++ používá `utils/textio.h` + `envio.h` (EnvInput) |
 | `cpp/fltk-view/` | gibbon `other/kit/fltk-view/` | jedno-souborové mini IDE (editor, strom, menu) nad FLTK | build: `make` (fltk-devel 1.3.11; `pkg-config fltk` nic nenajde, správný test je `fltk-config`) |
 | `csharp/lexer.cs` | gibbon `other/learn/pw-builder/Builder/Lexer.cs` | kompletní C# lexer (ident, čísla, reálná čísla, znaky, řetězce, komentáře), starší API `token`/`tokenText`/`readIdentifier` | nutná adaptace na `tokenTxt`/`tokenKind`/`readIdent`/`processSeparator` |
+| `csharp/textio.cs` | **`/abc/grm/lang/csharp/`** (nový port `textio.vala`) | současné API pro `cparser.py --csharp`: `tokenKind`/`tokenTxt`, `nextToken`, `translate`, `mark`/`rewind`, `readIdent`, `readQuotedString`, `readQuotedCharAsString`, `Output` | **přímo použitelné**; `tests/test_parser_in_csharp.py` |
 | `csharp/view/` | gibbon `other/mix/csharp-view/` | WinForms mini IDE (editor, strom, PropertyGrid, CodeDom); `Parser0` je ruční demo | `mcs` projde bez `Output.cs` a bez generovaných `pas_parser.cs`/`pas_product.cs`; GUI potřebuje X/Mono |
 | `java/lexer.java` | gibbon `other/learn/java-gitlab/.../Lexer.java` | minimální Java lexer (ident, číslo, separator) | jen demonstrace, neplnohodnotný lexer pro C-- |
 | `java/view/` | gibbon `other/mix/java-view/` | Swing mini IDE (editor, strom, tabulka, překlad přes `javax.tools`) | `javac -d out src/jview/*.java` projde; `build.xml` odkazuje na chybějící `nbproject/build-impl.xml` |
@@ -61,9 +62,10 @@ getTokenFileInx/Line/Col (), error (), stop ()
 | C++ | `/abc/boef/utils/textio.h` + `envio.h` (`EnvInput`) | přímo v boefu, nic se nekopíruje |
 | Python | `/abc/boef/code/lexer.py` | přímo v boefu |
 | Vala | `lang/vala/textio.vala` | z `/abc/grm/lang/vala`, aktuální API; `lang/vala/view` je nad ním postavené mini IDE s akcí Parse Pascal |
+| C# | `lang/csharp/textio.cs` | nový port `textio.vala` do C#, aktuální API; `tests/test_parser_in_csharp.py` (mcs/mono) |
 | Pascal | `lang/pascal/textio.pas` + `binio.pas` | `textio` z gibbonu, `binio` z `/abc/grm/lang`; `pparser`/`pproduct` rodina |
 
-Pro C#, Java, JS a Rust se v gibbonu **nenašel** lexer s aktuálním API —
+Pro Java, JS a Rust se v gibbonu **nenašel** lexer s aktuálním API —
 jen starší generace (`token`/`tokenText`, `readIdentifier`), která se musí
 přejmenovat a doplnit (`processSeparator`, `translate`, `mark`/`rewind`,
 rozhodovací tabulky). Projekty `java-view` a `csharp-view` jsou použitelné

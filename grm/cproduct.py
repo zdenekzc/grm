@@ -32,20 +32,20 @@ class CProduct (CodeOutput) :
        for item in alt.items :
            if isinstance (item, Nonterminal) :
               if item.variable != "" :
-                 return self.actual_object + self.arrow + item.variable + self.unequal + self.null
+                 return self.actual_object + self.arrow + self.identifier (item.variable) + self.unequal + self.null
               elif item.add :
                  return "inx < cnt"
            elif isinstance (item, Terminal) :
               if item.multiterminal_name != "" :
-                 return self.actual_object + self.arrow + item.variable + self.unequal + '"' + '"'
+                 return self.actual_object + self.arrow + self.identifier (item.variable) + self.unequal + '"' + '"'
            elif isinstance (item, Assign) :
               value = item.value
               if value == "True" :
-                 return self.actual_object + self.arrow + item.variable
+                 return self.actual_object + self.arrow + self.identifier (item.variable)
               elif value == "False" :
-                 return self.log_not + " " + "param" + self.arrow + item.variable
+                 return self.log_not + " " + "param" + self.arrow + self.identifier (item.variable)
               else :
-                 return self.actual_object + self.arrow + item.variable + self.equal + self.enumItem (grammar, value)
+                 return self.actual_object + self.arrow + self.identifier (item.variable) + self.equal + self.enumItem (grammar, value)
        # return "unknown"
        return "false"
        # grammar.error ("Cannot find condition")
@@ -187,14 +187,14 @@ class CProduct (CodeOutput) :
        self.send (self.actual_object)
 
        if self.actual_field != "" :
-          self.put (self.arrow + self.actual_field)
+          self.put (self.arrow + self.identifier (self.actual_field))
           dst = item.rule_ref.rule_type if item.rule_ref != None else ""
           src = self.fieldType (grammar, self.actual_owner_type, self.actual_field)
           if dst != "" and src != "" and dst != src and \
                 self.isTypeDerived (grammar, dst, src) :
              self.put (self.arrow + "conv_" + dst + " ()")
        elif item.variable :
-          self.put (self.arrow + item.variable)
+          self.put (self.arrow + self.identifier (item.variable))
           # a stored field usually has the base type (CmmDeclarator *),
           # but send_<rule> wants the concrete rule type
           dst = ""
@@ -235,7 +235,7 @@ class CProduct (CodeOutput) :
                 self.put (self.nested + "putString (")
              else :
                 self.put (self.nested + "send (")
-             self.put (self.actual_object + self.arrow + item.variable)
+             self.put (self.actual_object + self.arrow + self.identifier (item.variable))
              if item.multiterminal_name == "character_literal" :
                 if self.vala :
                    # value [0] is a char; putChar takes a string in Vala
@@ -256,7 +256,7 @@ class CProduct (CodeOutput) :
           cond = cond + self.log_or
        rule_type = grammar.struct_dict [type_name]
        if rule_type.tag_name != "" :
-           cond = cond + self.actual_object + self.arrow + rule_type.tag_name + self.equal + self.enumItem (grammar, rule_type.tag_value)
+           cond = cond + self.actual_object + self.arrow + self.identifier (rule_type.tag_name) + self.equal + self.enumItem (grammar, rule_type.tag_value)
        else :
            cond = cond + self.is_class (self.actual_object, type_name)
        return cond
@@ -267,7 +267,7 @@ class CProduct (CodeOutput) :
    def condOrAssign (self, grammar, cond, assign) :
        if cond != "" :
           cond = cond + self.log_or
-       cond = cond + self.actual_object + self.arrow + assign.variable + self.equal + self.enumItem (grammar, ssign.value)
+       cond = cond + self.actual_object + self.arrow + self.identifier (assign.variable) + self.equal + self.enumItem (grammar, ssign.value)
        return cond
 
    def condSelectionAlternative (self, grammar, sel_alt) :
@@ -406,7 +406,7 @@ class CProduct (CodeOutput) :
           grammar.error ("Missing tag value")
        self.addElse ()
        self.put_if ()
-       self.send ("param" + self.arrow + assign.variable + self.equal + self.enumItem (grammar, assign.value))
+       self.send ("param" + self.arrow + self.identifier (assign.variable) + self.equal + self.enumItem (grammar, assign.value))
        self.put_then ()
        self.put_begin ()
 
@@ -566,7 +566,7 @@ class CProduct (CodeOutput) :
 
    def paramIsType (self, grammar, type) :
        if getattr (type, "tag_name", "") != "" :
-          self.put ("param" + self.arrow + type.tag_name + self.equal + self.enumItem (grammar, type.tag_value))
+          self.put ("param" + self.arrow + self.identifier (type.tag_name) + self.equal + self.enumItem (grammar, type.tag_value))
        else :
           self.put ("param" + self.arrow + "conv_" + getattr (type, "rule_type", "")  + "()" + self.unequal + self.null) # !?
 
@@ -621,7 +621,7 @@ class CProduct (CodeOutput) :
 
    def putStore (self, grammar, rule, r) :
        proc = self.ruleOrGroupName (grammar, r.name)
-       expr = "param0" + self.arrow + rule.store_name
+       expr = "param0" + self.arrow + self.identifier (rule.store_name)
        # the field is usually stored with the base type (CmmDeclarator *);
        # send_<rule> wants the concrete rule type
        dst = getattr (r, "rule_type", "")

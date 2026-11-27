@@ -25,8 +25,12 @@ Jazyky:
             podpůrné zdroje code/lexer.py, input.py, output.py;
             funguje pro pas.g i cmm.g (cmm_quicksort vynechán, viz
             NOTE_QUICKSORT)
+    csharp  CParser/CProduct (csharp = True) + lang/csharp/textio.cs,
+            binárky přes mcs/mono; funguje pro pas.g i cmm.g
+            (cmm_quicksort vynechán jako u pythonu)
     pascal  generátor (pparser/pproduct) existuje, runtime ne:
-            textio.pas potřebuje unit BinIO, který v repozitáři není
+            textio.pas má jen TTextInput/TTextOutput pro data, ne
+            zdrojový lexér s nextToken/mark/rewind
     cpp     generátor (cparser/cproduct) existuje, runtime ne:
             vygenerovaný .h potřebuje lexer.h, který v repozitáři není
 
@@ -41,9 +45,10 @@ Spuštění (wrappery nastavují --lang):
 
     python3 tests/test_parser_in_vala.py        # vala balíček
     python3 tests/test_parser_in_python.py      # python balíček
+    python3 tests/test_parser_in_csharp.py      # csharp balíček
     python3 tests/test_parser_in.py --lang all  # všechny jazyky
 
-Bez valacu se vala balíček přeskočí (SKIP, exit 0).
+Bez valacu (resp. mcs/mono pro csharp) se balíček přeskočí (SKIP, exit 0).
 """
 
 from __future__ import print_function
@@ -102,6 +107,39 @@ void main (string[] args)
    var prod = new Product ();
    prod.send_{start} (tree);
    print ("%s", prod.toString ());
+}}
+"""
+
+# C#: generated parser/product are in a namespace (the generator emits
+# "namespace <ns>"), while textio.cs (Lexer, Output) is in the global
+# namespace and resolves from inside ParserIn the same way.
+CSHARP_NS = "ParserIn"
+
+CSHARP_BASIC_STUB = """
+public class CmmBasic
+{
+   public int src_file = 0;
+   public int src_line = 0;
+   public int src_column = 0;
+}
+"""
+
+CSHARP_MAIN_TEMPLATE = """using System;
+using {ns};
+
+{basic}
+class Program
+{{
+   static void Main (string [] args)
+   {{
+      Parser p = new Parser ();
+      p.openFile (args [0]);
+      p.nextToken ();
+      var tree = p.parse_{start} ();
+      Product prod = new Product ();
+      prod.send_{start} (tree);
+      Console.Write (prod.toString ());
+   }}
 }}
 """
 
@@ -215,6 +253,27 @@ def generate_python (grammar, name, out_dir) :
    q.productFromGrammar (grammar, name + "_parser")
    q.close ()
 
+def generate_csharp (grammar, name, out_dir) :
+   parser_path = os.path.join (out_dir, name + "_parser.cs")
+   product_path = os.path.join (out_dir, name + "_product.cs")
+
+   p = CParser ()
+   p.csharp = True
+   p.set_consts ()
+   p.parser_header = name + "_parser"
+   p.open (parser_path)
+   p.parserCSharp (grammar, CSHARP_NS)
+   p.close ()
+
+   q = CProduct ()
+   q.csharp = True
+   q.set_consts ()
+   q.parser_header = name + "_parser"
+   q.ns = CSHARP_NS
+   q.open (product_path)
+   q.productCSharp (grammar)
+   q.close ()
+
 # ---------------------------------------------------------------------------
 
 def write_vala_main (name, start, basic, out_dir) :
@@ -227,6 +286,13 @@ def write_python_main (name, start, basic, out_dir) :
    main_path = os.path.join (out_dir, name + "_main.py")
    with open (main_path, "w") as f :
       f.write (PYTHON_MAIN_TEMPLATE.format (name = name, start = start))
+   return main_path
+
+def write_csharp_main (name, start, basic, out_dir) :
+   main_path = os.path.join (out_dir, name + "_main.cs")
+   with open (main_path, "w") as f :
+      f.write (CSHARP_MAIN_TEMPLATE.format (ns = CSHARP_NS, basic = basic,
+                                            start = start))
    return main_path
 
 # ---------------------------------------------------------------------------
@@ -250,6 +316,28 @@ def build_vala (name, out_dir) :
 
 def run_vala (out_dir, name, data_path) :
    proc = subprocess.run ([os.path.join (out_dir, name + "_test.bin"),
+                           data_path], capture_output = True, text = True,
+                          timeout = 30, cwd = ROOT)
+   return proc.stdout
+
+def build_csharp (name, out_dir) :
+   """Přeloží parser + product + main a runtime mcs; binárka
+   <name>_test.exe vzniká v balíčku vedle zdrojů."""
+
+   binary = name + "_test.exe"
+   cmd = ["mcs", "-out:" + binary, "textio.cs",
+          name + "_parser.cs", name + "_product.cs", name + "_main.cs"]
+   try :
+      proc = subprocess.run (cmd, capture_output = True, text = True,
+                             timeout = 300, cwd = out_dir)
+   except subprocess.TimeoutExpired :
+      raise RuntimeError ("mcs timed out (300 s)")
+   if proc.returncode != 0 :
+      raise RuntimeError ("mcs failed:\n" + proc.stderr [-2000:])
+   return binary
+
+def run_csharp (out_dir, name, data_path) :
+   proc = subprocess.run (["mono", os.path.join (out_dir, name + "_test.exe"),
                            data_path], capture_output = True, text = True,
                           timeout = 30, cwd = ROOT)
    return proc.stdout
@@ -289,11 +377,17 @@ LANGS = {
       # (zdroj v repozitáři, jméno v balíčku)
       "support" : [("lang/vala/textio.vala", "textio.vala")],
       "build" : build_vala,
+      "build_cmd" : "valac -q textio.vala {name}_parser.{ext} " +
+                    "{name}_product.{ext} {name}_main.{ext} " +
+                    "-o {name}_test.bin",
       "run" : run_vala,
       "run_cmd" : "./{name}_test.bin",
       "cases" : {"pas" : True, "cmm" : True},
       "skip_cases" : { },
-      # existence valacu se testuje až v main ()
+      "tools" : ["valac"],
+      "basic_stub" : BASIC_STUB,
+      # výstupy vala se shodují s tests/parsers/*.expected
+      "inherit_expected" : True,
       "check" : None,
    },
    "python" : {
@@ -311,6 +405,27 @@ LANGS = {
       "cases" : {"pas" : True, "cmm" : True},
       # quicksort obsahuje příkazy — viz NOTE_QUICKSORT
       "skip_cases" : {"cmm" : ("cmm_quicksort",)},
+      "check" : None,
+   },
+   "csharp" : {
+      "title" : "csharp (cparser/cproduct, mcs/mono)",
+      "dir" : "parser_in_csharp",
+      "ext" : "cs",
+      "generate" : generate_csharp,
+      "write_main" : write_csharp_main,
+      "support" : [("lang/csharp/textio.cs", "textio.cs")],
+      "build" : build_csharp,
+      "build_cmd" : "mcs -out:{name}_test.exe textio.cs " +
+                    "{name}_parser.cs {name}_product.cs {name}_main.cs",
+      "run" : run_csharp,
+      "run_cmd" : "mono {name}_test.exe",
+      "cases" : {"pas" : True, "cmm" : True},
+      # quicksort obsahuje příkazy — viz NOTE_QUICKSORT
+      "skip_cases" : {"cmm" : ("cmm_quicksort",)},
+      "tools" : ["mcs", "mono"],
+      "basic_stub" : CSHARP_BASIC_STUB,
+      # C# product (CProduct) dává stejný výstup jako vala
+      "inherit_expected" : True,
       "check" : None,
    },
    "pascal" : {
@@ -362,7 +477,7 @@ LANGS = {
 # ---------------------------------------------------------------------------
 
 def build_run_sh (lang, lang_cfg, enabled, out_dir) :
-   """Sestaví run.sh: build blok (valac), běhové funkce a smyčku přes
+   """Sestaví run.sh: build blok (build_cmd), běhové funkce a smyčku přes
    data/*.enabled — jméno gramatiky vezme z prefixu souboru."""
 
    ext = lang_cfg ["ext"]
@@ -373,12 +488,11 @@ def build_run_sh (lang, lang_cfg, enabled, out_dir) :
    for name, start, ext_, basic in enabled :
       if lang_cfg ["build"] != None :
          build_lines.append ("echo \"== build " + name + " ==\"")
-         # hlášky C kompilátoru jdou do build.log, vypíší se jen při
+         # hlášky kompilátoru jdou do build.log, vypíší se jen při
          # selhání — úspěšný build je tichý
-         build_lines.append ("if ! valac -q textio.vala " + name +
-            "_parser." + ext + " " + name + "_product." + ext + " " +
-            name + "_main." + ext + " -o " + name + "_test.bin " +
-            "> build.log 2>&1 ; then cat build.log ; exit 1 ; fi")
+         build_cmd = lang_cfg ["build_cmd"].format (name = name, ext = ext)
+         build_lines.append ("if ! " + build_cmd +
+            " > build.log 2>&1 ; then cat build.log ; exit 1 ; fi")
          build_lines.append ("rm -f build.log")
       run_cmd = lang_cfg ["run_cmd"].format (name = name)
       run_lines.append ("run_" + name + " () { " + run_cmd + " \"$1\" ; }")
@@ -409,10 +523,10 @@ def run_language (lang, lang_cfg, verbose, record) :
    print ()
    print ("== " + lang + " == " + lang_cfg ["title"])
 
-   if lang == "vala" and \
-      subprocess.run (["which", "valac"], capture_output = True).returncode != 0 :
-      print ("SKIP: valac not found")
-      return 0, 0, [ ]
+   for tool in lang_cfg.get ("tools", [ ]) :
+      if subprocess.run (["which", tool], capture_output = True).returncode != 0 :
+         print ("SKIP: " + tool + " not found")
+         return 0, 0, [ ]
 
    if lang_cfg ["check"] != None :
       print ("SKIP: " + lang_cfg ["check"])
@@ -433,7 +547,8 @@ def run_language (lang, lang_cfg, verbose, record) :
 
    for name, grammar_path, start, ext_, basic in TESTS :
       if not lang_cfg ["cases"].get (name, False) :
-         print ("NOTE    " + name + ": " + NOTE_CMM_PYTHON)
+         print ("NOTE    " + name + ": tato gramatika není pro " +
+                lang + " v balíčku")
          continue
       print ("-- " + name + " --")
 
@@ -442,7 +557,8 @@ def run_language (lang, lang_cfg, verbose, record) :
       print ("generated " + name + "_parser." + ext + ", " +
              name + "_product." + ext)
       lang_cfg ["write_main"] (name, start,
-                               BASIC_STUB if basic else "", out_dir)
+                               lang_cfg.get ("basic_stub", "") if basic else "",
+                               out_dir)
       enabled.append ((name, start, ext_, basic))
 
       for src, dst in lang_cfg ["support"] :
@@ -460,7 +576,7 @@ def run_language (lang, lang_cfg, verbose, record) :
 
          if lang_cfg ["build"] != None :
             try :
-               build_vala (name, out_dir)
+               lang_cfg ["build"] (name, out_dir)
             except RuntimeError as e :
                print (_RED + "BUILD FAIL: " + str (e) + _RESET)
                failures.append (lang + "/" + case)
@@ -476,11 +592,11 @@ def run_language (lang, lang_cfg, verbose, record) :
             continue
 
          expected_path = os.path.join (data_dir, case + ".expected")
-         # .expected pro vala se dědí z tests/parsers/, pro ostatní
+         # .expected pro vala/csharp se dědí z tests/parsers/, pro ostatní
          # jazyky se při prvním běhu zapíše (--record vynutí přepsání)
          old_path = os.path.join (SRC_DIR, case + ".expected")
          if not os.path.isfile (expected_path) and os.path.isfile (old_path) \
-            and lang == "vala" :
+            and lang_cfg.get ("inherit_expected", False) :
             shutil.copyfile (old_path, expected_path)
 
          if record or not os.path.isfile (expected_path) :
@@ -524,7 +640,7 @@ def main (argv = None) :
    p.add_argument ("--record", action = "store_true",
                    help = "(re)write the .expected files instead of comparing")
    p.add_argument ("--lang", action = "store", default = "vala",
-                   help = "languages to run: vala, python, pascal, cpp, all")
+                   help = "languages to run: vala, python, csharp, pascal, cpp, all")
    args = p.parse_args (argv)
 
    langs = sorted (LANGS.keys ()) if args.lang == "all" else [ args.lang ]
