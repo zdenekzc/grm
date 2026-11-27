@@ -1,0 +1,180 @@
+
+
+{ file: pascal.txt }
+
+/* ---------------------------------------------------------------------- */
+
+   ( | )
+   [ ]
+   { } 0
+   { } 1
+   { / } 1
+
+   < IF >
+   < NOT >
+
+   < OPT >
+   < SET >
+
+   < TYPE >
+   < KEEP >
+   < STORE >
+
+/* ---------------------------------------------------------------------- */
+
+<OPTIONS>
+
+case_sensitive = false;
+
+<CHARACTERS>
+
+letter = "A".."Z", "a".."z", "_";
+letter_or_digit = "A".."Z", "a".."z", "_", "0".."9";
+digit = "0".."9";
+
+<TOKENS>
+
+identifier = letter { letter_or_digit } 0;
+
+integer_numer = { digit } 1;
+
+number = { digit } 1
+         [ "." { digit } 1 ]
+         [ ("E" | "e") [ "+" | "-"] { digit } 1 ];
+
+string = "'" {character} 0 "'";
+
+<LANGUAGE>
+
+/* ---------------------------------------------------------------------- */
+
+stat_sequence : TStatSeq =
+   { stat::this / ";" } 1;
+
+with_item : TWithItem =
+   expr:with_expr;
+
+with_sect : TWithSect =
+   { with_item::this / "," } 1;
+
+elem_item : TElemItem =
+   expr:low [ ".." expr:high ];
+
+elem_sect : TElemSect =
+   { elem_item::this / "," } 1;
+
+case_item : TCaseItem =
+   elem_sect:sel_list ":" stat:sel_stat;
+
+case_sect : TCaseSect =
+  { < NOT "ELSE" "END" > case_item / <OPT> ";" } 0;
+
+on_item : TOnItem =
+   "ON" expr < KEEP >
+   (
+      ":" < STORE on_ident > type:on_type
+   |
+      < STORE on_type >
+   )
+   "DO" stat:body_stat ;
+
+on_sect : TOnSect =
+   { on_item::this / <OPT> ";" } 1;
+
+/* ---------------------------------------------------------------------- */
+
+empty_stat : TEmptyStat : TStat = ;
+
+simple_stat : TStat =
+   expr < KEEP >
+   (
+      ":="
+      < TYPE TAssignStat : TStat >
+      < STORE left_expr >
+      expr:right_expr
+   |
+      < TYPE TCallStat : TStat >
+      < STORE call_expr >
+   );
+
+compund_stat : TBeginStat : TStat =
+   "BEGIN"
+   stat_sequence:stat_seq
+   "END";
+
+goto_stat : TStat : TStat =
+   "GOTO" ident:goto_lab;
+
+if_stat : TIfStat : TStat =
+   "IF" expr:cond_expr
+   "THEN" stat:then_stat
+   [ "ELSE" stat:else_stat ];
+
+case_stat : TStat : TStat =
+   "CASE" expr:case_expr "OF"
+   case_sect:case_list
+   [ "ELSE" stat_sequence:else_seq [";"] ]
+   "END"
+
+while_stat : TWhileStat : TStat =
+   "WHILE" expr:cond_expr
+   "DO" stat:body_stat;
+
+repeat_stat : TStat : TStat =
+   "REPEAT"
+   stat_sequence:stat_seq
+   "UNTIL" expr:cond_expr;
+
+for_stat : TStat : TStat =
+   "FOR" expr:var_expr ":="
+   expr:from_expr
+   ( "TO" < SET incr = true > | "DOWNTO" < SET incr = false > )
+   expr:to_expr
+   "DO" stat:stat_body;
+
+with_stat : TStat : TStat =
+   "WITH"
+   with_sect:with
+   "DO" stat:body_stat;
+
+raise_stat : TStat : TStat =
+   "RAISE"
+   [
+     < NOT ";" "END" "UNTIL" "ELSE" "FINALLY" "EXCEPT" "ON" "FINALIZATION" >
+     expr:raise_expr
+   ];
+
+try_stat : TStat =
+   "TRY" stat_sequence < KEEP >
+   (
+      "EXCEPT"
+      < TYPE TExceptStat : TStat >
+      < STORE body_seq >
+      (
+         < IF "ON" >
+         on_sect:on_list
+         [ "ELSE" stat_quence:else_seq ]
+      |
+         stat_sequence:else_seq
+      )
+   |
+      "FINALY"
+      < TYPE TFinallyStat : TStat >
+      < STORE body_seq >
+      stat_sequence:finally_seq
+   )
+   "END";
+
+stat : TStat =
+   compound_stat |
+   if_stat |
+   case_stat |
+   while_stat |
+   repeat_stat |
+   for_stat |
+   with_stat |
+   raise_stat |
+   try_stat |
+   < IF ";" "END" "UNTIL" "ELSE" "FINALLY" "EXCEPT" "ON" "FINALIZATION" > empty_stat |
+   simple_stat ;
+
