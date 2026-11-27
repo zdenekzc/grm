@@ -46,12 +46,13 @@ getTokenFileInx/Line/Col (), error (), stop ()
 | `pascal/binio.pas` | **`/abc/grm/lang/pascal/`** (ne gibbon) | binární I/O, na kterém `textio.pas` stojí | gibbon verze nešla přeložit (`adr^` nad `Pointer`, `PChar` u ShortString); tato FPC verze projde |
 | `pascal/main.pas`, `makefile`, `translate.sh` | tamtéž | kostra programu a build pro `pas_parser`/`pas_product` | cesty v `makefile`/`translate.sh` míří na gibbon `view/`; upravit na `../../../grm` a `../../pas.g` |
 | `pascal/view/` | gibbon `other/mix/pascal-view/` | Lazarus mini IDE | `lexerunit.pas` je jen stub (prázdné metody); pro lexer použít `../textio.pas` |
-| `python/edit-mini/` | gibbon `other/python/edit-mini/` | PyQt5 mini IDE (editor, strom, grep, vlastnosti) | `python3 view.py`; PyQt5 je nainstalováno, GUI potřebuje X |
 | `rust/lexer.rs` | gibbon `other/mix/rust/` | kostra Rust lexeru (`readIdentifier`/`readNumber` vrací `""`) | **nepoužitelné** bez doplnění; `example.rs`, `example2.rs` jsou ukázky vstupu |
 | `vala/lexer.vala` | gibbon `other/mix/vala-view/` | Vala lexer, starší API (`tokenKind` jako int, `tokenText`, `readIdentifier`) | nutná adaptace na `tokenTxt`/`TokenKind`/`translate` |
 | `vala/textio.vala` | **`/abc/grm/lang/vala/`** (ne gibbon) | současný Vala lexer: `TokenKind`, `tokenTxt`, `translate`, `mark`/`rewind` | **přímo použitelné** s `cparser.py --vala` |
 | `vala/view/` | gibbon `other/mix/vala-view/`, upraveno | GTK3 mini IDE; původní `Gtk.SourceView` nahrazen `Gtk.TextView` (gtksourceview3 tady není), přidána akce **Parse Pascal** | `make` vygeneruje `pas_parser.vala`/`pas_product.vala` z `lang/pas.g` a přeloží; `make run` spustí GUI |
 | `pas.g` | gibbon `view/pas/pas.g` | ukázková gramatika Pascal (menší než `/abc/grm/tests/grammar/pas.g`) | pro rychlé vyzkoušení všech backendů |
+
+`python/` se nekopíruje — kompletní PyQt5 view už je přímo v `/abc/grm/view/`.
 
 ## Současné (kompatibilní) runtimes
 
@@ -95,7 +96,6 @@ cd lang/pascal && fpc -Fu. -Mdelphiunicode textio.pas          # rc=0 (27 warnin
 fpc -Fu. -Mdelphiunicode pas_parser.pas                        # pparser: nil u string pole
 cd lang/cpp/fltk-view && make                                  # rc=0 (fltk-view.bin)
 cd lang/vala/view && make && timeout 3 ./vala-view.bin         # rc=0 / 124 (GUI běží)
-cd lang/python/edit-mini && python3 -c "import view"           # rc=0
 node --check lang/js/lexer.js                                  # rc=0
 rustc --crate-type lib --edition 2015 lang/rust/lexer.rs       # rc=0 (jen kostra)
 pkg-config --modversion gtksourceview-3.0                      # chybí

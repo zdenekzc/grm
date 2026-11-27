@@ -206,7 +206,8 @@ Rozhodující je API: aktuální `cparser.py` chce `token`, `tokenKind`
 
 ## 4. Co bylo převzato do `lang/`
 
-Celkem 91 souborů, 1,3 MB. Struktura a stav:
+Celkem 91 souborů, 1,3 MB. Struktura a stav (do našeho projektu bez
+`python/edit-mini` — kompletní PyQt5 view už je v `/abc/grm/view/`):
 
 | adresář | obsah | stav |
 |---|---|---|
@@ -215,7 +216,6 @@ Celkem 91 souborů, 1,3 MB. Struktura a stav:
 | `lang/java/` | `lexer.java` (minimální), `view/` (Swing) | IDE projde `javac` |
 | `lang/js/` | `lexer.js`, `view/` (jsview) | lexer starší API; IDE v prohlížeči |
 | `lang/pascal/` | `textio.pas` + `binio.pas` (pparser runtime), `main.pas`, `makefile`, `translate.sh`, `view/` (Lazarus) | runtime projde `fpc`; `pparser` má chybu `string_pole := nil` |
-| `lang/python/` | `edit-mini/` (PyQt5) | import projde |
 | `lang/rust/` | `lexer.rs` (kostra), `example*.rs` | kostra, nepoužitelné bez doplnění |
 | `lang/vala/` | `lexer.vala` (starší API), `textio.vala` (aktuální API z `/abc/grm/lang`), `view/` | `textio.vala` projde `valac -C` |
 | `lang/pas.g` | ukázková gramatika z gibbonu | pro zkoušení backendů |
@@ -236,7 +236,6 @@ cd lang/vala/view && make                                      # rc=0 (parser + 
 cd lang/vala/view && timeout 3 ./vala-view.bin                 # rc=124 (GUI běží)
 cd lang/pascal && fpc -Fu. -Mdelphiunicode textio.pas          # rc=0 (27 warningů)
 cd lang/cpp/fltk-view && make                                  # rc=0, fltk-view.bin
-cd lang/python/edit-mini && python3 -c "import view"           # rc=0
 node --check lang/js/lexer.js                                  # rc=0
 rustc --crate-type lib --edition 2015 lang/rust/lexer.rs       # rc=0 (jen kostra)
 pkg-config --modversion gtksourceview-3.0                      # chybí (view už ho nepotřebuje)
