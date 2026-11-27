@@ -1028,7 +1028,14 @@ class ToParser (CodeOutput) :
        self.putLn ()
 
        for m in grammar.method_list :
-          if m.no_param :
+          # Metoda deklarovaná v gramatice bez parametru ({ m () }?,
+          # { m }?) se volá bez argumentu (condition () níže) — i její
+          # deklarace musí být bez item. Metody predicate_on_choose se
+          # naopak volají s result, takže item potřebují, i když je
+          # jejich param_type prázdný.
+          choose_predicates = grammar.predicate_on_choose.values ()
+          if m.no_param or (m.is_bool and m.param_type == "" and
+                            m.method_name not in choose_predicates) :
              self.putLn ("def " +  m.method_name + " (self) :")
           else :
              self.putLn ("def " +  m.method_name + " (self, item) :")
