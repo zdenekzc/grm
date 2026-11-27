@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title></title>
+   </head>
+   <body>
+      <pre>
+      <a name="label_ident">label_ident</a> :
+         identifier
+      ;
+
+      <a name="qualified_name">qualified_name</a> :
+         identifier
+         (
+            <a href="#cont_name">cont_name</a>
+         )*
+      ;
+
+      <a name="cont_name">cont_name</a> :
+         &quot;.&quot;identifier
+      ;
+
+      <a name="ifc_type">ifc_type</a> :
+         <a href="#simple_alias_type">simple_alias_type</a>
+      ;
+
+      <a name="param_type">param_type</a> :
+         <a href="#simple_alias_type">simple_alias_type</a>|
+         <a href="#simple_string_type">simple_string_type</a>|
+         <a href="#simple_file_type">simple_file_type</a>
+      ;
+
+      <a name="result_type">result_type</a> :
+         <a href="#simple_alias_type">simple_alias_type</a>|
+         <a href="#simple_string_type">simple_string_type</a>
+      ;
+
+      <a name="simple_alias_type">simple_alias_type</a> :
+         <a href="#qualified_name">qualified_name</a>
+      ;
+
+      <a name="simple_string_type">simple_string_type</a> :
+         &quot;string&quot;
+      ;
+
+      <a name="simple_file_type">simple_file_type</a> :
+         &quot;file&quot;
+      ;
+
+      <a name="index_expr_item">index_expr_item</a> :
+         <a href="#expr">expr</a>
+      ;
+
+      <a name="index_expr_list">index_expr_list</a> :
+         <a href="#index_expr_item">index_expr_item</a>
+         (
+            &quot;,&quot;<a href="#index_expr_item">index_expr_item</a>
+         )*
+      ;
+
+      <a name="arg_item">arg_item</a> :
+         <a href="#expr">expr</a>
+         (
+            &quot;:&quot;<a href="#expr">expr</a>
+            (
+               &quot;:&quot;<a href="#expr">expr</a>
+            )?
+
+         )?
+      ;
+
+      <a name="arg_list">arg_list</a> :
+         <a href="#arg_item">arg_item</a>
+         (
+            &quot;,&quot;<a href="#arg_item">arg_item</a>
+         )*
+      ;
+
+      <a name="elem_sect">elem_sect</a> :
+         <a href="#elem_item">elem_item</a>
+         (
+            &quot;,&quot;<a href="#elem_item">elem_item</a>
+         )*
+      ;
+
+      <a name="elem_item">elem_item</a> :
+         <a href="#expr">expr</a>
+         (
+            &quot;..&quot;<a href="#expr">expr</a>
+         )?
+      ;
+
+      <a name="struct_item">struct_item</a> :
+         (
+            identifier&quot;:&quot;
+         )?
+         <a href="#expr">expr</a>
+      ;
+
+      <a name="struct_sect">struct_sect</a> :
+         <a href="#struct_item">struct_item</a>
+         (
+            &quot;,&quot;<a href="#struct_item">struct_item</a>
+            (
+               &quot;,&quot;<a href="#struct_item">struct_item</a>
+            )*
+            |
+            &quot;;&quot;<a href="#struct_item">struct_item</a>
+            (
+               &quot;;&quot;<a href="#struct_item">struct_item</a>
+            )*
+
+         )?
+      ;
+
+      <a name="ident_expr">ident_expr</a> :
+         identifier
+      ;
+
+      <a name="int_value_expr">int_value_expr</a> :
+         number
+      ;
+
+      <a name="float_value_expr">float_value_expr</a> :
+         real_number
+      ;
+
+      <a name="string_value_expr">string_value_expr</a> :
+         string_literal
+      ;
+
+      <a name="nil_expr">nil_expr</a> :
+         &quot;nil&quot;
+      ;
+
+      <a name="sub_expr">sub_expr</a> :
+         &quot;(&quot;<a href="#expr">expr</a>&quot;)&quot;
+      ;
+
+      <a name="not_expr">not_expr</a> :
+         &quot;not&quot;<a href="#factor">factor</a>
+      ;
+
+      <a name="plus_expr">plus_expr</a> :
+         &quot;+&quot;<a href="#factor">factor</a>
+      ;
+
+      <a name="minus_expr">minus_expr</a> :
+         &quot;-&quot;<a href="#factor">factor</a>
+      ;
+
+      <a name="adr_expr">adr_expr</a> :
+         &quot;@&quot;<a href="#factor">factor</a>
+      ;
+
+      <a name="set_expr">set_expr</a> :
+         &quot;[&quot;<a href="#elem_sect">elem_sect</a>&quot;]&quot;
+      ;
+
+      <a name="super_expr">super_expr</a> :
+         &quot;inherited&quot;identifier
+      ;
+
+      <a name="string_type_expr">string_type_expr</a> :
+         &quot;string&quot;&quot;(&quot;<a href="#expr">expr</a>&quot;)&quot;
+      ;
+
+      <a name="variable">variable</a> :
+         <a href="#ident_expr">ident_expr</a>|
+         <a href="#sub_expr">sub_expr</a>|
+         <a href="#super_expr">super_expr</a>
+      ;
+
+      <a name="reference">reference</a> :
+         <a href="#variable">variable</a>
+         (
+            <a href="#index_expr">index_expr</a>|
+            <a href="#call_expr">call_expr</a>|
+            <a href="#deref_expr">deref_expr</a>|
+            <a href="#field_expr">field_expr</a>
+         )*
+      ;
+
+      <a name="index_expr">index_expr</a> :
+         &quot;[&quot;<a href="#index_expr_list">index_expr_list</a>&quot;]&quot;
+      ;
+
+      <a name="call_expr">call_expr</a> :
+         &quot;(&quot;<a href="#arg_list">arg_list</a>&quot;)&quot;
+      ;
+
+      <a name="deref_expr">deref_expr</a> :
+         &quot;^&quot;
+      ;
+
+      <a name="field_expr">field_expr</a> :
+         &quot;.&quot;identifier
+      ;
+
+      <a name="factor">factor</a> :
+         <a href="#int_value_expr">int_value_expr</a>|
+         <a href="#float_value_expr">float_value_expr</a>|
+         <a href="#string_value_expr">string_value_expr</a>|
+         <a href="#not_expr">not_expr</a>|
+         <a href="#plus_expr">plus_expr</a>|
+         <a href="#minus_expr">minus_expr</a>|
+         <a href="#adr_expr">adr_expr</a>|
+         <a href="#nil_expr">nil_expr</a>|
+         <a href="#set_expr">set_expr</a>|
+         <a href="#string_type_expr">string_type_expr</a>|
+         <a href="#reference">reference</a>
+      ;
+
+      <a name="term">term</a> :
+         <a href="#factor">factor</a>
+         (
+            (
+               &quot;*&quot;|
+               &quot;/&quot;|
+               &quot;div&quot;|
+               &quot;mod&quot;|
+               &quot;shl&quot;|
+               &quot;shr&quot;|
+               &quot;and&quot;|
+               &quot;as&quot;
+            )
+            <a href="#factor">factor</a>
+         )*
+      ;
+
+      <a name="simple_expr">simple_expr</a> :
+         <a href="#term">term</a>
+         (
+            (
+               &quot;+&quot;|
+               &quot;-&quot;|
+               &quot;or&quot;|
+               &quot;xor&quot;
+            )
+            <a href="#term">term</a>
+         )*
+      ;
+
+      <a name="expr">expr</a> :
+         <a href="#simple_expr">simple_expr</a>
+         (
+            (
+               &quot;=&quot;|
+               &quot;&lt;&gt;&quot;|
+               &quot;&lt;&quot;|
+               &quot;&gt;&quot;|
+               &quot;&lt;=&quot;|
+               &quot;&gt;=&quot;|
+               &quot;in&quot;|
+               &quot;is&quot;
+            )
+            <a href="#simple_expr">simple_expr</a>
+         )?
+      ;
+
+      <a name="goto_stat">goto_stat</a> :
+         &quot;goto&quot;<a href="#label_ident">label_ident</a>
+      ;
+
+      <a name="begin_stat">begin_stat</a> :
+         &quot;begin&quot;<a href="#stat_list">stat_list</a>&quot;end&quot;
+      ;
+
+      <a name="stat_list">stat_list</a> :
+         <a href="#stat">stat</a>
+         (
+            &quot;;&quot;<a href="#stat">stat</a>
+         )*
+      ;
+
+      <a name="inner_stat">inner_stat</a> :
+         <a href="#stat">stat</a>
+      ;
+
+      <a name="if_stat">if_stat</a> :
+         &quot;if&quot;<a href="#expr">expr</a>&quot;then&quot;<a href="#inner_stat">inner_stat</a>
+         (
+            &quot;else&quot;<a href="#inner_stat">inner_stat</a>
+         )?
+      ;
+
+      <a name="case_stat">case_stat</a> :
+         &quot;case&quot;<a href="#expr">expr</a>&quot;of&quot;<a href="#case_sect">case_sect</a>
+         (
+            &quot;else&quot;<a href="#stat_list">stat_list</a>
+         )?
+         &quot;end&quot;
+      ;
+
+      <a name="case_sect">case_sect</a> :
+         <a href="#case_item">case_item</a>
+         (
+            &quot;;&quot;<a href="#case_item">case_item</a>
+         )*
+      ;
+
+      <a name="case_item">case_item</a> :
+         <a href="#elem_sect">elem_sect</a>&quot;:&quot;<a href="#inner_stat">inner_stat</a>
+      ;
+
+      <a name="while_stat">while_stat</a> :
+         &quot;while&quot;<a href="#expr">expr</a>&quot;do&quot;<a href="#inner_stat">inner_stat</a>
+      ;
+
+      <a name="repeat_stat">repeat_stat</a> :
+         &quot;repeat&quot;<a href="#stat_list">stat_list</a>&quot;until&quot;<a href="#expr">expr</a>
+      ;
+
+      <a name="for_stat">for_stat</a> :
+         &quot;for&quot;<a href="#variable">variable</a>&quot;:=&quot;<a href="#expr">expr</a>
+         (
+            &quot;to&quot;|
+            &quot;downto&quot;
+         )
+         <a href="#expr">expr</a>&quot;do&quot;<a href="#inner_stat">inner_stat</a>
+      ;
+
+      <a name="with_stat">with_stat</a> :
+         &quot;with&quot;<a href="#with_sect">with_sect</a>&quot;do&quot;<a href="#inner_stat">inner_stat</a>
+      ;
+
+      <a name="with_sect">with_sect</a> :
+         <a href="#with_item">with_item</a>
+         (
+            &quot;,&quot;<a href="#with_item">with_item</a>
+         )*
+      ;
+
+      <a name="with_item">with_item</a> :
+         <a href="#variable">variable</a>
+      ;
+
+      <a name="raise_stat">raise_stat</a> :
+         &quot;raise&quot;
+         (
+            <a href="#expr">expr</a>
+         )?
+      ;
+
+      <a name="try_stat">try_stat</a> :
+         &quot;try&quot;<a href="#stat_list">stat_list</a>
+         (
+            <a href="#finally_part">finally_part</a>|
+            <a href="#except_part">except_part</a>
+         )
+         &quot;end&quot;
+      ;
+
+      <a name="finally_part">finally_part</a> :
+         &quot;finally&quot;<a href="#stat_list">stat_list</a>
+      ;
+
+      <a name="except_part">except_part</a> :
+         &quot;except&quot;
+         (
+            <a href="#on_sect">on_sect</a>
+            (
+               &quot;else&quot;<a href="#stat_list">stat_list</a>
+            )?
+            |
+            <a href="#stat_list">stat_list</a>
+         )
+      ;
+
+      <a name="on_sect">on_sect</a> :
+         <a href="#on_item">on_item</a>
+         (
+            &quot;;&quot;<a href="#on_item">on_item</a>
+         )*
+         (
+            &quot;;&quot;
+         )?
+      ;
+
+      <a name="on_item">on_item</a> :
+         &quot;on&quot;
+         (
+            identifier&quot;:&quot;
+         )?
+         <a href="#type">type</a>&quot;do&quot;<a href="#inner_stat">inner_stat</a>
+      ;
+
+      <a name="empty_stat">empty_stat</a> :
+      ;
+
+      <a name="simple_stat">simple_stat</a> :
+         <a href="#expr">expr</a>
+         (
+            <a href="#assign_stat">assign_stat</a>|
+            <a href="#call_stat">call_stat</a>
+         )
+      ;
+
+      <a name="assign_stat">assign_stat</a> :
+         &quot;:=&quot;<a href="#expr">expr</a>
+      ;
+
+      <a name="call_stat">call_stat</a> :
+      ;
+
+      <a name="labeled_stat">labeled_stat</a> :
+         <a href="#label_ident">label_ident</a>&quot;:&quot;<a href="#stat">stat</a>
+      ;
+
+      <a name="stat">stat</a> :
+         <a href="#labeled_stat">labeled_stat</a>|
+         <a href="#simple_stat">simple_stat</a>|
+         <a href="#empty_stat">empty_stat</a>|
+         <a href="#goto_stat">goto_stat</a>|
+         <a href="#begin_stat">begin_stat</a>|
+         <a href="#if_stat">if_stat</a>|
+         <a href="#case_stat">case_stat</a>|
+         <a href="#while_stat">while_stat</a>|
+         <a href="#repeat_stat">repeat_stat</a>|
+         <a href="#for_stat">for_stat</a>|
+         <a href="#with_stat">with_stat</a>|
+         <a href="#raise_stat">raise_stat</a>|
+         <a href="#try_stat">try_stat</a>
+      ;
+
+      <a name="param_ident">param_ident</a> :
+         identifier
+      ;
+
+      <a name="param_item">param_item</a> :
+         (
+            &quot;var&quot;|
+            &quot;const&quot;|
+            &quot;out&quot;|
+
+         )
+         <a href="#param_ident">param_ident</a>
+         (
+            &quot;,&quot;<a href="#param_ident">param_ident</a>
+         )*
+         (
+            &quot;:&quot;<a href="#param_type">param_type</a>
+            (
+               &quot;=&quot;<a href="#expr">expr</a>
+            )?
+
+         )?
+      ;
+
+      <a name="formal_param_list">formal_param_list</a> :
+         (
+            &quot;(&quot;<a href="#param_item">param_item</a>
+            (
+               &quot;;&quot;<a href="#param_item">param_item</a>
+            )*
+            &quot;)&quot;
+         )?
+      ;
+
+      <a name="property_param_list">property_param_list</a> :
+         &quot;[&quot;<a href="#param_item">param_item</a>
+         (
+            &quot;;&quot;<a href="#param_item">param_item</a>
+         )*
+         &quot;]&quot;
+      ;
+
+      <a name="class_type">class_type</a> :
+         &quot;class&quot;
+         (
+            &quot;(&quot;<a href="#ifc_type">ifc_type</a>
+            (
+               &quot;,&quot;<a href="#interface_sect">interface_sect</a>
+            )?
+            &quot;)&quot;
+         )?
+         <a href="#components_sect">components_sect</a>&quot;end&quot;
+      ;
+
+      <a name="interface_type">interface_type</a> :
+         &quot;interface&quot;
+         (
+            &quot;(&quot;<a href="#interface_sect">interface_sect</a>&quot;)&quot;
+         )?
+         <a href="#components_sect">components_sect</a>&quot;end&quot;
+      ;
+
+      <a name="interface_sect">interface_sect</a> :
+         <a href="#interface_item">interface_item</a>
+         (
+            &quot;,&quot;<a href="#interface_item">interface_item</a>
+         )*
+      ;
+
+      <a name="interface_item">interface_item</a> :
+         <a href="#ifc_type">ifc_type</a>
+      ;
+
+      <a name="components_sect">components_sect</a> :
+         <a href="#components_first_item">components_first_item</a>
+         (
+            <a href="#components_item">components_item</a>
+         )*
+      ;
+
+      <a name="components_item">components_item</a> :
+         (
+            &quot;private&quot;|
+            &quot;protected&quot;|
+            &quot;public&quot;|
+            &quot;published&quot;|
+            &quot;automated&quot;
+         )
+         <a href="#member_sect">member_sect</a>
+      ;
+
+      <a name="components_first_item">components_first_item</a> :
+         <a href="#member_sect">member_sect</a>
+      ;
+
+      <a name="member_sect">member_sect</a> :
+         (
+            <a href="#member_decl">member_decl</a>
+         )*
+      ;
+
+      <a name="member_decl">member_decl</a> :
+         <a href="#field_decl">field_decl</a>|
+         <a href="#method_decl">method_decl</a>|
+         <a href="#property_decl">property_decl</a>
+      ;
+
+      <a name="field_ident">field_ident</a> :
+         identifier
+      ;
+
+      <a name="field_decl">field_decl</a> :
+         <a href="#field_ident">field_ident</a>
+         (
+            &quot;,&quot;<a href="#field_ident">field_ident</a>
+         )*
+         &quot;:&quot;<a href="#type">type</a>&quot;;&quot;
+      ;
+
+      <a name="method_decl">method_decl</a> :
+         <a href="#proc_head">proc_head</a>
+         (
+            &quot;virtual&quot;&quot;;&quot;|
+            &quot;dynamic&quot;&quot;;&quot;|
+            &quot;override&quot;&quot;;&quot;|
+            &quot;abstract&quot;&quot;;&quot;
+         )*
+      ;
+
+      <a name="property_decl">property_decl</a> :
+         &quot;property&quot;identifier
+         (
+            <a href="#property_param_list">property_param_list</a>
+         )?
+         (
+            &quot;:&quot;<a href="#result_type">result_type</a>
+         )?
+         (
+            &quot;read&quot;<a href="#expr">expr</a>
+         )?
+         (
+            &quot;write&quot;<a href="#expr">expr</a>
+         )?
+         (
+            &quot;stored&quot;
+         )?
+         (
+            &quot;default&quot;
+         )?
+         (
+            &quot;nodefault&quot;
+         )?
+         (
+            &quot;implements&quot;<a href="#interface_sect">interface_sect</a>
+         )?
+         (
+            &quot;;&quot;&quot;default&quot;
+         )?
+         &quot;;&quot;
+      ;
+
+      <a name="enum_type">enum_type</a> :
+         &quot;(&quot;<a href="#enum_sect">enum_sect</a>&quot;)&quot;
+      ;
+
+      <a name="enum_sect">enum_sect</a> :
+         <a href="#enum_item">enum_item</a>
+         (
+            &quot;,&quot;<a href="#enum_item">enum_item</a>
+         )*
+      ;
+
+      <a name="enum_item">enum_item</a> :
+         identifier
+      ;
+
+      <a name="string_type">string_type</a> :
+         &quot;string&quot;
+         (
+            &quot;[&quot;<a href="#expr">expr</a>&quot;]&quot;
+         )?
+      ;
+
+      <a name="array_type">array_type</a> :
+         &quot;array&quot;
+         (
+            &quot;[&quot;<a href="#index_type_sect">index_type_sect</a>&quot;]&quot;
+         )?
+         &quot;of&quot;<a href="#type">type</a>
+      ;
+
+      <a name="index_type_sect">index_type_sect</a> :
+         <a href="#index_type_item">index_type_item</a>
+         (
+            &quot;,&quot;<a href="#index_type_item">index_type_item</a>
+         )*
+      ;
+
+      <a name="index_type_item">index_type_item</a> :
+         <a href="#type">type</a>
+      ;
+
+      <a name="record_type">record_type</a> :
+         (
+            &quot;packed&quot;
+         )?
+         &quot;record&quot;<a href="#field_sect">field_sect</a>&quot;end&quot;
+      ;
+
+      <a name="field_sect">field_sect</a> :
+         (
+            <a href="#field_decl">field_decl</a>
+         )*
+      ;
+
+      <a name="pointer_type">pointer_type</a> :
+         &quot;^&quot;<a href="#type">type</a>
+      ;
+
+      <a name="set_type">set_type</a> :
+         &quot;set&quot;&quot;of&quot;<a href="#type">type</a>
+      ;
+
+      <a name="file_type">file_type</a> :
+         &quot;file&quot;
+         (
+            &quot;of&quot;<a href="#type">type</a>
+         )?
+      ;
+
+      <a name="class_of_type">class_of_type</a> :
+         &quot;class&quot;&quot;of&quot;<a href="#type">type</a>
+      ;
+
+      <a name="proc_type">proc_type</a> :
+         (
+            &quot;procedure&quot;|
+            &quot;function&quot;
+         )
+         <a href="#formal_param_list">formal_param_list</a>
+         (
+            &quot;:&quot;<a href="#result_type">result_type</a>
+         )?
+         (
+            &quot;of&quot;&quot;object&quot;
+         )?
+         (
+            &quot;register&quot;|
+            &quot;pascal&quot;|
+            &quot;cdecl&quot;|
+            &quot;stdcall&quot;|
+            &quot;safecall&quot;
+         )?
+      ;
+
+      <a name="range_type">range_type</a> :
+         <a href="#simple_expr">simple_expr</a>&quot;..&quot;<a href="#simple_expr">simple_expr</a>
+      ;
+
+      <a name="alias_type">alias_type</a> :
+         <a href="#qualified_name">qualified_name</a>
+      ;
+
+      <a name="type">type</a> :
+         <a href="#string_type">string_type</a>|
+         <a href="#array_type">array_type</a>|
+         <a href="#set_type">set_type</a>|
+         <a href="#file_type">file_type</a>|
+         <a href="#record_type">record_type</a>|
+         <a href="#class_type">class_type</a>|
+         <a href="#class_of_type">class_of_type</a>|
+         <a href="#interface_type">interface_type</a>|
+         <a href="#proc_type">proc_type</a>|
+         <a href="#pointer_type">pointer_type</a>|
+         <a href="#range_type">range_type</a>|
+         <a href="#enum_type">enum_type</a>|
+         <a href="#alias_type">alias_type</a>
+      ;
+
+      <a name="label_decl">label_decl</a> :
+         <a href="#label_ident">label_ident</a>
+      ;
+
+      <a name="label_sect">label_sect</a> :
+         &quot;label&quot;<a href="#label_decl">label_decl</a>
+         (
+            &quot;,&quot;<a href="#label_decl">label_decl</a>
+         )*
+         &quot;;&quot;
+      ;
+
+      <a name="const_decl">const_decl</a> :
+         identifier
+         (
+            &quot;:&quot;<a href="#type">type</a>
+         )?
+         &quot;=&quot;<a href="#expr">expr</a>&quot;;&quot;
+      ;
+
+      <a name="const_sect">const_sect</a> :
+         &quot;const&quot;<a href="#const_decl">const_decl</a>
+         (
+            <a href="#const_decl">const_decl</a>
+         )*
+      ;
+
+      <a name="type_decl">type_decl</a> :
+         identifier&quot;=&quot;<a href="#type">type</a>&quot;;&quot;
+      ;
+
+      <a name="type_sect">type_sect</a> :
+         &quot;type&quot;<a href="#type_decl">type_decl</a>
+         (
+            <a href="#type_decl">type_decl</a>
+         )*
+      ;
+
+      <a name="var_item">var_item</a> :
+         identifier
+      ;
+
+      <a name="var_decl">var_decl</a> :
+         <a href="#var_item">var_item</a>
+         (
+            &quot;,&quot;<a href="#var_item">var_item</a>
+         )*
+         &quot;:&quot;<a href="#type">type</a>
+         (
+            &quot;=&quot;<a href="#expr">expr</a>
+         )?
+         &quot;;&quot;
+      ;
+
+      <a name="var_sect">var_sect</a> :
+         &quot;var&quot;<a href="#var_decl">var_decl</a>
+         (
+            <a href="#var_decl">var_decl</a>
+         )*
+      ;
+
+      <a name="proc_head">proc_head</a> :
+         (
+            &quot;class&quot;
+         )?
+         (
+            &quot;procedure&quot;|
+            &quot;function&quot;|
+            &quot;constructor&quot;|
+            &quot;destructor&quot;
+         )
+         <a href="#qualified_name">qualified_name</a><a href="#formal_param_list">formal_param_list</a>
+         (
+            &quot;:&quot;<a href="#result_type">result_type</a>
+         )?
+         &quot;;&quot;
+      ;
+
+      <a name="proc_decl">proc_decl</a> :
+         <a href="#proc_head">proc_head</a>
+         (
+            &quot;forward&quot;|
+            <a href="#proc_external">proc_external</a>|
+            (
+               &quot;inline&quot;&quot;;&quot;
+            )?
+            <a href="#decl_part">decl_part</a>&quot;begin&quot;<a href="#stat_list">stat_list</a>&quot;end&quot;
+         )
+         &quot;;&quot;
+      ;
+
+      <a name="proc_external">proc_external</a> :
+         &quot;external&quot;
+         (
+            <a href="#expr">expr</a>
+         )?
+         &quot;;&quot;
+      ;
+
+      <a name="proc_intf_decl">proc_intf_decl</a> :
+         <a href="#proc_head">proc_head</a>
+         (
+            &quot;inline&quot;&quot;;&quot;
+         )?
+         (
+            <a href="#proc_external">proc_external</a>
+         )?
+      ;
+
+      <a name="intf_decl">intf_decl</a> :
+         <a href="#const_sect">const_sect</a>|
+         <a href="#type_sect">type_sect</a>|
+         <a href="#var_sect">var_sect</a>|
+         <a href="#proc_intf_decl">proc_intf_decl</a>
+      ;
+
+      <a name="intf_decl_part">intf_decl_part</a> :
+         (
+            <a href="#intf_decl">intf_decl</a>
+         )*
+      ;
+
+      <a name="decl">decl</a> :
+         <a href="#label_sect">label_sect</a>|
+         <a href="#const_sect">const_sect</a>|
+         <a href="#type_sect">type_sect</a>|
+         <a href="#var_sect">var_sect</a>|
+         <a href="#proc_decl">proc_decl</a>
+      ;
+
+      <a name="decl_part">decl_part</a> :
+         (
+            <a href="#decl">decl</a>
+         )*
+      ;
+
+      <a name="import_item">import_item</a> :
+         identifier
+         (
+            &quot;in&quot;string_literal
+         )?
+      ;
+
+      <a name="import_sect">import_sect</a> :
+         (
+            &quot;uses&quot;<a href="#import_item">import_item</a>
+            (
+               &quot;,&quot;<a href="#import_item">import_item</a>
+            )*
+            &quot;;&quot;
+         )?
+      ;
+
+      <a name="unit_decl">unit_decl</a> :
+         &quot;unit&quot;identifier&quot;;&quot;&quot;interface&quot;<a href="#import_sect">import_sect</a><a href="#intf_decl_part">intf_decl_part</a>&quot;implementation&quot;<a href="#import_sect">import_sect</a><a href="#decl_part">decl_part</a>
+         (
+            (
+               &quot;initialization&quot;<a href="#stat_list">stat_list</a>
+            )?
+            (
+               &quot;finalization&quot;<a href="#stat_list">stat_list</a>
+            )?
+            |
+            &quot;begin&quot;<a href="#stat_list">stat_list</a>
+         )?
+         &quot;end&quot;&quot;.&quot;
+      ;
+
+      <a name="program_decl">program_decl</a> :
+         &quot;program&quot;identifier&quot;;&quot;<a href="#import_sect">import_sect</a><a href="#decl_part">decl_part</a>&quot;begin&quot;<a href="#stat_list">stat_list</a>&quot;end&quot;&quot;.&quot;
+      ;
+
+      <a name="library_decl">library_decl</a> :
+         &quot;library&quot;identifier&quot;;&quot;<a href="#import_sect">import_sect</a><a href="#decl_part">decl_part</a>&quot;begin&quot;<a href="#stat_list">stat_list</a>&quot;end&quot;&quot;.&quot;
+      ;
+
+      <a name="module_decl">module_decl</a> :
+         <a href="#unit_decl">unit_decl</a>|
+         <a href="#program_decl">program_decl</a>|
+         <a href="#library_decl">library_decl</a>
+      ;
+
+      </pre>
+   </body>
+</html>

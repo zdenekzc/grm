@@ -1,0 +1,2119 @@
+@SysInclude { tbl }
+@SysInclude { diag }
+@SysInclude { xrgb }
+@SysInclude { doc }
+@Doc @Text @Begin
+
+@SyntaxDiag
+title {label_ident}
+{
+   @StartRight
+   { @Xrgb orange } @Color @BCell identifier}
+@PP
+@PP
+
+@SyntaxDiag
+title {qualified_name}
+{
+   @StartRight
+   @Sequence
+   A {{ @Xrgb orange } @Color @BCell identifier}
+   B {@Optional
+      @RepeatOpposite
+         @ACell "cont_name"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {cont_name}
+{
+   @StartRight
+   @Sequence
+   A {}
+   B {blue @Color @BCell "."}
+   C {}
+   D {{ @Xrgb orange } @Color @BCell identifier}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {ifc_type}
+{
+   @StartRight
+   @ACell "simple_alias_type"}
+@PP
+@PP
+
+@SyntaxDiag
+title {param_type}
+{
+   @StartRight
+   @Select
+   A {@ACell "simple_alias_type"}
+   B {@ACell "simple_string_type"}
+   C {@ACell "simple_file_type"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {result_type}
+{
+   @StartRight
+   @Select
+   A {@ACell "simple_alias_type"}
+   B {@ACell "simple_string_type"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {simple_alias_type}
+{
+   @StartRight
+   @ACell "qualified_name"}
+@PP
+@PP
+
+@SyntaxDiag
+title {simple_string_type}
+{
+   @StartRight
+   blue @Color @BCell "string"}
+@PP
+@PP
+
+@SyntaxDiag
+title {simple_file_type}
+{
+   @StartRight
+   blue @Color @BCell "file"}
+@PP
+@PP
+
+@SyntaxDiag
+title {index_expr_item}
+{
+   @StartRight
+   @ACell "expr"}
+@PP
+@PP
+
+@SyntaxDiag
+title {index_expr_list}
+{
+   @StartRight
+   @Sequence
+   A {@ACell "index_expr_item"}
+   B {@Optional
+      @RepeatOpposite
+         @Sequence
+         A {blue @Color @BCell ","}
+         B {@ACell "index_expr_item"}
+   }
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {arg_item}
+{
+   @StartRight
+   @Sequence
+   A {@ACell "expr"}
+   B {@Optional
+         @Sequence
+         A {blue @Color @BCell ":"}
+         B {@ACell "expr"}
+         C {@Optional
+               @Sequence
+               A {blue @Color @BCell ":"}
+               B {@ACell "expr"}
+         }
+   }
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {arg_list}
+{
+   @StartRight
+   @Sequence
+   A {@ACell "arg_item"}
+   B {@Optional
+      @RepeatOpposite
+         @Sequence
+         A {blue @Color @BCell ","}
+         B {@ACell "arg_item"}
+   }
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {elem_sect}
+{
+   @StartRight
+   @Sequence
+   A {@ACell "elem_item"}
+   B {@Optional
+      @RepeatOpposite
+         @Sequence
+         A {blue @Color @BCell ","}
+         B {@ACell "elem_item"}
+   }
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {elem_item}
+{
+   @StartRight
+   @Sequence
+   A {@ACell "expr"}
+   B {@Optional
+         @Sequence
+         A {blue @Color @BCell ".."}
+         B {@ACell "expr"}
+   }
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {struct_item}
+{
+   @StartRight
+   @Sequence
+   A {@Optional
+         @Sequence
+         A {{ @Xrgb orange } @Color @BCell identifier}
+         B {blue @Color @BCell ":"}
+   }
+   B {@ACell "expr"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {struct_sect}
+{
+   @StartRight
+   @Sequence
+   A {@ACell "struct_item"}
+   B {@Optional
+         @Select
+         A {@Sequence
+            A {blue @Color @BCell ","}
+            B {@ACell "struct_item"}
+            C {@Optional
+               @RepeatOpposite
+                  @Sequence
+                  A {blue @Color @BCell ","}
+                  B {@ACell "struct_item"}
+            }
+         }
+         B {@Sequence
+            A {blue @Color @BCell ";"}
+            B {@ACell "struct_item"}
+            C {@Optional
+               @RepeatOpposite
+                  @Sequence
+                  A {blue @Color @BCell ";"}
+                  B {@ACell "struct_item"}
+            }
+         }
+   }
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {ident_expr}
+{
+   @StartRight
+   @Sequence
+   A {{ @Xrgb orange } @Color @BCell identifier}
+   B {}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {int_value_expr}
+{
+   @StartRight
+   { @Xrgb orange } @Color @BCell number}
+@PP
+@PP
+
+@SyntaxDiag
+title {float_value_expr}
+{
+   @StartRight
+   { @Xrgb orange } @Color @BCell real_number}
+@PP
+@PP
+
+@SyntaxDiag
+title {string_value_expr}
+{
+   @StartRight
+   { @Xrgb orange } @Color @BCell string_literal}
+@PP
+@PP
+
+@SyntaxDiag
+title {nil_expr}
+{
+   @StartRight
+   blue @Color @BCell "nil"}
+@PP
+@PP
+
+@SyntaxDiag
+title {sub_expr}
+{
+   @StartRight
+   @Sequence
+   A {blue @Color @BCell "("}
+   B {@ACell "expr"}
+   C {blue @Color @BCell ")"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {not_expr}
+{
+   @StartRight
+   @Sequence
+   A {blue @Color @BCell "not"}
+   B {@ACell "factor"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {plus_expr}
+{
+   @StartRight
+   @Sequence
+   A {blue @Color @BCell "+"}
+   B {@ACell "factor"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {minus_expr}
+{
+   @StartRight
+   @Sequence
+   A {blue @Color @BCell "-"}
+   B {@ACell "factor"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {adr_expr}
+{
+   @StartRight
+   @Sequence
+   A {blue @Color @BCell "@"}
+   B {@ACell "factor"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {set_expr}
+{
+   @StartRight
+   @Sequence
+   A {blue @Color @BCell "["}
+   B {@ACell "elem_sect"}
+   C {blue @Color @BCell "]"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {super_expr}
+{
+   @StartRight
+   @Sequence
+   A {blue @Color @BCell "inherited"}
+   B {{ @Xrgb orange } @Color @BCell identifier}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {string_type_expr}
+{
+   @StartRight
+   @Sequence
+   A {blue @Color @BCell "string"}
+   B {blue @Color @BCell "("}
+   C {@ACell "expr"}
+   D {blue @Color @BCell ")"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {variable}
+{
+   @StartRight
+   @Select
+   A {@ACell "ident_expr"}
+   B {@ACell "sub_expr"}
+   C {@ACell "super_expr"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {reference}
+{
+   @StartRight
+   @Sequence
+   A {@ACell "variable"}
+   B {@Optional
+      @RepeatOpposite
+         @Select
+         A {@ACell "index_expr"}
+         B {@ACell "call_expr"}
+         C {@ACell "deref_expr"}
+         D {@ACell "field_expr"}
+   }
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {index_expr}
+{
+   @StartRight
+   @Sequence
+   A {blue @Color @BCell "["}
+   B {@ACell "index_expr_list"}
+   C {blue @Color @BCell "]"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {call_expr}
+{
+   @StartRight
+   @Sequence
+   A {blue @Color @BCell "("}
+   B {@ACell "arg_list"}
+   C {blue @Color @BCell ")"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {deref_expr}
+{
+   @StartRight
+   blue @Color @BCell "^"}
+@PP
+@PP
+
+@SyntaxDiag
+title {field_expr}
+{
+   @StartRight
+   @Sequence
+   A {}
+   B {blue @Color @BCell "."}
+   C {}
+   D {{ @Xrgb orange } @Color @BCell identifier}
+   E {}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {factor}
+{
+   @StartRight
+   @Select
+   A {@ACell "int_value_expr"}
+   B {@ACell "float_value_expr"}
+   C {@ACell "string_value_expr"}
+   D {@ACell "not_expr"}
+   E {@ACell "plus_expr"}
+   F {@ACell "minus_expr"}
+   G {@ACell "adr_expr"}
+   H {@ACell "nil_expr"}
+   I {@ACell "set_expr"}
+   J {
+      @Select
+      A {@ACell "string_type_expr"}
+   B {@ACell "reference"}
+}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {term}
+{
+@StartRight
+@Sequence
+A {@ACell "factor"}
+B {@Optional
+   @RepeatOpposite
+      @Sequence
+      A {}
+      B {@Select
+            A {@Sequence
+               A {blue @Color @BCell "*"}
+               B {}
+            }
+            B {@Sequence
+               A {blue @Color @BCell "/"}
+               B {}
+            }
+            C {@Sequence
+               A {blue @Color @BCell "div"}
+               B {}
+            }
+            D {@Sequence
+               A {blue @Color @BCell "mod"}
+               B {}
+            }
+            E {@Sequence
+               A {blue @Color @BCell "shl"}
+               B {}
+            }
+            F {@Sequence
+               A {blue @Color @BCell "shr"}
+               B {}
+            }
+            G {@Sequence
+               A {blue @Color @BCell "and"}
+               B {}
+            }
+            H {@Sequence
+               A {blue @Color @BCell "as"}
+               B {}
+            }
+      }
+      C {@ACell "factor"}
+}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {simple_expr}
+{
+@StartRight
+@Sequence
+A {@ACell "term"}
+B {@Optional
+   @RepeatOpposite
+      @Sequence
+      A {}
+      B {@Select
+            A {@Sequence
+               A {blue @Color @BCell "+"}
+               B {}
+            }
+            B {@Sequence
+               A {blue @Color @BCell "-"}
+               B {}
+            }
+            C {@Sequence
+               A {blue @Color @BCell "or"}
+               B {}
+            }
+            D {@Sequence
+               A {blue @Color @BCell "xor"}
+               B {}
+            }
+      }
+      C {@ACell "term"}
+}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {expr}
+{
+@StartRight
+@Sequence
+A {@ACell "simple_expr"}
+B {@Optional
+      @Sequence
+      A {}
+      B {@Select
+            A {@Sequence
+               A {blue @Color @BCell "="}
+               B {}
+            }
+            B {@Sequence
+               A {blue @Color @BCell "<>"}
+               B {}
+            }
+            C {@Sequence
+               A {blue @Color @BCell "<"}
+               B {}
+            }
+            D {@Sequence
+               A {blue @Color @BCell ">"}
+               B {}
+            }
+            E {@Sequence
+               A {blue @Color @BCell "<="}
+               B {}
+            }
+            F {@Sequence
+               A {blue @Color @BCell ">="}
+               B {}
+            }
+            G {@Sequence
+               A {blue @Color @BCell "in"}
+               B {}
+            }
+            H {@Sequence
+               A {blue @Color @BCell "is"}
+               B {}
+            }
+      }
+      C {@ACell "simple_expr"}
+}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {goto_stat}
+{
+@StartRight
+@Sequence
+A {blue @Color @BCell "goto"}
+B {@ACell "label_ident"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {begin_stat}
+{
+@StartRight
+@Sequence
+A {blue @Color @BCell "begin"}
+B {@ACell "stat_list"}
+C {blue @Color @BCell "end"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {stat_list}
+{
+@StartRight
+@Sequence
+A {}
+B {}
+C {@ACell "stat"}
+D {@Optional
+   @RepeatOpposite
+      @Sequence
+      A {blue @Color @BCell ";"}
+      B {}
+      C {@ACell "stat"}
+}
+E {}
+F {}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {inner_stat}
+{
+@StartRight
+@Sequence
+A {}
+B {}
+C {@ACell "stat"}
+D {}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {if_stat}
+{
+@StartRight
+@Sequence
+A {blue @Color @BCell "if"}
+B {@ACell "expr"}
+C {blue @Color @BCell "then"}
+D {@ACell "inner_stat"}
+E {@Optional
+      @Sequence
+      A {blue @Color @BCell "else"}
+      B {@ACell "inner_stat"}
+}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {case_stat}
+{
+@StartRight
+@Sequence
+A {blue @Color @BCell "case"}
+B {@ACell "expr"}
+C {blue @Color @BCell "of"}
+D {@ACell "case_sect"}
+E {@Optional
+      @Sequence
+      A {blue @Color @BCell "else"}
+      B {@ACell "stat_list"}
+}
+F {blue @Color @BCell "end"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {case_sect}
+{
+@StartRight
+@Sequence
+A {@ACell "case_item"}
+B {@Optional
+   @RepeatOpposite
+      @Sequence
+      A {blue @Color @BCell ";"}
+      B {}
+      C {@ACell "case_item"}
+}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {case_item}
+{
+@StartRight
+@Sequence
+A {@ACell "elem_sect"}
+B {blue @Color @BCell ":"}
+C {@ACell "inner_stat"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {while_stat}
+{
+@StartRight
+@Sequence
+A {blue @Color @BCell "while"}
+B {@ACell "expr"}
+C {blue @Color @BCell "do"}
+D {@ACell "inner_stat"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {repeat_stat}
+{
+@StartRight
+@Sequence
+A {blue @Color @BCell "repeat"}
+B {@ACell "stat_list"}
+C {blue @Color @BCell "until"}
+D {@ACell "expr"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {for_stat}
+{
+@StartRight
+@Sequence
+A {blue @Color @BCell "for"}
+B {@ACell "variable"}
+C {blue @Color @BCell ":="}
+D {@ACell "expr"}
+E {@Select
+      A {@Sequence
+         A {blue @Color @BCell "to"}
+         B {}
+      }
+      B {@Sequence
+         A {blue @Color @BCell "downto"}
+         B {}
+      }
+}
+F {@ACell "expr"}
+G {blue @Color @BCell "do"}
+H {@ACell "inner_stat"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {with_stat}
+{
+@StartRight
+@Sequence
+A {blue @Color @BCell "with"}
+B {@ACell "with_sect"}
+C {blue @Color @BCell "do"}
+D {@ACell "inner_stat"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {with_sect}
+{
+@StartRight
+@Sequence
+A {@ACell "with_item"}
+B {@Optional
+   @RepeatOpposite
+      @Sequence
+      A {blue @Color @BCell ","}
+      B {@ACell "with_item"}
+}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {with_item}
+{
+@StartRight
+@ACell "variable"}
+@PP
+@PP
+
+@SyntaxDiag
+title {raise_stat}
+{
+@StartRight
+@Sequence
+A {blue @Color @BCell "raise"}
+B {@Optional
+      @ACell "expr"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {try_stat}
+{
+@StartRight
+@Sequence
+A {blue @Color @BCell "try"}
+B {@ACell "stat_list"}
+C {@Select
+      A {@ACell "finally_part"}
+      B {@ACell "except_part"}
+}
+D {blue @Color @BCell "end"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {finally_part}
+{
+@StartRight
+@Sequence
+A {blue @Color @BCell "finally"}
+B {@ACell "stat_list"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {except_part}
+{
+@StartRight
+@Sequence
+A {blue @Color @BCell "except"}
+B {@Select
+      A {@Sequence
+         A {@ACell "on_sect"}
+         B {@Optional
+               @Sequence
+               A {blue @Color @BCell "else"}
+               B {@ACell "stat_list"}
+         }
+      }
+      B {@ACell "stat_list"}
+}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {on_sect}
+{
+@StartRight
+@Sequence
+A {@ACell "on_item"}
+B {@Optional
+   @RepeatOpposite
+      @Sequence
+      A {blue @Color @BCell ";"}
+      B {@ACell "on_item"}
+}
+C {@Optional
+      @Sequence
+      A {blue @Color @BCell ";"}
+      B {}
+}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {on_item}
+{
+@StartRight
+@Sequence
+A {blue @Color @BCell "on"}
+B {@Optional
+      @Sequence
+      A {{ @Xrgb orange } @Color @BCell identifier}
+      B {blue @Color @BCell ":"}
+}
+C {@ACell "type"}
+D {blue @Color @BCell "do"}
+E {@ACell "inner_stat"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {empty_stat}
+{
+@StartRight
+@Skip
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {simple_stat}
+{
+@StartRight
+@Sequence
+A {@ACell "expr"}
+B {@Select
+      A {@ACell "assign_stat"}
+      B {@ACell "call_stat"}
+}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {assign_stat}
+{
+@StartRight
+@Sequence
+A {blue @Color @BCell ":="}
+B {@ACell "expr"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {call_stat}
+{
+@StartRight
+@Skip
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {labeled_stat}
+{
+@StartRight
+@Sequence
+A {@ACell "label_ident"}
+B {blue @Color @BCell ":"}
+C {@ACell "stat"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {stat}
+{
+@StartRight
+@Select
+A {@ACell "labeled_stat"}
+B {@ACell "simple_stat"}
+C {@ACell "empty_stat"}
+D {@ACell "goto_stat"}
+E {@ACell "begin_stat"}
+F {@ACell "if_stat"}
+G {@ACell "case_stat"}
+H {@ACell "while_stat"}
+I {@ACell "repeat_stat"}
+J {
+   @Select
+   A {@ACell "for_stat"}
+B {@ACell "with_stat"}
+C {@ACell "raise_stat"}
+D {@ACell "try_stat"}
+}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {param_ident}
+{
+@StartRight
+@Sequence
+A {{ @Xrgb orange } @Color @BCell identifier}
+B {}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {param_item}
+{
+@StartRight
+@Sequence
+A {@Select
+   A {@Sequence
+      A {blue @Color @BCell "var"}
+      B {}
+   }
+   B {@Sequence
+      A {blue @Color @BCell "const"}
+      B {}
+   }
+   C {@Sequence
+      A {blue @Color @BCell "out"}
+      B {}
+   }
+   D {}
+}
+B {@ACell "param_ident"}
+C {@Optional
+@RepeatOpposite
+   @Sequence
+   A {blue @Color @BCell ","}
+   B {@ACell "param_ident"}
+}
+D {@Optional
+   @Sequence
+   A {blue @Color @BCell ":"}
+   B {@ACell "param_type"}
+   C {@Optional
+         @Sequence
+         A {blue @Color @BCell "="}
+         B {@ACell "expr"}
+   }
+}
+E {}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {formal_param_list}
+{
+@StartRight
+@Optional
+@Sequence
+A {blue @Color @BCell "("}
+B {@ACell "param_item"}
+C {@Optional
+   @RepeatOpposite
+      @Sequence
+      A {blue @Color @BCell ";"}
+      B {@ACell "param_item"}
+}
+D {blue @Color @BCell ")"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {property_param_list}
+{
+@StartRight
+@Sequence
+A {blue @Color @BCell "["}
+B {@ACell "param_item"}
+C {@Optional
+@RepeatOpposite
+   @Sequence
+   A {blue @Color @BCell ";"}
+   B {@ACell "param_item"}
+}
+D {blue @Color @BCell "]"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {class_type}
+{
+@StartRight
+@Sequence
+A {}
+B {blue @Color @BCell "class"}
+C {@Optional
+   @Sequence
+   A {blue @Color @BCell "("}
+   B {@ACell "ifc_type"}
+   C {@Optional
+         @Sequence
+         A {blue @Color @BCell ","}
+         B {@ACell "interface_sect"}
+   }
+   D {blue @Color @BCell ")"}
+}
+D {}
+E {@ACell "components_sect"}
+F {}
+G {blue @Color @BCell "end"}
+H {}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {interface_type}
+{
+@StartRight
+@Sequence
+A {}
+B {blue @Color @BCell "interface"}
+C {@Optional
+   @Sequence
+   A {blue @Color @BCell "("}
+   B {@ACell "interface_sect"}
+   C {blue @Color @BCell ")"}
+}
+D {}
+E {@ACell "components_sect"}
+F {}
+G {blue @Color @BCell "end"}
+H {}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {interface_sect}
+{
+@StartRight
+@Sequence
+A {@ACell "interface_item"}
+B {@Optional
+@RepeatOpposite
+   @Sequence
+   A {blue @Color @BCell ","}
+   B {@ACell "interface_item"}
+}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {interface_item}
+{
+@StartRight
+@ACell "ifc_type"}
+@PP
+@PP
+
+@SyntaxDiag
+title {components_sect}
+{
+@StartRight
+@Sequence
+A {@ACell "components_first_item"}
+B {@Optional
+@RepeatOpposite
+   @ACell "components_item"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {components_item}
+{
+@StartRight
+@Sequence
+A {@Select
+   A {@Sequence
+      A {blue @Color @BCell "private"}
+      B {}
+   }
+   B {@Sequence
+      A {blue @Color @BCell "protected"}
+      B {}
+   }
+   C {@Sequence
+      A {blue @Color @BCell "public"}
+      B {}
+   }
+   D {@Sequence
+      A {blue @Color @BCell "published"}
+      B {}
+   }
+   E {@Sequence
+      A {blue @Color @BCell "automated"}
+      B {}
+   }
+}
+B {@ACell "member_sect"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {components_first_item}
+{
+@StartRight
+@Sequence
+A {}
+B {@ACell "member_sect"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {member_sect}
+{
+@StartRight
+@Optional
+@RepeatOpposite
+@Sequence
+A {}
+B {@ACell "member_decl"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {member_decl}
+{
+@StartRight
+@Select
+A {@ACell "field_decl"}
+B {@ACell "method_decl"}
+C {@ACell "property_decl"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {field_ident}
+{
+@StartRight
+@Sequence
+A {{ @Xrgb orange } @Color @BCell identifier}
+B {}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {field_decl}
+{
+@StartRight
+@Sequence
+A {@ACell "field_ident"}
+B {@Optional
+@RepeatOpposite
+   @Sequence
+   A {blue @Color @BCell ","}
+   B {@ACell "field_ident"}
+}
+C {blue @Color @BCell ":"}
+D {@ACell "type"}
+E {blue @Color @BCell ";"}
+F {}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {method_decl}
+{
+@StartRight
+@Sequence
+A {}
+B {@ACell "proc_head"}
+C {@Optional
+@RepeatOpposite
+   @Select
+   A {@Sequence
+      A {blue @Color @BCell "virtual"}
+      B {}
+      C {blue @Color @BCell ";"}
+   }
+   B {@Sequence
+      A {blue @Color @BCell "dynamic"}
+      B {}
+      C {blue @Color @BCell ";"}
+   }
+   C {@Sequence
+      A {blue @Color @BCell "override"}
+      B {}
+      C {blue @Color @BCell ";"}
+   }
+   D {@Sequence
+      A {blue @Color @BCell "abstract"}
+      B {}
+      C {blue @Color @BCell ";"}
+   }
+}
+D {}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {property_decl}
+{
+@StartRight
+@Sequence
+A {blue @Color @BCell "property"}
+B {{ @Xrgb orange } @Color @BCell identifier}
+C {@Optional
+   @ACell "property_param_list"}
+D {@Optional
+   @Sequence
+   A {blue @Color @BCell ":"}
+   B {@ACell "result_type"}
+}
+E {@Optional
+   @Sequence
+   A {blue @Color @BCell "read"}
+   B {@ACell "expr"}
+}
+F {@Optional
+   @Sequence
+   A {blue @Color @BCell "write"}
+   B {@ACell "expr"}
+}
+G {@Optional
+   @Sequence
+   A {blue @Color @BCell "stored"}
+   B {}
+}
+H {@Optional
+   @Sequence
+   A {blue @Color @BCell "default"}
+   B {}
+}
+I {@Optional
+   @Sequence
+   A {blue @Color @BCell "nodefault"}
+   B {}
+}
+J {
+@Sequence
+A {@Optional
+   @Sequence
+   A {blue @Color @BCell "implements"}
+   B {@ACell "interface_sect"}
+}
+B {@Optional
+   @Sequence
+   A {blue @Color @BCell ";"}
+   B {blue @Color @BCell "default"}
+   C {}
+}
+C {blue @Color @BCell ";"}
+}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {enum_type}
+{
+@StartRight
+@Sequence
+A {}
+B {blue @Color @BCell "("}
+C {@ACell "enum_sect"}
+D {blue @Color @BCell ")"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {enum_sect}
+{
+@StartRight
+@Sequence
+A {@ACell "enum_item"}
+B {@Optional
+@RepeatOpposite
+@Sequence
+A {blue @Color @BCell ","}
+B {@ACell "enum_item"}
+}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {enum_item}
+{
+@StartRight
+{ @Xrgb orange } @Color @BCell identifier}
+@PP
+@PP
+
+@SyntaxDiag
+title {string_type}
+{
+@StartRight
+@Sequence
+A {}
+B {blue @Color @BCell "string"}
+C {@Optional
+@Sequence
+A {blue @Color @BCell "["}
+B {@ACell "expr"}
+C {blue @Color @BCell "]"}
+}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {array_type}
+{
+@StartRight
+@Sequence
+A {}
+B {blue @Color @BCell "array"}
+C {@Optional
+@Sequence
+A {blue @Color @BCell "["}
+B {@ACell "index_type_sect"}
+C {blue @Color @BCell "]"}
+}
+D {blue @Color @BCell "of"}
+E {@ACell "type"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {index_type_sect}
+{
+@StartRight
+@Sequence
+A {@ACell "index_type_item"}
+B {@Optional
+@RepeatOpposite
+@Sequence
+A {blue @Color @BCell ","}
+B {@ACell "index_type_item"}
+}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {index_type_item}
+{
+@StartRight
+@ACell "type"}
+@PP
+@PP
+
+@SyntaxDiag
+title {record_type}
+{
+@StartRight
+@Sequence
+A {}
+B {@Optional
+@Sequence
+A {blue @Color @BCell "packed"}
+B {}
+}
+C {blue @Color @BCell "record"}
+D {@ACell "field_sect"}
+E {blue @Color @BCell "end"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {field_sect}
+{
+@StartRight
+@Optional
+@RepeatOpposite
+@ACell "field_decl"}
+@PP
+@PP
+
+@SyntaxDiag
+title {pointer_type}
+{
+@StartRight
+@Sequence
+A {}
+B {blue @Color @BCell "^"}
+C {@ACell "type"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {set_type}
+{
+@StartRight
+@Sequence
+A {}
+B {blue @Color @BCell "set"}
+C {blue @Color @BCell "of"}
+D {@ACell "type"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {file_type}
+{
+@StartRight
+@Sequence
+A {}
+B {blue @Color @BCell "file"}
+C {@Optional
+@Sequence
+A {blue @Color @BCell "of"}
+B {@ACell "type"}
+}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {class_of_type}
+{
+@StartRight
+@Sequence
+A {}
+B {blue @Color @BCell "class"}
+C {blue @Color @BCell "of"}
+D {@ACell "type"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {proc_type}
+{
+@StartRight
+@Sequence
+A {}
+B {@Select
+A {@Sequence
+   A {blue @Color @BCell "procedure"}
+   B {}
+}
+B {@Sequence
+   A {blue @Color @BCell "function"}
+   B {}
+}
+}
+C {@ACell "formal_param_list"}
+D {@Optional
+@Sequence
+A {blue @Color @BCell ":"}
+B {@ACell "result_type"}
+}
+E {@Optional
+@Sequence
+A {blue @Color @BCell "of"}
+B {blue @Color @BCell "object"}
+C {}
+}
+F {@Optional
+@Select
+A {@Sequence
+   A {blue @Color @BCell "register"}
+   B {}
+}
+B {@Sequence
+   A {blue @Color @BCell "pascal"}
+   B {}
+}
+C {@Sequence
+   A {blue @Color @BCell "cdecl"}
+   B {}
+}
+D {@Sequence
+   A {blue @Color @BCell "stdcall"}
+   B {}
+}
+E {@Sequence
+   A {blue @Color @BCell "safecall"}
+   B {}
+}
+}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {range_type}
+{
+@StartRight
+@Sequence
+A {}
+B {@ACell "simple_expr"}
+C {blue @Color @BCell ".."}
+D {@ACell "simple_expr"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {alias_type}
+{
+@StartRight
+@Sequence
+A {}
+B {@ACell "qualified_name"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {type}
+{
+@StartRight
+@Select
+A {@ACell "string_type"}
+B {@ACell "array_type"}
+C {@ACell "set_type"}
+D {@ACell "file_type"}
+E {@ACell "record_type"}
+F {@ACell "class_type"}
+G {@ACell "class_of_type"}
+H {@ACell "interface_type"}
+I {@ACell "proc_type"}
+J {
+@Select
+A {@ACell "pointer_type"}
+B {@ACell "range_type"}
+C {@ACell "enum_type"}
+D {@ACell "alias_type"}
+}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {label_decl}
+{
+@StartRight
+@ACell "label_ident"}
+@PP
+@PP
+
+@SyntaxDiag
+title {label_sect}
+{
+@StartRight
+@Sequence
+A {blue @Color @BCell "label"}
+B {@ACell "label_decl"}
+C {@Optional
+@RepeatOpposite
+@Sequence
+A {blue @Color @BCell ","}
+B {@ACell "label_decl"}
+}
+D {blue @Color @BCell ";"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {const_decl}
+{
+@StartRight
+@Sequence
+A {{ @Xrgb orange } @Color @BCell identifier}
+B {}
+C {@Optional
+@Sequence
+A {blue @Color @BCell ":"}
+B {@ACell "type"}
+}
+D {blue @Color @BCell "="}
+E {@ACell "expr"}
+F {blue @Color @BCell ";"}
+G {}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {const_sect}
+{
+@StartRight
+@Sequence
+A {blue @Color @BCell "const"}
+B {@ACell "const_decl"}
+C {@Optional
+@RepeatOpposite
+@ACell "const_decl"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {type_decl}
+{
+@StartRight
+@Sequence
+A {{ @Xrgb orange } @Color @BCell identifier}
+B {}
+C {blue @Color @BCell "="}
+D {@ACell "type"}
+E {blue @Color @BCell ";"}
+F {}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {type_sect}
+{
+@StartRight
+@Sequence
+A {blue @Color @BCell "type"}
+B {@ACell "type_decl"}
+C {@Optional
+@RepeatOpposite
+@ACell "type_decl"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {var_item}
+{
+@StartRight
+@Sequence
+A {{ @Xrgb orange } @Color @BCell identifier}
+B {}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {var_decl}
+{
+@StartRight
+@Sequence
+A {@ACell "var_item"}
+B {@Optional
+@RepeatOpposite
+@Sequence
+A {blue @Color @BCell ","}
+B {@ACell "var_item"}
+}
+C {blue @Color @BCell ":"}
+D {@ACell "type"}
+E {@Optional
+@Sequence
+A {blue @Color @BCell "="}
+B {@ACell "expr"}
+}
+F {blue @Color @BCell ";"}
+G {}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {var_sect}
+{
+@StartRight
+@Sequence
+A {blue @Color @BCell "var"}
+B {}
+C {}
+D {@ACell "var_decl"}
+E {@Optional
+@RepeatOpposite
+@Sequence
+A {}
+B {@ACell "var_decl"}
+}
+F {}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {proc_head}
+{
+@StartRight
+@Sequence
+A {@Optional
+@Sequence
+A {blue @Color @BCell "class"}
+B {}
+}
+B {@Select
+A {@Sequence
+A {blue @Color @BCell "procedure"}
+B {}
+}
+B {@Sequence
+A {blue @Color @BCell "function"}
+B {}
+}
+C {@Sequence
+A {blue @Color @BCell "constructor"}
+B {}
+}
+D {@Sequence
+A {blue @Color @BCell "destructor"}
+B {}
+}
+}
+C {@ACell "qualified_name"}
+D {}
+E {@ACell "formal_param_list"}
+F {@Optional
+@Sequence
+A {blue @Color @BCell ":"}
+B {@ACell "result_type"}
+}
+G {blue @Color @BCell ";"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {proc_decl}
+{
+@StartRight
+@Sequence
+A {}
+B {@ACell "proc_head"}
+C {@Select
+A {@Sequence
+A {blue @Color @BCell "forward"}
+B {}
+}
+B {@Sequence
+A {@ACell "proc_external"}
+B {}
+}
+C {@Sequence
+A {@Optional
+      @Sequence
+      A {blue @Color @BCell "inline"}
+      B {blue @Color @BCell ";"}
+      C {}
+}
+B {@ACell "decl_part"}
+C {}
+D {}
+E {blue @Color @BCell "begin"}
+F {@ACell "stat_list"}
+G {}
+H {blue @Color @BCell "end"}
+I {}
+}
+}
+D {blue @Color @BCell ";"}
+E {}
+F {}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {proc_external}
+{
+@StartRight
+@Sequence
+A {blue @Color @BCell "external"}
+B {}
+C {@Optional
+@ACell "expr"}
+D {blue @Color @BCell ";"}
+E {}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {proc_intf_decl}
+{
+@StartRight
+@Sequence
+A {}
+B {@ACell "proc_head"}
+C {@Optional
+@Sequence
+A {blue @Color @BCell "inline"}
+B {blue @Color @BCell ";"}
+C {}
+}
+D {@Optional
+@Sequence
+A {@ACell "proc_external"}
+B {}
+}
+E {}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {intf_decl}
+{
+@StartRight
+@Select
+A {@ACell "const_sect"}
+B {@ACell "type_sect"}
+C {@ACell "var_sect"}
+D {@ACell "proc_intf_decl"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {intf_decl_part}
+{
+@StartRight
+@Optional
+@RepeatOpposite
+@Sequence
+A {}
+B {@ACell "intf_decl"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {decl}
+{
+@StartRight
+@Select
+A {@ACell "label_sect"}
+B {@ACell "const_sect"}
+C {@ACell "type_sect"}
+D {@ACell "var_sect"}
+E {@ACell "proc_decl"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {decl_part}
+{
+@StartRight
+@Optional
+@RepeatOpposite
+@Sequence
+A {}
+B {@ACell "decl"}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {import_item}
+{
+@StartRight
+@Sequence
+A {{ @Xrgb orange } @Color @BCell identifier}
+B {}
+C {@Optional
+@Sequence
+A {blue @Color @BCell "in"}
+B {{ @Xrgb orange } @Color @BCell string_literal}
+}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {import_sect}
+{
+@StartRight
+@Optional
+@Sequence
+A {}
+B {blue @Color @BCell "uses"}
+C {@ACell "import_item"}
+D {@Optional
+@RepeatOpposite
+@Sequence
+A {blue @Color @BCell ","}
+B {@ACell "import_item"}
+}
+E {blue @Color @BCell ";"}
+F {}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {unit_decl}
+{
+@StartRight
+@Sequence
+A {}
+B {blue @Color @BCell "unit"}
+C {{ @Xrgb orange } @Color @BCell identifier}
+D {}
+E {blue @Color @BCell ";"}
+F {}
+G {blue @Color @BCell "interface"}
+H {}
+I {@ACell "import_sect"}
+J {
+@Sequence
+A {@ACell "intf_decl_part"}
+B {}
+C {blue @Color @BCell "implementation"}
+D {}
+E {@ACell "import_sect"}
+F {@ACell "decl_part"}
+G {@Optional
+@Select
+A {@Sequence
+A {@Optional
+      @Sequence
+      A {blue @Color @BCell "initialization"}
+      B {@ACell "stat_list"}
+}
+B {@Optional
+      @Sequence
+      A {blue @Color @BCell "finalization"}
+      B {@ACell "stat_list"}
+}
+C {}
+}
+B {@Sequence
+A {blue @Color @BCell "begin"}
+B {@ACell "stat_list"}
+}
+}
+H {blue @Color @BCell "end"}
+I {}
+J {
+@Sequence
+A {blue @Color @BCell "."}
+B {}
+}
+}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {program_decl}
+{
+@StartRight
+@Sequence
+A {}
+B {blue @Color @BCell "program"}
+C {{ @Xrgb orange } @Color @BCell identifier}
+D {}
+E {blue @Color @BCell ";"}
+F {}
+G {@ACell "import_sect"}
+H {@ACell "decl_part"}
+I {}
+J {
+@Sequence
+A {blue @Color @BCell "begin"}
+B {@ACell "stat_list"}
+C {blue @Color @BCell "end"}
+D {}
+E {blue @Color @BCell "."}
+F {}
+}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {library_decl}
+{
+@StartRight
+@Sequence
+A {}
+B {blue @Color @BCell "library"}
+C {{ @Xrgb orange } @Color @BCell identifier}
+D {}
+E {blue @Color @BCell ";"}
+F {}
+G {@ACell "import_sect"}
+H {@ACell "decl_part"}
+I {}
+J {
+@Sequence
+A {blue @Color @BCell "begin"}
+B {@ACell "stat_list"}
+C {blue @Color @BCell "end"}
+D {}
+E {blue @Color @BCell "."}
+F {}
+}
+}
+@PP
+@PP
+
+@SyntaxDiag
+title {module_decl}
+{
+@StartRight
+@Select
+A {@ACell "unit_decl"}
+B {@ACell "program_decl"}
+C {@ACell "library_decl"}
+}
+@PP
+@PP
+
+@End @Text

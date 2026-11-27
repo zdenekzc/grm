@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title></title>
+   </head>
+   <body>
+      <pre>
+      <a name="simple_name">simple_name</a> :
+         identifier
+      ;
+
+      <a name="global_variant">global_variant</a> :
+         <a href="#simple_name">simple_name</a>|
+         <a href="#special_function">special_function</a>
+      ;
+
+      <a name="global_name">global_name</a> :
+         &quot;::&quot;<a href="#global_variant">global_variant</a>
+      ;
+
+      <a name="base_variant">base_variant</a> :
+         <a href="#global_name">global_name</a>|
+         <a href="#simple_name">simple_name</a>|
+         <a href="#special_function">special_function</a>
+      ;
+
+      <a name="base_name">base_name</a> :
+         <a href="#base_variant">base_variant</a>
+      ;
+
+      <a name="destructor_name">destructor_name</a> :
+         &quot;~&quot;<a href="#simple_name">simple_name</a>
+      ;
+
+      <a name="cont_variant">cont_variant</a> :
+         <a href="#simple_name">simple_name</a>|
+         <a href="#special_function">special_function</a>|
+         <a href="#destructor_name">destructor_name</a>
+      ;
+
+      <a name="cont_name">cont_name</a> :
+         &quot;::&quot;<a href="#cont_variant">cont_variant</a>
+      ;
+
+      <a name="template_name">template_name</a> :
+         <a href="#template_arg_list">template_arg_list</a>
+      ;
+
+      <a name="field_name">field_name</a> :
+         <a href="#simple_name">simple_name</a>
+         (
+            <a href="#template_name">template_name</a>
+         )*
+      ;
+
+      <a name="qualified_name">qualified_name</a> :
+         <a href="#base_name">base_name</a>
+         (
+            <a href="#cont_name">cont_name</a>|
+            <a href="#template_name">template_name</a>
+         )*
+      ;
+
+      <a name="new_qualified_name">new_qualified_name</a> :
+         <a href="#base_variant">base_variant</a>
+         (
+            <a href="#cont_name">cont_name</a>|
+            <a href="#template_name">template_name</a>
+         )*
+      ;
+
+      <a name="primary_expr">primary_expr</a> :
+         <a href="#ident_expr">ident_expr</a>|
+         <a href="#int_value">int_value</a>|
+         <a href="#real_value">real_value</a>|
+         <a href="#char_value">char_value</a>|
+         <a href="#string_value">string_value</a>|
+         <a href="#this_expr">this_expr</a>|
+         <a href="#lambda_expr">lambda_expr</a>|
+         <a href="#subexpr_expr">subexpr_expr</a>
+      ;
+
+      <a name="ident_expr">ident_expr</a> :
+         <a href="#qualified_name">qualified_name</a>
+      ;
+
+      <a name="int_value">int_value</a> :
+         number
+      ;
+
+      <a name="real_value">real_value</a> :
+         real_number
+      ;
+
+      <a name="char_value">char_value</a> :
+         character_literal
+      ;
+
+      <a name="string_value">string_value</a> :
+         string_literal
+         (
+            <a href="#string_value_cont">string_value_cont</a>
+         )*
+      ;
+
+      <a name="string_value_cont">string_value_cont</a> :
+         string_literal
+      ;
+
+      <a name="this_expr">this_expr</a> :
+         &quot;this&quot;
+      ;
+
+      <a name="lambda_expr">lambda_expr</a> :
+         &quot;[&quot;
+         (
+            &quot;&amp;&quot;
+         )?
+         &quot;]&quot;<a href="#compound_stat">compound_stat</a>
+      ;
+
+      <a name="subexpr_expr">subexpr_expr</a> :
+         &quot;(&quot;<a href="#expr">expr</a>&quot;)&quot;
+      ;
+
+      <a name="postfix_start">postfix_start</a> :
+         <a href="#signal_slot_expr">signal_slot_expr</a>|
+         <a href="#primary_expr">primary_expr</a>|
+         <a href="#modern_cast_expr">modern_cast_expr</a>|
+         <a href="#typeid_expr">typeid_expr</a>|
+         <a href="#type_name">type_name</a>|
+         <a href="#type_specifier">type_specifier</a>|
+         <a href="#const_specifier">const_specifier</a>|
+         <a href="#volatile_specifier">volatile_specifier</a>|
+         <a href="#decl_specifier">decl_specifier</a>
+      ;
+
+      <a name="signal_slot_expr">signal_slot_expr</a> :
+         identifier&quot;(&quot;identifier
+         (
+            &quot;(&quot;<a href="#parameter_declaration_list">parameter_declaration_list</a>&quot;)&quot;
+         )?
+         &quot;)&quot;
+      ;
+
+      <a name="modern_cast_expr">modern_cast_expr</a> :
+         (
+            &quot;dynamic_cast&quot;|
+            &quot;static_cast&quot;|
+            &quot;const_cast&quot;|
+            &quot;reinterpret_cast&quot;
+         )
+         &quot;&lt;&quot;<a href="#type_id">type_id</a>&quot;&gt;&quot;&quot;(&quot;<a href="#expr">expr</a>&quot;)&quot;
+      ;
+
+      <a name="typeid_expr">typeid_expr</a> :
+         &quot;typeid&quot;&quot;(&quot;<a href="#expr">expr</a>&quot;)&quot;
+      ;
+
+      <a name="postfix_expr">postfix_expr</a> :
+         <a href="#postfix_start">postfix_start</a>
+         (
+            <a href="#index_expr">index_expr</a>|
+            <a href="#call_expr">call_expr</a>|
+            <a href="#field_expr">field_expr</a>|
+            <a href="#ptr_field_expr">ptr_field_expr</a>|
+            <a href="#post_inc_expr">post_inc_expr</a>|
+            <a href="#post_dec_expr">post_dec_expr</a>
+         )*
+      ;
+
+      <a name="index_expr">index_expr</a> :
+         &quot;[&quot;<a href="#expr">expr</a>&quot;]&quot;
+      ;
+
+      <a name="call_expr">call_expr</a> :
+         &quot;(&quot;<a href="#expr_list">expr_list</a>&quot;)&quot;
+      ;
+
+      <a name="field_expr">field_expr</a> :
+         &quot;.&quot;<a href="#field_name">field_name</a>
+      ;
+
+      <a name="ptr_field_expr">ptr_field_expr</a> :
+         &quot;-&gt;&quot;<a href="#field_name">field_name</a>
+      ;
+
+      <a name="post_inc_expr">post_inc_expr</a> :
+         &quot;++&quot;
+      ;
+
+      <a name="post_dec_expr">post_dec_expr</a> :
+         &quot;--&quot;
+      ;
+
+      <a name="expr_list">expr_list</a> :
+         (
+            <a href="#assignment_expr">assignment_expr</a>
+            (
+               &quot;,&quot;<a href="#assignment_expr">assignment_expr</a>
+            )*
+
+         )?
+      ;
+
+      <a name="unary_expr">unary_expr</a> :
+         <a href="#postfix_expr">postfix_expr</a>|
+         <a href="#inc_expr">inc_expr</a>|
+         <a href="#dec_expr">dec_expr</a>|
+         <a href="#deref_expr">deref_expr</a>|
+         <a href="#addr_expr">addr_expr</a>|
+         <a href="#plus_expr">plus_expr</a>|
+         <a href="#minus_expr">minus_expr</a>|
+         <a href="#bit_not_expr">bit_not_expr</a>|
+         <a href="#log_not_expr">log_not_expr</a>|
+         <a href="#sizeof_expr">sizeof_expr</a>|
+         <a href="#allocation_expr">allocation_expr</a>|
+         <a href="#deallocation_expr">deallocation_expr</a>|
+         <a href="#throw_expr">throw_expr</a>
+      ;
+
+      <a name="inc_expr">inc_expr</a> :
+         &quot;++&quot;<a href="#cast_expr">cast_expr</a>
+      ;
+
+      <a name="dec_expr">dec_expr</a> :
+         &quot;--&quot;<a href="#cast_expr">cast_expr</a>
+      ;
+
+      <a name="deref_expr">deref_expr</a> :
+         &quot;*&quot;<a href="#cast_expr">cast_expr</a>
+      ;
+
+      <a name="addr_expr">addr_expr</a> :
+         &quot;&amp;&quot;<a href="#cast_expr">cast_expr</a>
+      ;
+
+      <a name="plus_expr">plus_expr</a> :
+         &quot;+&quot;<a href="#cast_expr">cast_expr</a>
+      ;
+
+      <a name="minus_expr">minus_expr</a> :
+         &quot;-&quot;<a href="#cast_expr">cast_expr</a>
+      ;
+
+      <a name="bit_not_expr">bit_not_expr</a> :
+         &quot;~&quot;<a href="#cast_expr">cast_expr</a>
+      ;
+
+      <a name="log_not_expr">log_not_expr</a> :
+         &quot;!&quot;<a href="#cast_expr">cast_expr</a>
+      ;
+
+      <a name="sizeof_expr">sizeof_expr</a> :
+         &quot;sizeof&quot;<a href="#unary_expr">unary_expr</a>
+      ;
+
+      <a name="allocation_expr">allocation_expr</a> :
+         &quot;new&quot;
+         (
+            <a href="#new_type_id">new_type_id</a>|
+            &quot;(&quot;<a href="#type_id">type_id</a>&quot;)&quot;
+         )
+         (
+            &quot;(&quot;<a href="#expr_list">expr_list</a>&quot;)&quot;
+         )?
+      ;
+
+      <a name="new_type_id">new_type_id</a> :
+         <a href="#type_specifiers">type_specifiers</a><a href="#ptr_specifier_list">ptr_specifier_list</a>
+         (
+            <a href="#allocation_array_limit">allocation_array_limit</a>
+         )*
+      ;
+
+      <a name="allocation_array_limit">allocation_array_limit</a> :
+         &quot;[&quot;<a href="#expr">expr</a>&quot;]&quot;
+      ;
+
+      <a name="deallocation_expr">deallocation_expr</a> :
+         &quot;delete&quot;
+         (
+            &quot;[&quot;&quot;]&quot;
+         )?
+         <a href="#cast_expr">cast_expr</a>
+      ;
+
+      <a name="cast_expr">cast_expr</a> :
+         <a href="#unary_expr">unary_expr</a>
+         (
+            <a href="#cast_expr">cast_expr</a>
+         )?
+      ;
+
+      <a name="pm_expr">pm_expr</a> :
+         <a href="#cast_expr">cast_expr</a>
+         (
+            (
+               &quot;.*&quot;|
+               &quot;-&gt;*&quot;
+            )
+            <a href="#cast_expr">cast_expr</a>
+         )*
+      ;
+
+      <a name="multiplicative_expr">multiplicative_expr</a> :
+         <a href="#pm_expr">pm_expr</a>
+         (
+            (
+               &quot;*&quot;|
+               &quot;/&quot;|
+               &quot;%&quot;|
+               identifier
+            )
+            <a href="#pm_expr">pm_expr</a>
+         )*
+      ;
+
+      <a name="additive_expr">additive_expr</a> :
+         <a href="#multiplicative_expr">multiplicative_expr</a>
+         (
+            (
+               &quot;+&quot;|
+               &quot;-&quot;|
+               identifier
+            )
+            <a href="#multiplicative_expr">multiplicative_expr</a>
+         )*
+      ;
+
+      <a name="shift_expr">shift_expr</a> :
+         <a href="#additive_expr">additive_expr</a>
+         (
+            (
+               &quot;&lt;&lt;&quot;|
+               &quot;&gt;&gt;&quot;
+            )
+            <a href="#additive_expr">additive_expr</a>
+         )*
+      ;
+
+      <a name="relational_expr">relational_expr</a> :
+         <a href="#shift_expr">shift_expr</a>
+         (
+            (
+               &quot;&lt;&quot;|
+               &quot;&gt;&quot;|
+               &quot;&lt;=&quot;|
+               &quot;&gt;=&quot;
+            )
+            <a href="#shift_expr">shift_expr</a>
+         )*
+      ;
+
+      <a name="equality_expr">equality_expr</a> :
+         <a href="#relational_expr">relational_expr</a>
+         (
+            (
+               &quot;==&quot;|
+               &quot;!=&quot;
+            )
+            <a href="#relational_expr">relational_expr</a>
+         )*
+      ;
+
+      <a name="and_expr">and_expr</a> :
+         <a href="#equality_expr">equality_expr</a>
+         (
+            &quot;&amp;&quot;<a href="#equality_expr">equality_expr</a>
+         )*
+      ;
+
+      <a name="exclusive_or_expr">exclusive_or_expr</a> :
+         <a href="#and_expr">and_expr</a>
+         (
+            &quot;^&quot;<a href="#and_expr">and_expr</a>
+         )*
+      ;
+
+      <a name="inclusive_or_expr">inclusive_or_expr</a> :
+         <a href="#exclusive_or_expr">exclusive_or_expr</a>
+         (
+            (
+               &quot;|&quot;
+            )
+            <a href="#exclusive_or_expr">exclusive_or_expr</a>
+         )*
+      ;
+
+      <a name="logical_and_expr">logical_and_expr</a> :
+         <a href="#inclusive_or_expr">inclusive_or_expr</a>
+         (
+            &quot;&amp;&amp;&quot;<a href="#inclusive_or_expr">inclusive_or_expr</a>
+         )*
+      ;
+
+      <a name="logical_or_expr">logical_or_expr</a> :
+         <a href="#logical_and_expr">logical_and_expr</a>
+         (
+            &quot;||&quot;<a href="#logical_and_expr">logical_and_expr</a>
+         )*
+      ;
+
+      <a name="assignment_expr">assignment_expr</a> :
+         <a href="#logical_or_expr">logical_or_expr</a>
+         (
+            (
+               &quot;=&quot;|
+               &quot;+=&quot;|
+               &quot;-=&quot;|
+               &quot;*=&quot;|
+               &quot;/=&quot;|
+               &quot;%=&quot;|
+               &quot;&lt;&lt;=&quot;|
+               &quot;&gt;&gt;=&quot;|
+               &quot;&amp;=&quot;|
+               &quot;^=&quot;|
+               &quot;|=&quot;|
+               &quot;?&quot;<a href="#assignment_expr">assignment_expr</a>&quot;:&quot;
+            )
+            <a href="#logical_or_expr">logical_or_expr</a>
+         )?
+      ;
+
+      <a name="colon_expr">colon_expr</a> :
+         <a href="#assignment_expr">assignment_expr</a>
+      ;
+
+      <a name="comma_expr">comma_expr</a> :
+         <a href="#colon_expr">colon_expr</a>
+         (
+            &quot;,&quot;<a href="#colon_expr">colon_expr</a>
+         )*
+      ;
+
+      <a name="expr">expr</a> :
+         <a href="#comma_expr">comma_expr</a>
+      ;
+
+      <a name="const_expr">const_expr</a> :
+         <a href="#assignment_expr">assignment_expr</a>
+      ;
+
+      <a name="stat">stat</a> :
+         <a href="#flexible_stat">flexible_stat</a>|
+         <a href="#empty_stat">empty_stat</a>|
+         <a href="#compound_stat">compound_stat</a>|
+         <a href="#if_stat">if_stat</a>|
+         <a href="#while_stat">while_stat</a>|
+         <a href="#do_stat">do_stat</a>|
+         <a href="#for_stat">for_stat</a>|
+         <a href="#switch_stat">switch_stat</a>|
+         <a href="#case_stat">case_stat</a>|
+         <a href="#default_stat">default_stat</a>|
+         <a href="#break_stat">break_stat</a>|
+         <a href="#continue_stat">continue_stat</a>|
+         <a href="#return_stat">return_stat</a>|
+         <a href="#goto_stat">goto_stat</a>|
+         <a href="#try_stat">try_stat</a>
+      ;
+
+      <a name="nested_stat">nested_stat</a> :
+         <a href="#stat">stat</a>
+      ;
+
+      <a name="tail_stat">tail_stat</a> :
+         <a href="#stat">stat</a>
+      ;
+
+      <a name="empty_stat">empty_stat</a> :
+         &quot;;&quot;
+      ;
+
+      <a name="compound_stat">compound_stat</a> :
+         &quot;{&quot;
+         (
+            <a href="#stat">stat</a>
+         )*
+         &quot;}&quot;
+      ;
+
+      <a name="if_stat">if_stat</a> :
+         &quot;if&quot;&quot;(&quot;<a href="#condition">condition</a>&quot;)&quot;<a href="#nested_stat">nested_stat</a>
+         (
+            &quot;else&quot;<a href="#tail_stat">tail_stat</a>
+         )?
+      ;
+
+      <a name="while_stat">while_stat</a> :
+         &quot;while&quot;&quot;(&quot;<a href="#condition">condition</a>&quot;)&quot;<a href="#nested_stat">nested_stat</a>
+      ;
+
+      <a name="do_stat">do_stat</a> :
+         &quot;do&quot;<a href="#nested_stat">nested_stat</a>&quot;while&quot;&quot;(&quot;<a href="#expr">expr</a>&quot;)&quot;&quot;;&quot;
+      ;
+
+      <a name="for_stat">for_stat</a> :
+         &quot;for&quot;&quot;(&quot;
+         (
+            <a href="#condition">condition</a>
+         )?
+         (
+            &quot;:&quot;<a href="#expr">expr</a>|
+            &quot;;&quot;
+            (
+               <a href="#expr">expr</a>
+            )?
+            &quot;;&quot;
+            (
+               <a href="#expr">expr</a>
+            )?
+
+         )
+         &quot;)&quot;<a href="#nested_stat">nested_stat</a>
+      ;
+
+      <a name="switch_stat">switch_stat</a> :
+         &quot;switch&quot;&quot;(&quot;<a href="#condition">condition</a>&quot;)&quot;<a href="#nested_stat">nested_stat</a>
+      ;
+
+      <a name="case_stat">case_stat</a> :
+         &quot;case&quot;<a href="#expr">expr</a>&quot;:&quot;<a href="#nested_stat">nested_stat</a>
+      ;
+
+      <a name="default_stat">default_stat</a> :
+         &quot;default&quot;&quot;:&quot;<a href="#nested_stat">nested_stat</a>
+      ;
+
+      <a name="break_stat">break_stat</a> :
+         &quot;break&quot;&quot;;&quot;
+      ;
+
+      <a name="continue_stat">continue_stat</a> :
+         &quot;continue&quot;&quot;;&quot;
+      ;
+
+      <a name="return_stat">return_stat</a> :
+         &quot;return&quot;
+         (
+            <a href="#expr">expr</a>
+         )?
+         &quot;;&quot;
+      ;
+
+      <a name="goto_stat">goto_stat</a> :
+         &quot;goto&quot;identifier&quot;;&quot;
+      ;
+
+      <a name="flexible_stat">flexible_stat</a> :
+         <a href="#expr">expr</a>
+         (
+            <a href="#simple_stat">simple_stat</a>|
+            <a href="#constructor_declaration">constructor_declaration</a>|
+            <a href="#simple_declaration">simple_declaration</a>
+         )
+      ;
+
+      <a name="simple_stat">simple_stat</a> :
+         (
+            <a href="#compound_stat">compound_stat</a>|
+            &quot;;&quot;
+         )
+      ;
+
+      <a name="decl_specifier">decl_specifier</a> :
+         (
+            &quot;inline&quot;|
+            &quot;virtual&quot;|
+            &quot;explicit&quot;|
+            &quot;mutable&quot;|
+            &quot;static&quot;|
+            &quot;register&quot;
+         )
+         (
+            &quot;~&quot;
+         )?
+         <a href="#type_specifiers">type_specifiers</a>
+      ;
+
+      <a name="const_specifier">const_specifier</a> :
+         &quot;const&quot;<a href="#type_specifiers">type_specifiers</a>
+      ;
+
+      <a name="volatile_specifier">volatile_specifier</a> :
+         &quot;volatile&quot;<a href="#type_specifiers">type_specifiers</a>
+      ;
+
+      <a name="type_specifier">type_specifier</a> :
+         (
+            &quot;signed&quot;|
+            &quot;unsigned&quot;
+         )?
+         (
+            &quot;short&quot;|
+            &quot;long&quot;
+            (
+               &quot;long&quot;|
+               &quot;double&quot;
+            )?
+            |
+            &quot;bool&quot;|
+            &quot;char&quot;|
+            &quot;wchar_t&quot;|
+            &quot;int&quot;|
+            &quot;float&quot;|
+            &quot;double&quot;|
+            &quot;void&quot;
+         )
+      ;
+
+      <a name="type_name">type_name</a> :
+         &quot;typename&quot;<a href="#qualified_name">qualified_name</a>
+      ;
+
+      <a name="type_specifiers">type_specifiers</a> :
+         <a href="#ident_expr">ident_expr</a>|
+         <a href="#type_name">type_name</a>|
+         <a href="#type_specifier">type_specifier</a>|
+         <a href="#const_specifier">const_specifier</a>|
+         <a href="#volatile_specifier">volatile_specifier</a>|
+         <a href="#decl_specifier">decl_specifier</a>
+      ;
+
+      <a name="pointer_declarator">pointer_declarator</a> :
+         &quot;*&quot;<a href="#cv_specifier_list">cv_specifier_list</a><a href="#declarator">declarator</a>
+      ;
+
+      <a name="reference_declarator">reference_declarator</a> :
+         &quot;&amp;&quot;<a href="#cv_specifier_list">cv_specifier_list</a><a href="#declarator">declarator</a>
+      ;
+
+      <a name="cv_specifier_list">cv_specifier_list</a> :
+         (
+            &quot;const&quot;|
+            &quot;volatile&quot;
+         )*
+      ;
+
+      <a name="basic_declarator">basic_declarator</a> :
+         <a href="#new_qualified_name">new_qualified_name</a>
+      ;
+
+      <a name="empty_declarator">empty_declarator</a> :
+      ;
+
+      <a name="nested_declarator">nested_declarator</a> :
+         &quot;(&quot;<a href="#declarator">declarator</a>&quot;)&quot;
+      ;
+
+      <a name="array_declarator">array_declarator</a> :
+         &quot;[&quot;
+         (
+            <a href="#expr">expr</a>
+         )?
+         &quot;]&quot;
+      ;
+
+      <a name="function_declarator">function_declarator</a> :
+         &quot;(&quot;<a href="#parameter_declaration_list">parameter_declaration_list</a>&quot;)&quot;
+         (
+            &quot;const&quot;
+         )?
+         (
+            &quot;override&quot;
+         )?
+         (
+            <a href="#exception_specification">exception_specification</a>
+         )?
+      ;
+
+      <a name="entry_declarator">entry_declarator</a> :
+         <a href="#basic_declarator">basic_declarator</a>|
+         <a href="#empty_declarator">empty_declarator</a>|
+         <a href="#nested_declarator">nested_declarator</a>
+      ;
+
+      <a name="continue_declarator">continue_declarator</a> :
+         <a href="#entry_declarator">entry_declarator</a>
+         (
+            <a href="#array_declarator">array_declarator</a>|
+            <a href="#function_declarator">function_declarator</a>
+         )*
+      ;
+
+      <a name="declarator">declarator</a> :
+         <a href="#pointer_declarator">pointer_declarator</a>|
+         <a href="#reference_declarator">reference_declarator</a>|
+         <a href="#continue_declarator">continue_declarator</a>
+      ;
+
+      <a name="simple_declarator">simple_declarator</a> :
+         <a href="#declarator">declarator</a>
+      ;
+
+      <a name="common_declarator">common_declarator</a> :
+         <a href="#declarator">declarator</a>
+      ;
+
+      <a name="constructor_declarator">constructor_declarator</a> :
+         <a href="#empty_declarator">empty_declarator</a>
+         (
+            <a href="#function_declarator">function_declarator</a>
+         )
+      ;
+
+      <a name="ptr_specifier_list">ptr_specifier_list</a> :
+      ;
+
+      <a name="parameter_declaration_list">parameter_declaration_list</a> :
+         (
+            <a href="#parameter_declaration">parameter_declaration</a>
+            (
+               &quot;,&quot;<a href="#parameter_declaration">parameter_declaration</a>
+            )*
+
+         )?
+      ;
+
+      <a name="parameter_declaration">parameter_declaration</a> :
+         <a href="#assignment_expr">assignment_expr</a>
+         (
+            <a href="#value_parameter">value_parameter</a>|
+            <a href="#plain_parameter">plain_parameter</a>
+         )
+         |
+         <a href="#dots_parameter">dots_parameter</a>
+      ;
+
+      <a name="value_parameter">value_parameter</a> :
+      ;
+
+      <a name="plain_parameter">plain_parameter</a> :
+         <a href="#parameter_item">parameter_item</a>
+      ;
+
+      <a name="parameter_item">parameter_item</a> :
+         <a href="#common_declarator">common_declarator</a>
+         (
+            <a href="#initializer">initializer</a>
+         )?
+         <a href="#attr_list">attr_list</a>
+      ;
+
+      <a name="dots_parameter">dots_parameter</a> :
+         &quot;...&quot;
+      ;
+
+      <a name="type_id">type_id</a> :
+         <a href="#type_specifiers">type_specifiers</a><a href="#common_declarator">common_declarator</a>
+      ;
+
+      <a name="initializer">initializer</a> :
+         &quot;=&quot;<a href="#initializer_item">initializer_item</a>
+      ;
+
+      <a name="initializer_item">initializer_item</a> :
+         <a href="#simple_initializer">simple_initializer</a>|
+         <a href="#initializer_list">initializer_list</a>
+      ;
+
+      <a name="simple_initializer">simple_initializer</a> :
+         <a href="#assignment_expr">assignment_expr</a>
+      ;
+
+      <a name="initializer_list">initializer_list</a> :
+         &quot;{&quot;
+         (
+            <a href="#initializer_item">initializer_item</a>
+            (
+               &quot;,&quot;<a href="#initializer_item">initializer_item</a>
+            )*
+
+         )?
+         &quot;}&quot;
+      ;
+
+      <a name="attr_item">attr_item</a> :
+         <a href="#assignment_expr">assignment_expr</a>
+      ;
+
+      <a name="attr_group">attr_group</a> :
+         &quot;[[&quot;<a href="#attr_item">attr_item</a>
+         (
+            &quot;,&quot;<a href="#attr_item">attr_item</a>
+         )*
+         &quot;]]&quot;
+      ;
+
+      <a name="attr_list">attr_list</a> :
+         (
+            <a href="#attr_group">attr_group</a>
+         )*
+      ;
+
+      <a name="simple_declaration">simple_declaration</a> :
+         <a href="#simple_item">simple_item</a>
+         (
+            &quot;,&quot;<a href="#simple_item">simple_item</a>
+         )*
+         (
+            <a href="#compound_stat">compound_stat</a>|
+            &quot;;&quot;
+         )
+      ;
+
+      <a name="simple_item">simple_item</a> :
+         <a href="#simple_declarator">simple_declarator</a>
+         (
+            <a href="#initializer">initializer</a>
+         )?
+         <a href="#attr_list">attr_list</a>
+      ;
+
+      <a name="constructor_declaration">constructor_declaration</a> :
+         <a href="#constructor_item">constructor_item</a>
+         (
+            (
+               &quot;:&quot;<a href="#ctor_initializer">ctor_initializer</a>
+            )?
+            <a href="#compound_stat">compound_stat</a>|
+            &quot;;&quot;
+         )
+      ;
+
+      <a name="constructor_item">constructor_item</a> :
+         <a href="#constructor_declarator">constructor_declarator</a><a href="#attr_list">attr_list</a>
+      ;
+
+      <a name="condition">condition</a> :
+         <a href="#expr">expr</a>
+         (
+            <a href="#condition_value">condition_value</a>|
+            <a href="#condition_declaration">condition_declaration</a>
+         )
+      ;
+
+      <a name="condition_declaration">condition_declaration</a> :
+         (
+            <a href="#condition_item">condition_item</a>
+            (
+               &quot;,&quot;<a href="#condition_item">condition_item</a>
+            )*
+
+         )
+      ;
+
+      <a name="condition_item">condition_item</a> :
+         <a href="#simple_declarator">simple_declarator</a>
+         (
+            <a href="#initializer">initializer</a>
+         )?
+         <a href="#attr_list">attr_list</a>
+      ;
+
+      <a name="condition_value">condition_value</a> :
+      ;
+
+      <a name="declaration_list">declaration_list</a> :
+         (
+            <a href="#declaration">declaration</a>
+         )*
+      ;
+
+      <a name="declaration">declaration</a> :
+         <a href="#flexible_stat">flexible_stat</a>|
+         <a href="#empty_stat">empty_stat</a>|
+         <a href="#compound_stat">compound_stat</a>|
+         <a href="#if_stat">if_stat</a>|
+         <a href="#while_stat">while_stat</a>|
+         <a href="#do_stat">do_stat</a>|
+         <a href="#for_stat">for_stat</a>|
+         <a href="#switch_stat">switch_stat</a>|
+         <a href="#class_declaration">class_declaration</a>|
+         <a href="#enum_declaration">enum_declaration</a>|
+         <a href="#typedef_declaration">typedef_declaration</a>|
+         <a href="#friend_declaration">friend_declaration</a>|
+         <a href="#namespace_declaration">namespace_declaration</a>|
+         <a href="#using_declaration">using_declaration</a>|
+         <a href="#extern_declaration">extern_declaration</a>|
+         <a href="#template_declaration">template_declaration</a>|
+         <a href="#stencil_declaration">stencil_declaration</a>
+      ;
+
+      <a name="namespace_declaration">namespace_declaration</a> :
+         &quot;namespace&quot;<a href="#simple_name">simple_name</a><a href="#attr_list">attr_list</a>&quot;{&quot;<a href="#declaration_list">declaration_list</a>&quot;}&quot;
+      ;
+
+      <a name="using_declaration">using_declaration</a> :
+         &quot;using&quot;
+         (
+            &quot;namespace&quot;
+         )?
+         <a href="#qualified_name">qualified_name</a>&quot;;&quot;
+      ;
+
+      <a name="extern_declaration">extern_declaration</a> :
+         &quot;extern&quot;
+         (
+            string_literal
+         )?
+         (
+            &quot;{&quot;<a href="#declaration_list">declaration_list</a>&quot;}&quot;|
+            <a href="#declaration">declaration</a>
+         )
+      ;
+
+      <a name="typedef_declaration">typedef_declaration</a> :
+         &quot;typedef&quot;<a href="#type_specifiers">type_specifiers</a><a href="#simple_declarator">simple_declarator</a>&quot;;&quot;
+      ;
+
+      <a name="friend_declaration">friend_declaration</a> :
+         &quot;friend&quot;<a href="#declaration">declaration</a>
+      ;
+
+      <a name="enum_declaration">enum_declaration</a> :
+         &quot;enum&quot;<a href="#simple_name">simple_name</a>
+         (
+            &quot;{&quot;<a href="#enum_list">enum_list</a>&quot;}&quot;
+         )?
+         &quot;;&quot;
+      ;
+
+      <a name="enum_list">enum_list</a> :
+         (
+            <a href="#enumerator">enumerator</a>
+            (
+               &quot;,&quot;<a href="#enumerator">enumerator</a>
+            )*
+
+         )?
+      ;
+
+      <a name="enumerator">enumerator</a> :
+         <a href="#simple_name">simple_name</a>
+         (
+            &quot;=&quot;<a href="#const_expr">const_expr</a>
+         )?
+      ;
+
+      <a name="class_declaration">class_declaration</a> :
+         (
+            &quot;class&quot;|
+            &quot;struct&quot;|
+            &quot;union&quot;
+         )
+         <a href="#simple_name">simple_name</a><a href="#attr_list">attr_list</a>
+         (
+            (
+               &quot;:&quot;<a href="#base_specifier_list">base_specifier_list</a>
+            )?
+            &quot;{&quot;<a href="#member_list">member_list</a>&quot;}&quot;
+         )?
+         &quot;;&quot;
+      ;
+
+      <a name="member_visibility">member_visibility</a> :
+         (
+            &quot;private&quot;|
+            &quot;protected&quot;|
+            &quot;public&quot;
+         )
+         &quot;:&quot;
+      ;
+
+      <a name="member_item">member_item</a> :
+         <a href="#member_visibility">member_visibility</a>|
+         <a href="#flexible_stat">flexible_stat</a>|
+         <a href="#empty_stat">empty_stat</a>|
+         <a href="#compound_stat">compound_stat</a>|
+         <a href="#if_stat">if_stat</a>|
+         <a href="#while_stat">while_stat</a>|
+         <a href="#for_stat">for_stat</a>|
+         <a href="#class_declaration">class_declaration</a>|
+         <a href="#enum_declaration">enum_declaration</a>|
+         <a href="#typedef_declaration">typedef_declaration</a>|
+         <a href="#friend_declaration">friend_declaration</a>|
+         <a href="#using_declaration">using_declaration</a>|
+         <a href="#template_declaration">template_declaration</a>|
+         <a href="#stencil_declaration">stencil_declaration</a>
+      ;
+
+      <a name="member_list">member_list</a> :
+         (
+            <a href="#member_item">member_item</a>
+         )*
+      ;
+
+      <a name="base_specifier_list">base_specifier_list</a> :
+         <a href="#base_specifier">base_specifier</a>
+         (
+            &quot;,&quot;<a href="#base_specifier">base_specifier</a>
+         )*
+      ;
+
+      <a name="base_specifier">base_specifier</a> :
+         (
+            &quot;virtual&quot;
+         )?
+         (
+            &quot;private&quot;|
+            &quot;protected&quot;|
+            &quot;public&quot;|
+
+         )
+         <a href="#qualified_name">qualified_name</a>
+      ;
+
+      <a name="ctor_initializer">ctor_initializer</a> :
+         <a href="#member_initializer">member_initializer</a>
+         (
+            &quot;,&quot;<a href="#member_initializer">member_initializer</a>
+         )*
+      ;
+
+      <a name="member_initializer">member_initializer</a> :
+         <a href="#simple_name">simple_name</a>&quot;(&quot;<a href="#expr_list">expr_list</a>&quot;)&quot;
+      ;
+
+      <a name="conversion_specifiers">conversion_specifiers</a> :
+         <a href="#type_specifiers">type_specifiers</a><a href="#ptr_specifier_list">ptr_specifier_list</a>
+      ;
+
+      <a name="special_function">special_function</a> :
+         &quot;operator&quot;
+         (
+            <a href="#conversion_specifiers">conversion_specifiers</a>|
+            &quot;new&quot;
+            (
+               &quot;[&quot;&quot;]&quot;
+            )?
+            |
+            &quot;delete&quot;
+            (
+               &quot;[&quot;&quot;]&quot;
+            )?
+            |
+            &quot;+&quot;|
+            &quot;-&quot;|
+            &quot;*&quot;|
+            &quot;/&quot;|
+            &quot;%&quot;|
+            &quot;^&quot;|
+            &quot;&amp;&quot;|
+            &quot;|&quot;|
+            &quot;~&quot;|
+            &quot;!&quot;|
+            &quot;=&quot;|
+            &quot;&lt;&quot;|
+            &quot;&gt;&quot;|
+            &quot;+=&quot;|
+            &quot;-=&quot;|
+            &quot;*=&quot;|
+            &quot;/=&quot;|
+            &quot;%=&quot;|
+            &quot;^=&quot;|
+            &quot;&amp;=&quot;|
+            &quot;|=&quot;|
+            &quot;&lt;&lt;&quot;|
+            &quot;&gt;&gt;&quot;|
+            &quot;&gt;&gt;=&quot;|
+            &quot;&lt;&lt;=&quot;|
+            &quot;==&quot;|
+            &quot;!=&quot;|
+            &quot;&lt;=&quot;|
+            &quot;&gt;=&quot;|
+            &quot;&amp;&amp;&quot;|
+            &quot;||&quot;|
+            &quot;++&quot;|
+            &quot;--&quot;|
+            &quot;,&quot;|
+            &quot;-&gt;*&quot;|
+            &quot;-&gt;&quot;|
+            &quot;(&quot;&quot;)&quot;|
+            &quot;[&quot;&quot;]&quot;
+         )
+      ;
+
+      <a name="template_declaration">template_declaration</a> :
+         &quot;template&quot;
+         (
+            &quot;&lt;&quot;<a href="#template_param_list">template_param_list</a>&quot;&gt;&quot;
+         )?
+         <a href="#declaration">declaration</a>
+      ;
+
+      <a name="stencil_declaration">stencil_declaration</a> :
+         &quot;stencil&quot;<a href="#simple_name">simple_name</a>&quot;&lt;&quot;<a href="#template_param_list">template_param_list</a>&quot;&gt;&quot;&quot;{&quot;<a href="#stencil_member_list">stencil_member_list</a>&quot;}&quot;
+      ;
+
+      <a name="stencil_member_list">stencil_member_list</a> :
+         (
+            <a href="#declaration">declaration</a>
+         )*
+      ;
+
+      <a name="template_param_list">template_param_list</a> :
+         (
+            <a href="#template_param">template_param</a>
+            (
+               &quot;,&quot;<a href="#template_param">template_param</a>
+            )*
+
+         )?
+      ;
+
+      <a name="template_param">template_param</a> :
+         <a href="#template_type_param">template_type_param</a>|
+         <a href="#template_normal_param">template_normal_param</a>
+      ;
+
+      <a name="template_type_param">template_type_param</a> :
+         (
+            &quot;template&quot;&quot;&lt;&quot;<a href="#template_param_list">template_param_list</a>&quot;&gt;&quot;
+         )?
+         (
+            &quot;class&quot;|
+            &quot;typename&quot;
+         )
+         (
+            <a href="#simple_name">simple_name</a>
+         )?
+      ;
+
+      <a name="template_normal_param">template_normal_param</a> :
+         <a href="#type_specifiers">type_specifiers</a><a href="#common_declarator">common_declarator</a>
+         (
+            &quot;=&quot;<a href="#shift_expr">shift_expr</a>
+         )?
+      ;
+
+      <a name="template_arg_list">template_arg_list</a> :
+         &quot;&lt;&quot;
+         (
+            <a href="#template_arg">template_arg</a>
+            (
+               &quot;,&quot;<a href="#template_arg">template_arg</a>
+            )*
+
+         )?
+         &quot;&gt;&quot;
+      ;
+
+      <a name="template_arg">template_arg</a> :
+         <a href="#parameter_declaration">parameter_declaration</a>
+      ;
+
+      <a name="try_stat">try_stat</a> :
+         &quot;try&quot;<a href="#compound_stat">compound_stat</a><a href="#handler_list">handler_list</a>
+      ;
+
+      <a name="handler_list">handler_list</a> :
+         <a href="#handler">handler</a>
+         (
+            <a href="#handler">handler</a>
+         )*
+      ;
+
+      <a name="handler">handler</a> :
+         &quot;catch&quot;&quot;(&quot;
+         (
+            <a href="#type_specifiers">type_specifiers</a><a href="#common_declarator">common_declarator</a>|
+            &quot;...&quot;
+         )
+         &quot;)&quot;<a href="#compound_stat">compound_stat</a>
+      ;
+
+      <a name="throw_expr">throw_expr</a> :
+         &quot;throw&quot;
+         (
+            <a href="#assignment_expr">assignment_expr</a>
+         )?
+      ;
+
+      <a name="exception_specification">exception_specification</a> :
+         &quot;throw&quot;&quot;(&quot;
+         (
+            <a href="#exception_specification_item">exception_specification_item</a>
+            (
+               &quot;,&quot;<a href="#exception_specification_item">exception_specification_item</a>
+            )*
+
+         )?
+         &quot;)&quot;
+      ;
+
+      <a name="exception_specification_item">exception_specification_item</a> :
+         <a href="#type_id">type_id</a>
+      ;
+
+      </pre>
+   </body>
+</html>
