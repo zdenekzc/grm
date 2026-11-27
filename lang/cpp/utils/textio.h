@@ -384,6 +384,8 @@ class RewindInput : public MixedInput
       void pick (); // recall from queue
       void remember (); // store data to queue
       void read (); // read new token
+
+   protected:
       void retrieve (); // read new token or recall from queue
 
    public:

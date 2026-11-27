@@ -28,11 +28,12 @@ Jazyky:
     csharp  CParser/CProduct (csharp = True) + lang/csharp/textio.cs,
             binárky přes mcs/mono; funguje pro pas.g i cmm.g
             (cmm_quicksort vynechán jako u pythonu)
+    cpp     CParser/CProduct (cpp = True) + lang/cpp/utils (TextInput/
+            EnvInput/TextOutput) s adaptérem parser_lexer.h, g++;
+            funguje pro pas.g i cmm.g (cmm_quicksort vynechán)
     pascal  generátor (pparser/pproduct) existuje, runtime ne:
             textio.pas má jen TTextInput/TTextOutput pro data, ne
             zdrojový lexér s nextToken/mark/rewind
-    cpp     generátor (cparser/cproduct) existuje, runtime ne:
-            vygenerovaný .h potřebuje lexer.h, který v repozitáři není
 
 Vygenerované parsery berou grammar přes stejná nastavení jako menu akce
 "to Vala Parser" v IDE. Příklady (tests/parsers/<name>_<case>.<ext>)
@@ -46,14 +47,16 @@ Spuštění (wrappery nastavují --lang):
     python3 tests/test_parser_in_vala.py        # vala balíček
     python3 tests/test_parser_in_python.py      # python balíček
     python3 tests/test_parser_in_csharp.py      # csharp balíček
+    python3 tests/test_parser_in_cpp.py         # cpp balíček
     python3 tests/test_parser_in.py --lang all  # všechny jazyky
 
-Bez valacu (resp. mcs/mono pro csharp) se balíček přeskočí (SKIP, exit 0).
+Bez valacu (resp. mcs/mono pro csharp, g++ pro cpp) se balíček přeskočí
+(SKIP, exit 0).
 """
 
 from __future__ import print_function
 
-import os, sys, glob, subprocess, argparse, shutil
+import os, sys, glob, re, subprocess, argparse, shutil
 
 # ---------------------------------------------------------------------------
 # Cesty: k modulům generátoru musí být v sys.path grm/ i code/
@@ -143,6 +146,35 @@ class Program
 }}
 """
 
+# C++: generated parser/product use the current-API runtime from
+# lang/cpp/utils (TextInput/EnvInput/TextOutput). parser_lexer.h adapts
+# EnvInput for the generated parser (queued nextToken, readIdent from
+# tokenKind); pas.g needs a CmmBasic stub (cmm.g declares its own).
+CPP_UTILS = ["collection.h", "containers.h", "conv.cc", "conv.h",
+             "dictionary.h", "envio.cc", "envio.h", "inf.cc", "inf.h",
+             "ioexception.h", "msglevel.h", "parser_lexer.h", "sequence.h",
+             "std.h", "str.cc", "str.h", "textio.cc", "textio.h"]
+
+CPP_MAIN_TEMPLATE = """#include <iostream>
+#include <string>
+
+#include "{name}_parser.h"
+#include "{name}_product.h"
+
+int main (int argc, char * argv [])
+{{
+   if (argc < 2) return 1;
+   Parser p;
+   p.open (argv [1]);
+   p.nextToken ();
+   {ret} tree = p.parse_{start} ();
+   Product prod;
+   prod.send_{start} (tree);
+   cout << prod.toString ();
+   return 0;
+}}
+"""
+
 # Lexer v code/lexer.py čte první token už v openFile (), proto main
 # volá nextToken () až uvnitř parse_* metod — po openFile se žádný
 # nextToken () nedělá (na rozdíl od vala mainu výše).
@@ -206,6 +238,10 @@ TESTS = [
    ("pas", "tests/grammar/pas.g", "module_decl", ".pas", True),
    ("cmm", "cmm/cmm.g",           "declaration_list", ".cc", False),
 ]
+
+# grammars whose structure base class (CmmBasic) is not declared in the
+# grammar itself — the C++ lexer header adds the stub for them
+BASIC_GRAMMAR = { name : basic for name, _, _, _, basic in TESTS }
 
 # ---------------------------------------------------------------------------
 
@@ -274,6 +310,41 @@ def generate_csharp (grammar, name, out_dir) :
    q.productCSharp (grammar)
    q.close ()
 
+def generate_cpp (grammar, name, out_dir) :
+   parser_h = name + "_parser.h"
+   parser_cpp = name + "_parser.cpp"
+   product_h = name + "_product.h"
+   product_cpp = name + "_product.cpp"
+
+   p = CParser ()
+   p.cpp = True
+   p.set_consts ()
+   p.lexer_header = "parser_lexer.h"
+   p.lexer_name = "ParserLexer"
+   p.class_name = "Parser"
+   p.mark_type = "InputItem *"
+   p.parser_header = parser_h
+   p.open (os.path.join (out_dir, parser_h))
+   p.parserHeader (grammar, parser_h)
+   p.close ()
+   p.open (os.path.join (out_dir, parser_cpp))
+   p.parserCode (grammar)
+   p.close ()
+
+   q = CProduct ()
+   q.cpp = True
+   q.set_consts ()
+   q.class_name = "Product"
+   q.super_name = "TextOutput"
+   q.parser_header = parser_h
+   q.product_header = product_h
+   q.open (os.path.join (out_dir, product_h))
+   q.productHeader (grammar, product_h)
+   q.close ()
+   q.open (os.path.join (out_dir, product_cpp))
+   q.productCode (grammar)
+   q.close ()
+
 # ---------------------------------------------------------------------------
 
 def write_vala_main (name, start, basic, out_dir) :
@@ -293,6 +364,20 @@ def write_csharp_main (name, start, basic, out_dir) :
    with open (main_path, "w") as f :
       f.write (CSHARP_MAIN_TEMPLATE.format (ns = CSHARP_NS, basic = basic,
                                             start = start))
+   return main_path
+
+def write_cpp_main (name, start, basic, out_dir) :
+   # return type of the start rule from the generated parser header
+   header_path = os.path.join (out_dir, name + "_parser.h")
+   with open (header_path) as f :
+      header = f.read ()
+   m = re.search (r"\n\s*([A-Za-z_][\w:<>* ]*?)\s+parse_" + start + r"\s*\(",
+                  header)
+   ret = m.group (1).strip () if m else "CmmBasic *"
+
+   main_path = os.path.join (out_dir, name + "_main.cpp")
+   with open (main_path, "w") as f :
+      f.write (CPP_MAIN_TEMPLATE.format (name = name, start = start, ret = ret))
    return main_path
 
 # ---------------------------------------------------------------------------
@@ -338,6 +423,32 @@ def build_csharp (name, out_dir) :
 
 def run_csharp (out_dir, name, data_path) :
    proc = subprocess.run (["mono", os.path.join (out_dir, name + "_test.exe"),
+                           data_path], capture_output = True, text = True,
+                          timeout = 30, cwd = ROOT)
+   return proc.stdout
+
+def build_cpp (name, out_dir) :
+   """Přeloží parser + product + main a C++ runtime g++; binárka
+   <name>_test.bin vzniká v balíčku vedle zdrojů."""
+
+   binary = name + "_test.bin"
+   cmd = ["g++", "-std=c++20", "-w"]
+   if BASIC_GRAMMAR.get (name, False) :
+      cmd.append ("-DPARSER_BASIC_STUB")
+   cmd += ["-I.", name + "_parser.cpp", name + "_product.cpp",
+           name + "_main.cpp", "textio.cc", "envio.cc", "str.cc", "conv.cc",
+           "inf.cc", "-o", binary]
+   try :
+      proc = subprocess.run (cmd, capture_output = True, text = True,
+                             timeout = 300, cwd = out_dir)
+   except subprocess.TimeoutExpired :
+      raise RuntimeError ("g++ timed out (300 s)")
+   if proc.returncode != 0 :
+      raise RuntimeError ("g++ failed:\n" + proc.stderr [-2000:])
+   return binary
+
+def run_cpp (out_dir, name, data_path) :
+   proc = subprocess.run ([os.path.join (out_dir, name + "_test.bin"),
                            data_path], capture_output = True, text = True,
                           timeout = 30, cwd = ROOT)
    return proc.stdout
@@ -454,23 +565,24 @@ LANGS = {
       "title" : "cpp (cparser/cproduct, g++)",
       "dir" : "parser_in_cpp",
       "ext" : "cpp",
-      "generate" : None,
-      "write_main" : None,
-      "support" : [ ],
-      "build" : None,
-      "run" : None,
+      "generate" : generate_cpp,
+      "write_main" : write_cpp_main,
+      "support" : [("lang/cpp/utils/" + f, f) for f in CPP_UTILS] +
+                  [("tests/grammar/pas_decl.h", "pas_decl.h")],
+      "build" : build_cpp,
+      "build_cmd" : "g++ -std=c++20 -w {flags} -I. " +
+                    "{name}_parser.cpp {name}_product.cpp {name}_main.cpp " +
+                    "textio.cc envio.cc str.cc conv.cc inf.cc " +
+                    "-o {name}_test.bin",
+      "run" : run_cpp,
       "run_cmd" : "./{name}_test.bin",
       "cases" : {"pas" : True, "cmm" : True},
-      "skip_cases" : { },
-      # lang/cpp/lexer.h + lexer.c (C lexér s preprocesorem) už existují,
-      # ale lexer.h/lexer.c potřebují externí lex.h, inp.h, out.h z
-      # projektu c-parser (gitlab.fjfi.cvut.cz/culikzde/c-parser), a
-      # vygenerovaný Parser : public Lexer potřebuje C++ třídu Lexer
-      # (obdobu lang/vala/textio.vala) — ta v repozitáři není
-      "check" : ("chybí runtime pro cpp: lang/cpp/lexer.c potřebuje "
-                 "externí lex.h/inp.h/out.h (projekt c-parser) a "
-                 "vygenerovaný Parser : public Lexer potřebuje C++ "
-                 "třídu Lexer (obdoba lang/vala/textio.vala)"),
+      # quicksort obsahuje příkazy — viz NOTE_QUICKSORT
+      "skip_cases" : {"cmm" : ("cmm_quicksort",)},
+      "tools" : ["g++"],
+      # C++ TextOutput formátuje (mezery, odsazení), takže .expected
+      # se pro cpp zapisuje zvlášť, nedědí se z vala
+      "check" : None,
    },
 }
 
@@ -490,7 +602,9 @@ def build_run_sh (lang, lang_cfg, enabled, out_dir) :
          build_lines.append ("echo \"== build " + name + " ==\"")
          # hlášky kompilátoru jdou do build.log, vypíší se jen při
          # selhání — úspěšný build je tichý
-         build_cmd = lang_cfg ["build_cmd"].format (name = name, ext = ext)
+         flags = "-DPARSER_BASIC_STUB" if BASIC_GRAMMAR.get (name, False) else ""
+         build_cmd = lang_cfg ["build_cmd"].format (name = name, ext = ext,
+                                                   flags = flags)
          build_lines.append ("if ! " + build_cmd +
             " > build.log 2>&1 ; then cat build.log ; exit 1 ; fi")
          build_lines.append ("rm -f build.log")

@@ -1292,6 +1292,11 @@ void RewindInput::pick ()
    setTokenLine (present->line_num);
    setTokenCol (present->col_num);
 
+   /* replaying a queued token must re-run the generated translate (),
+      otherwise a parser that keeps its grammar symbol in `token' would
+      see a stale value after rewind () */
+   translate ();
+
    // info ("pick " + conv (symbol) + " " + tokenTxt);
 }
 
@@ -1513,7 +1518,7 @@ void RewindInput::rewind (InputItem * pos)
    // info ("rewind");
    mark_level --;
    present = pos;
-   retrieve ();
+   pick (); // current token is the marked one (retrieve () would advance)
 }
 
 void RewindInput::skipRewind ()

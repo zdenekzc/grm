@@ -207,6 +207,20 @@ class CParser (ToParser) :
        self.put_func ("processSeparator", cls = self.class_name)
        self.put_func_body ()
 
+       # A replayed token may already contain a composed multi-character
+       # separator (C++ mark/rewind replays the translated token): map the
+       # full text back to the symbol without consuming inpCh again.
+       for name in grammar.separator_dict :
+           if len (name) > 1 :
+              self.put_if ()
+              self.send (self.string_compare (self.nested + "tokenTxt",
+                                              self.quote (name)))
+              self.put_then ()
+              self.put_begin ()
+              self.put_assign (self.access + "token",
+                               self.symbolItem (grammar.separator_dict [name].ident))
+              self.put_end ()
+
        tree = { }
        for name in grammar.separator_dict :
            self.addToDictionary (tree, name)
@@ -531,11 +545,11 @@ class CParser (ToParser) :
    # --------------------------------------------------------------------------
 
    def declareTranslate (self) :
-       # Vala and C#: Lexer.nextToken () calls the virtual translate ();
+       # Vala/C#/C++: Lexer.nextToken () calls the virtual translate ();
        # the generated parser overrides it (Java methods are virtual
        # implicitly, so Java needs no override keyword)
        self.put_func ("translate", cls = self.class_name,
-                      override = self.vala or self.csharp)
+                      override = self.vala or self.csharp or self.cpp)
        self.put_func_body ()
 
        self.put_if ()

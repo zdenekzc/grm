@@ -523,7 +523,9 @@ class CodeOutput (Output) :
           if self.csharp or self.vala :
              self.send ("override")
           elif self.cpp :
-             self.send ("virtual")
+             # out-of-class definitions must not repeat "virtual"
+             if not with_cls :
+                self.send ("virtual")
 
        if self.pascal :
           if func_obj.is_constructor :

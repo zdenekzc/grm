@@ -57,7 +57,7 @@ I/O). Generated outputs go to `_output/set/`. The compile must run
 from the repository root — `cmm/cmm_set.py` reads its data files
 (`set/json.t`, ...) relative to the cwd.
 
-### test_parser_in_vala.py, test_parser_in_python.py, test_parser_in_csharp.py — parser packages
+### test_parser_in_vala.py, test_parser_in_python.py, test_parser_in_csharp.py, test_parser_in_cpp.py — parser packages
 
 Replaces `test_parsers.py`: for every supported target language it
 builds a self-contained package in `_output/parser_in_<lang>/` that
@@ -68,36 +68,38 @@ the user can inspect and run on its own:
 - a `<name>_main.<ext>` wiring parser + product together
 - the supporting runtime sources copied next to them
   (`lang/vala/textio.vala` for vala, `code/lexer.py` + `input.py` +
-  `output.py` for python, `lang/csharp/textio.cs` for csharp)
+  `output.py` for python, `lang/csharp/textio.cs` for csharp,
+  `lang/cpp/utils/` for cpp)
 - `data/` with the example inputs from `tests/parsers/` and their
   `.expected` outputs (per language; vala and csharp inherit the ones
-  from `tests/parsers/`, other languages record their own on first run,
-  `--record` forces a rewrite)
-- `<name>_test.bin` binaries (vala) / `<name>_test.exe` (csharp) and a
-  `run.sh` that rebuilds everything and runs all the cases
+  from `tests/parsers/`, python and cpp record their own on first run,
+  `--record` forces a rewrite — C++ `TextOutput` formats differently)
+- `<name>_test.bin` binaries (vala, cpp) / `<name>_test.exe` (csharp)
+  and a `run.sh` that rebuilds everything and runs all the cases
 
-Status: **vala** fully works (5/5); **python** and **csharp** work for
-`pas.g` and for `cmm.g`'s `cmm_min.cc` (4/4 each). `cmm_min.cc` is intentionally
+Status: **vala** fully works (5/5); **python**, **csharp** and **cpp**
+work for `pas.g` and for `cmm.g`'s `cmm_min.cc` (4/4 each). `cmm_min.cc` is intentionally
 declaration-only — a bare generated parser has the semantic predicates
 (`is_expression`, ...) only as stubs, so it cannot tell statements
 like `x = 1 + 2 * 3;` from declarations; the real implementations live
 in the compiler (`cmm/cmm.g` → `cmm_comp.CmmCustomCompiler`).
 `cmm_quicksort.cc` stays as a vala-only case (it pins the degraded
-GLib-critical parse); python and csharp skip it because their `error ()`
-raises instead (see `NOTE_QUICKSORT` in `test_parser_in.py`). **pascal** and
-**cpp** generators exist but their runtimes are incomplete: the
-generated Pascal parser is `class (Lexer)` but `lang/pascal/` has no
-source lexer with `nextToken`/`mark`/`rewind` (`textio.pas` only does
-data I/O — `binio.pas` itself now compiles with `fpc -S2`), and for
-cpp `lang/cpp/lexer.c` needs the external `lex.h`/`inp.h`/`out.h`
-(the c-parser project) plus a C++ `Lexer` class like
-`lang/vala/textio.vala` has. Those packages report SKIP with the
-reason.
+GLib-critical parse); python, csharp and cpp skip it because their
+`error ()` raises instead (see `NOTE_QUICKSORT` in `test_parser_in.py`).
+**pascal** still has an incomplete runtime: the generated Pascal parser
+is `class (Lexer)` but `lang/pascal/` has no source lexer with
+`nextToken`/`mark`/`rewind` (`textio.pas` only does data I/O —
+`binio.pas` itself now compiles with `fpc -S2`; `lang/pascal/gibbon/pas/lex0.pas`
+is the best base for an adapter). That package reports SKIP with the
+reason. For cpp, `lang/cpp/utils/parser_lexer.h` adapts `EnvInput` to
+the generated parser (queued `nextToken`, `readIdent` from `tokenKind`);
+`pas.g` gets the `CmmBasic` stub via `-DPARSER_BASIC_STUB`.
 
 ```
 ./tests/test_parser_in_vala.py        # vala package
 ./tests/test_parser_in_python.py      # python package
 ./tests/test_parser_in_csharp.py      # csharp package
+./tests/test_parser_in_cpp.py         # cpp package
 python3 tests/test_parser_in.py --lang all
 ```
 
