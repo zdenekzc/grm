@@ -31,6 +31,9 @@ Jazyky:
     cpp     CParser/CProduct (cpp = True) + lang/cpp/utils (TextInput/
             EnvInput/TextOutput) s adaptérem parser_lexer.h, g++;
             funguje pro pas.g i cmm.g (cmm_quicksort vynechán)
+    java    CParser/CProduct (java = True) + lang/java/textio.java,
+            javac/java; funguje pro pas.g i cmm.g (cmm_quicksort
+            vynechán)
     pascal  generátor (pparser/pproduct) existuje, runtime ne:
             textio.pas má jen TTextInput/TTextOutput pro data, ne
             zdrojový lexér s nextToken/mark/rewind
@@ -48,10 +51,11 @@ Spuštění (wrappery nastavují --lang):
     python3 tests/test_parser_in_python.py      # python balíček
     python3 tests/test_parser_in_csharp.py      # csharp balíček
     python3 tests/test_parser_in_cpp.py         # cpp balíček
+    python3 tests/test_parser_in_java.py        # java balíček
     python3 tests/test_parser_in.py --lang all  # všechny jazyky
 
-Bez valacu (resp. mcs/mono pro csharp, g++ pro cpp) se balíček přeskočí
-(SKIP, exit 0).
+Bez valacu (resp. mcs/mono pro csharp, g++ pro cpp, javac/java pro java)
+se balíček přeskočí (SKIP, exit 0).
 """
 
 from __future__ import print_function
@@ -172,6 +176,39 @@ int main (int argc, char * argv [])
    prod.send_{start} (tree);
    cout << prod.toString ();
    return 0;
+}}
+"""
+
+# Java: runtime lang/java/textio.java (Lexer + Output) is in the same
+# package as the generated parser; each grammar is compiled into its own
+# <name>_classes directory (the generated classes are all named Parser /
+# Product). pas.g needs a CmmBasic stub (cmm.g declares its own).
+JAVA_NS = "parserin"
+
+JAVA_BASIC_STUB = """
+class CmmBasic
+{
+   public int src_file = 0;
+   public int src_line = 0;
+   public int src_column = 0;
+}
+"""
+
+JAVA_MAIN_TEMPLATE = """package {ns};
+
+{basic}
+class Main
+{{
+   public static void main (String [] args)
+   {{
+      Parser p = new Parser ();
+      p.openFile (args [0]);
+      p.nextToken ();
+      {ret} tree = p.parse_{start} ();
+      Product prod = new Product ();
+      prod.send_{start} (tree);
+      System.out.print (prod.toString ());
+   }}
 }}
 """
 
@@ -345,6 +382,28 @@ def generate_cpp (grammar, name, out_dir) :
    q.productCode (grammar)
    q.close ()
 
+def generate_java (grammar, name, out_dir) :
+   parser_path = os.path.join (out_dir, name + "_parser.java")
+   product_path = os.path.join (out_dir, name + "_product.java")
+
+   p = CParser ()
+   p.java = True
+   p.set_consts ()
+   p.class_name = "Parser"
+   p.open (parser_path)
+   p.parserJava (grammar, JAVA_NS)
+   p.close ()
+
+   q = CProduct ()
+   q.java = True
+   q.set_consts ()
+   q.class_name = "Product"
+   q.super_name = "Output"
+   q.ns = JAVA_NS
+   q.open (product_path)
+   q.productJava (grammar)
+   q.close ()
+
 # ---------------------------------------------------------------------------
 
 def write_vala_main (name, start, basic, out_dir) :
@@ -378,6 +437,21 @@ def write_cpp_main (name, start, basic, out_dir) :
    main_path = os.path.join (out_dir, name + "_main.cpp")
    with open (main_path, "w") as f :
       f.write (CPP_MAIN_TEMPLATE.format (name = name, start = start, ret = ret))
+   return main_path
+
+def write_java_main (name, start, basic, out_dir) :
+   # return type of the start rule from the generated parser
+   parser_path = os.path.join (out_dir, name + "_parser.java")
+   with open (parser_path) as f :
+      parser = f.read ()
+   m = re.search (r"\n\s*(?:public\s+)?([A-Za-z_][\w.]*)\s+parse_" +
+                  start + r"\s*\(", parser)
+   ret = m.group (1) if m else "CmmBasic"
+
+   main_path = os.path.join (out_dir, name + "_main.java")
+   with open (main_path, "w") as f :
+      f.write (JAVA_MAIN_TEMPLATE.format (ns = JAVA_NS, basic = basic,
+                                          start = start, ret = ret))
    return main_path
 
 # ---------------------------------------------------------------------------
@@ -450,6 +524,30 @@ def build_cpp (name, out_dir) :
 def run_cpp (out_dir, name, data_path) :
    proc = subprocess.run ([os.path.join (out_dir, name + "_test.bin"),
                            data_path], capture_output = True, text = True,
+                          timeout = 30, cwd = ROOT)
+   return proc.stdout
+
+def build_java (name, out_dir) :
+   """Přeloží parser + product + main + runtime do <name>_classes;
+   každá gramatika má vlastní adresář, protože generované třídy se
+   jmenují Parser/Product."""
+
+   classes = name + "_classes"
+   cmd = ["javac", "-d", classes, "-encoding", "UTF-8", "textio.java",
+          name + "_parser.java", name + "_product.java", name + "_main.java"]
+   try :
+      proc = subprocess.run (cmd, capture_output = True, text = True,
+                             timeout = 300, cwd = out_dir)
+   except subprocess.TimeoutExpired :
+      raise RuntimeError ("javac timed out (300 s)")
+   if proc.returncode != 0 :
+      raise RuntimeError ("javac failed:\n" + proc.stderr [-2000:])
+   return classes
+
+def run_java (out_dir, name, data_path) :
+   proc = subprocess.run (["java", "-cp", os.path.join (out_dir, name + "_classes"),
+                           JAVA_NS + ".Main", data_path],
+                          capture_output = True, text = True,
                           timeout = 30, cwd = ROOT)
    return proc.stdout
 
@@ -536,6 +634,27 @@ LANGS = {
       "tools" : ["mcs", "mono"],
       "basic_stub" : CSHARP_BASIC_STUB,
       # C# product (CProduct) dává stejný výstup jako vala
+      "inherit_expected" : True,
+      "check" : None,
+   },
+   "java" : {
+      "title" : "java (cparser/cproduct, javac/java)",
+      "dir" : "parser_in_java",
+      "ext" : "java",
+      "generate" : generate_java,
+      "write_main" : write_java_main,
+      "support" : [("lang/java/textio.java", "textio.java")],
+      "build" : build_java,
+      "build_cmd" : "javac -d {name}_classes -encoding UTF-8 textio.java " +
+                    "{name}_parser.java {name}_product.java {name}_main.java",
+      "run" : run_java,
+      "run_cmd" : "java -cp {name}_classes parserin.Main",
+      "cases" : {"pas" : True, "cmm" : True},
+      # quicksort obsahuje příkazy — viz NOTE_QUICKSORT
+      "skip_cases" : {"cmm" : ("cmm_quicksort",)},
+      "tools" : ["javac", "java"],
+      "basic_stub" : JAVA_BASIC_STUB,
+      # Java product (CProduct) dává stejný výstup jako vala
       "inherit_expected" : True,
       "check" : None,
    },
@@ -754,7 +873,7 @@ def main (argv = None) :
    p.add_argument ("--record", action = "store_true",
                    help = "(re)write the .expected files instead of comparing")
    p.add_argument ("--lang", action = "store", default = "vala",
-                   help = "languages to run: vala, python, csharp, pascal, cpp, all")
+                   help = "languages to run: vala, python, csharp, cpp, java, pascal, all")
    args = p.parse_args (argv)
 
    langs = sorted (LANGS.keys ()) if args.lang == "all" else [ args.lang ]

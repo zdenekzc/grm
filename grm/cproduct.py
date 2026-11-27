@@ -240,6 +240,9 @@ class CProduct (CodeOutput) :
                 if self.vala :
                    # value [0] is a char; putChar takes a string in Vala
                    self.put (" [0].to_string ()")
+                elif self.java :
+                   # Java strings have no []: charAt (0) is the char
+                   self.put (".charAt (0)")
                 else :
                    self.put (" [0]")
              self.putLn (");")

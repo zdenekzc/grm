@@ -119,7 +119,12 @@ class CParser (ToParser) :
           if start_inx == inx :
              self.send (self.string_item ("s", str (inx + base_inx)) + self.equal + self.quote_char (substr))
           else :
-             self.send (self.string_compare ("s." + self.substr + " (" + str (start_inx+base_inx) + "," + str (inx+1-start_inx+base_inx) + ")", self.quote (substr)))
+             if self.java :
+                # Java substring (begin, end), others take (start, length)
+                substr_end = inx + 1 + base_inx
+             else :
+                substr_end = inx + 1 - start_inx + base_inx
+             self.send (self.string_compare ("s." + self.substr + " (" + str (start_inx+base_inx) + "," + str (substr_end) + ")", self.quote (substr)))
           self.put_then ()
           self.printKeywordItem (dictionary, inx, name)
        else :

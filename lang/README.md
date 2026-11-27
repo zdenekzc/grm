@@ -45,7 +45,8 @@ základ pro adaptaci je `pascal/gibbon/pas/lex0.pas` (globální
 | `csharp/textio.cs` | **`/abc/grm/lang/csharp/`** (nový port `textio.vala`) | současné API pro `cparser.py --csharp`: `tokenKind`/`tokenTxt`, `nextToken`, `translate`, `mark`/`rewind`, `readIdent`, `readQuotedString`, `readQuotedCharAsString`, `Output` | **přímo použitelné**; `tests/test_parser_in_csharp.py` |
 | `csharp/view/` | gibbon `other/mix/csharp-view/` | WinForms mini IDE (editor, strom, PropertyGrid, CodeDom); `Parser0` je ruční demo | `mcs` projde bez `Output.cs` a bez generovaných `pas_parser.cs`/`pas_product.cs`; GUI potřebuje X/Mono |
 | `java/lexer.java` | gibbon `other/learn/java-gitlab/.../Lexer.java` | minimální Java lexer (ident, číslo, separator) | jen demonstrace, neplnohodnotný lexer pro C-- |
-| `java/java-parser/` | **`/abc/java-parser/`** | ručně psaný parser **jazyka Java** (`package cacao.src`; `ClassDef`, `PackageDef`, `Decl`, `Expr`, `Stat`), kompletnější scanner v `Lex.java` (`sy`/`val`/`nextSymbol`) | kostra: `readChar ()` je prázdné, `buf` se nevytváří, `error ()` je no-op; jako runtime pro C-- parser nutná adaptace |
+| `java/textio.java` | **`/abc/grm/lang/java/`** (nový port `textio.vala`/`textio.cs`) | současné API pro `cparser.py --java`: `Lexer` + `Output` v package `parserin`, `tokenKind`/`tokenTxt`, `nextToken`, `translate`, `mark`/`rewind`, `readIdent`, `readQuoted*` | **přímo použitelné**; `tests/test_parser_in_java.py` |
+| `java/java-parser/` | **`/abc/java-parser/`** | ručně psaný parser **jazyka Java** (`package cacao.src`; `ClassDef`, `PackageDef`, `Decl`, `Expr`, `Stat`), kompletnější scanner v `Lex.java` (`sy`/`val`/`nextSymbol`) | kostra pro Javu (ne C--): `readChar ()` je prázdné, `buf` se nevytváří, `error ()` je no-op; reference pro scanner, runtime je `java/textio.java` |
 | `java/view/` | gibbon `other/mix/java-view/` | Swing mini IDE (editor, strom, tabulka, překlad přes `javax.tools`) | `javac -d out src/jview/*.java` projde; `build.xml` odkazuje na chybějící `nbproject/build-impl.xml` |
 | `js/lexer.js` | gibbon `other/mix/js/lexer.js` | JS lexer se `lookupKeyword`/`processSeparator`, starší API `token`/`tokenText` | nutná adaptace na nové názvy (`tokenTxt`, `readIdent`, …) |
 | `js/view/` | gibbon `other/mix/js/jsview.html,jsview.py` | prohlížečové mini IDE (easyui + ACE editor + strom) | `python3 jsview.py -p 1234`, otevřít `http://localhost:1234/jsview.html`; CDN závislosti |
@@ -72,15 +73,16 @@ základ pro adaptaci je `pascal/gibbon/pas/lex0.pas` (globální
 | Python | `code/lexer.py` | aktuální API; `tests/test_parser_in_python.py` |
 | Vala | `lang/vala/textio.vala` | z `/abc/grm/lang/vala`, aktuální API; `lang/vala/view` je nad ním postavené mini IDE s akcí Parse Pascal |
 | C# | `lang/csharp/textio.cs` | nový port `textio.vala` do C#, aktuální API; `tests/test_parser_in_csharp.py` (mcs/mono) |
+| Java | `lang/java/textio.java` | nový port `textio.vala` do Javy (package `parserin`), aktuální API; `tests/test_parser_in_java.py` (javac/java) |
 | Pascal | `lang/pascal/gibbon/pas/lex0.pas` | globální `sy`/`GetSymbol`, bez `mark`/`rewind`; `lang/pascal/textio.pas` je jen datové I/O, takže class runtime pro generovaný parser ještě chybí |
 
-Pro Javu, JS a Rust se v gibbonu **nenašel** lexer s aktuálním API —
+Pro JS a Rust se v gibbonu **nenašel** lexer s aktuálním API —
 jen starší generace (`token`/`tokenText`, `readIdentifier`), která se musí
 přejmenovat a doplnit (`processSeparator`, `translate`, `mark`/`rewind`,
-rozhodovací tabulky). Výjimkou je `java/java-parser/` (z `/abc/java-parser`):
-scanner je tam kompletnější, ale je pro jazyk Java a `readChar ()` je stále
-stub. Projekty `java-view` a `csharp-view` jsou použitelné jako malá IDE
-samy o sobě; generovaný parser v nich ale není zapojený.
+rozhodovací tabulky). `java/java-parser/` (z `/abc/java-parser`) je kostra
+parseru jazyka Java; jako reference scanneru zůstává, runtime pro C-- je
+`java/textio.java`. Projekty `java-view` a `csharp-view` jsou použitelné
+jako malá IDE samy o sobě; generovaný parser v nich ale není zapojený.
 
 ## Vala: parser + view
 

@@ -57,7 +57,7 @@ I/O). Generated outputs go to `_output/set/`. The compile must run
 from the repository root — `cmm/cmm_set.py` reads its data files
 (`set/json.t`, ...) relative to the cwd.
 
-### test_parser_in_vala.py, test_parser_in_python.py, test_parser_in_csharp.py, test_parser_in_cpp.py — parser packages
+### test_parser_in_vala.py, test_parser_in_python.py, test_parser_in_csharp.py, test_parser_in_cpp.py, test_parser_in_java.py — parser packages
 
 Replaces `test_parsers.py`: for every supported target language it
 builds a self-contained package in `_output/parser_in_<lang>/` that
@@ -69,22 +69,23 @@ the user can inspect and run on its own:
 - the supporting runtime sources copied next to them
   (`lang/vala/textio.vala` for vala, `code/lexer.py` + `input.py` +
   `output.py` for python, `lang/csharp/textio.cs` for csharp,
-  `lang/cpp/utils/` for cpp)
+  `lang/cpp/utils/` for cpp, `lang/java/textio.java` for java)
 - `data/` with the example inputs from `tests/parsers/` and their
-  `.expected` outputs (per language; vala and csharp inherit the ones
-  from `tests/parsers/`, python and cpp record their own on first run,
-  `--record` forces a rewrite — C++ `TextOutput` formats differently)
-- `<name>_test.bin` binaries (vala, cpp) / `<name>_test.exe` (csharp)
-  and a `run.sh` that rebuilds everything and runs all the cases
+  `.expected` outputs (per language; vala, csharp and java inherit the
+  ones from `tests/parsers/`, python and cpp record their own on first
+  run, `--record` forces a rewrite — C++ `TextOutput` formats differently)
+- `<name>_test.bin` binaries (vala, cpp) / `<name>_test.exe` (csharp) /
+  `<name>_classes/` (java) and a `run.sh` that rebuilds everything and
+  runs all the cases
 
-Status: **vala** fully works (5/5); **python**, **csharp** and **cpp**
-work for `pas.g` and for `cmm.g`'s `cmm_min.cc` (4/4 each). `cmm_min.cc` is intentionally
+Status: **vala** fully works (5/5); **python**, **csharp**, **cpp** and
+**java** work for `pas.g` and for `cmm.g`'s `cmm_min.cc` (4/4 each). `cmm_min.cc` is intentionally
 declaration-only — a bare generated parser has the semantic predicates
 (`is_expression`, ...) only as stubs, so it cannot tell statements
 like `x = 1 + 2 * 3;` from declarations; the real implementations live
 in the compiler (`cmm/cmm.g` → `cmm_comp.CmmCustomCompiler`).
 `cmm_quicksort.cc` stays as a vala-only case (it pins the degraded
-GLib-critical parse); python, csharp and cpp skip it because their
+GLib-critical parse); python, csharp, cpp and java skip it because their
 `error ()` raises instead (see `NOTE_QUICKSORT` in `test_parser_in.py`).
 **pascal** still has an incomplete runtime: the generated Pascal parser
 is `class (Lexer)` but `lang/pascal/` has no source lexer with
@@ -100,6 +101,7 @@ the generated parser (queued `nextToken`, `readIdent` from `tokenKind`);
 ./tests/test_parser_in_python.py      # python package
 ./tests/test_parser_in_csharp.py      # csharp package
 ./tests/test_parser_in_cpp.py         # cpp package
+./tests/test_parser_in_java.py        # java package
 python3 tests/test_parser_in.py --lang all
 ```
 
