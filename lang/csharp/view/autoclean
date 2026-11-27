@@ -1,0 +1,6 @@
+#!/bin/sh
+rm pas_parser.cs
+rm pas_product.cs
+
+rm -rf bin
+rm -rf obj

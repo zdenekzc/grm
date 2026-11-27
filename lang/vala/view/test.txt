@@ -1,0 +1,666 @@
+[001mlexer.vala:48.9-48.45:[0m [001;35mwarning:[0m unhandled error [001m`LexerError'[0m
+        throw new LexerError.LexerError (msg);
+        [001;32m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:192.24-192.33:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         if (isSymbol (identifier))
+                       [001;32m^^^^^^^^^^[0m
+[001mpas_parser.vala:196.29-196.34:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         else if (isSymbol (number))
+                            [001;32m^^^^^^[0m
+[001mpas_parser.vala:214.13-214.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TContName>'[0m (glib-2.0)
+            result.items.Add (parse_cont_name ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:4694.10-4694.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TAliasType'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4529.10-4529.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TIdentExpr'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4534.10-4534.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TIntValueExpr'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4539.10-4539.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TFltValueExpr'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4544.10-4544.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TStrValueExpr'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4549.10-4549.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TNilExpr'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4554.10-4554.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TStructExpr'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4559.10-4559.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TNotExpr'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4564.10-4564.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TPlusExpr'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4569.10-4569.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TMinusExpr'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4574.10-4574.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TAdrExpr'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4579.10-4579.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TSetExpr'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4584.10-4584.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TSuperExpr'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4589.10-4589.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TStringExpr'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4594.10-4594.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TIndexExpr'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4599.10-4599.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TCallExpr'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4604.10-4604.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TDerefExpr'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4609.10-4609.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TFieldExpr'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4614.10-4614.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TTermExpr'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4619.10-4619.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TSimpleExpr'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4624.10-4624.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TCompleteExpr'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4699.10-4699.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TStringType'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4704.10-4704.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TFileType'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:5882.10-5882.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TFieldDecl'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:5220.10-5220.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TGotoStat'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:5225.10-5225.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TBlockStat'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:5230.10-5230.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TIfStat'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:5235.10-5235.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TCaseStat'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:5240.10-5240.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TWhileStat'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:5245.10-5245.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TRepeatStat'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:5250.10-5250.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TForStat'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:5255.10-5255.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TWithStat'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:5260.10-5260.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TRaiseStat'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:5265.10-5265.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TTryStat'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:5270.10-5270.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TEmptyStat'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:5275.10-5275.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TAssignStat'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:5280.10-5280.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TCallStat'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:5285.10-5285.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TLabeledTStat'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:5887.10-5887.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TProcDecl'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:5892.10-5892.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TPropertyDecl'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:5897.10-5897.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TLabelSect'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:5902.10-5902.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TConstSect'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:5907.10-5907.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TTypeSect'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:5912.10-5912.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TVarSect'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4709.10-4709.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TClassType'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4714.10-4714.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TInterfaceType'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4719.10-4719.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TEnumType'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4724.10-4724.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TArrayType'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4729.10-4729.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TRecordType'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4734.10-4734.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TPointerType'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4739.10-4739.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TSetType'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4744.10-4744.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TClassOfType'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4749.10-4749.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TProcType'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4754.10-4754.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TSubrangeType'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:241.24-241.33:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         if (isSymbol (identifier))
+                       [001;32m^^^^^^^^^^[0m
+[001mpas_parser.vala:263.24-263.33:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         if (isSymbol (identifier))
+                       [001;32m^^^^^^^^^^[0m
+[001mpas_parser.vala:684.24-684.29:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         if (isSymbol (number))
+                       [001;32m^^^^^^[0m
+[001mpas_parser.vala:688.29-688.39:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         else if (isSymbol (real_number))
+                            [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:692.29-692.42:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         else if (isSymbol (string_literal))
+                            [001;32m^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:696.29-696.45:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         else if (isSymbol (character_literal))
+                            [001;32m^^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:365.10-365.25:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TElemItem>'[0m (glib-2.0)
+         result.items.Add (parse_elem_item ());
+         [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:369.13-369.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TElemItem>'[0m (glib-2.0)
+            result.items.Add (parse_elem_item ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:728.29-728.38:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         else if (isSymbol (identifier) || isSymbol (literal_1) || isSymbol (keyword_inherited))
+                            [001;32m^^^^^^^^^^[0m
+[001mpas_parser.vala:586.24-586.33:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         if (isSymbol (identifier))
+                       [001;32m^^^^^^^^^^[0m
+[001mpas_parser.vala:503.13-503.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TExpr>'[0m (glib-2.0)
+            result.items.Add (parse_expr ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:318.10-318.25:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TInxItem>'[0m (glib-2.0)
+         result.items.Add (parse_index_expr_item ());
+         [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:322.13-322.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TInxItem>'[0m (glib-2.0)
+            result.items.Add (parse_index_expr_item ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:351.10-351.25:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TArgItem>'[0m (glib-2.0)
+         result.items.Add (parse_arg_item ());
+         [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:355.13-355.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TArgItem>'[0m (glib-2.0)
+            result.items.Add (parse_arg_item ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:393.24-393.33:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         if (isSymbol (identifier))
+                       [001;32m^^^^^^^^^^[0m
+[001mpas_parser.vala:407.10-407.25:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TStructSect>'[0m (glib-2.0)
+         result.items.Add (parse_struct_item ());
+         [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:413.16-413.31:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TStructSect>'[0m (glib-2.0)
+               result.items.Add (parse_struct_item ());
+               [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:417.19-417.34:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TStructSect>'[0m (glib-2.0)
+                  result.items.Add (parse_struct_item ());
+                  [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:423.16-423.31:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TStructSect>'[0m (glib-2.0)
+               result.items.Add (parse_struct_item ());
+               [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:427.19-427.34:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TStructSect>'[0m (glib-2.0)
+                  result.items.Add (parse_struct_item ());
+                  [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:924.10-924.25:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TStat>'[0m (glib-2.0)
+         result.items.Add (parse_stat ());
+         [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:928.13-928.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TStat>'[0m (glib-2.0)
+            result.items.Add (parse_stat ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:1253.25-1253.34:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         if ((isSymbol (identifier) || isSymbol (number)) && test_2 ())
+                        [001;32m^^^^^^^^^^[0m
+[001mpas_parser.vala:1253.50-1253.55:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         if ((isSymbol (identifier) || isSymbol (number)) && test_2 ())
+                                                 [001;32m^^^^^^[0m
+[001mpas_parser.vala:2554.24-2554.33:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         if (isSymbol (identifier))
+                       [001;32m^^^^^^^^^^[0m
+[001mpas_parser.vala:2558.29-2558.34:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         else if (isSymbol (number))
+                            [001;32m^^^^^^[0m
+[001mpas_parser.vala:981.10-981.25:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TCaseItem>'[0m (glib-2.0)
+         result.items.Add (parse_case_item ());
+         [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:985.13-985.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TCaseItem>'[0m (glib-2.0)
+            result.items.Add (parse_case_item ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:1070.10-1070.25:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TWithItem>'[0m (glib-2.0)
+         result.items.Add (parse_with_item ());
+         [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:1074.13-1074.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TWithItem>'[0m (glib-2.0)
+            result.items.Add (parse_with_item ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:3313.36-3313.49:[0m [001;31merror:[0m Inline allocated array as parameter requires to have fixed length
+   public inline bool testSymbols (char table [ ])
+                                   [001;32m^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:3313.4-3313.33:[0m [001;35mwarning:[0m Parser.testSymbols hides inherited method [001m`Lexer.testSymbols'[0m. Use the [001m`new'[0m keyword if hiding was intentional
+   public inline bool testSymbols (char table [ ])
+   [001;32m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:1163.10-1163.25:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TOnItem>'[0m (glib-2.0)
+         result.items.Add (parse_on_item ());
+         [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:1167.13-1167.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TOnItem>'[0m (glib-2.0)
+            result.items.Add (parse_on_item ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:1183.24-1183.33:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         if (isSymbol (identifier))
+                       [001;32m^^^^^^^^^^[0m
+[001mpas_parser.vala:1756.10-1756.25:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TIndexTypeItem>'[0m (glib-2.0)
+         result.items.Add (parse_index_type_item ());
+         [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:1760.13-1760.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TIndexTypeItem>'[0m (glib-2.0)
+            result.items.Add (parse_index_type_item ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:1796.27-1796.36:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         while (isSymbol (identifier))
+                          [001;32m^^^^^^^^^^[0m
+[001mpas_parser.vala:1798.13-1798.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TFieldDecl>'[0m (glib-2.0)
+            result.items.Add (parse_field_decl ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:1445.10-1445.25:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TIntefaceItem>'[0m (glib-2.0)
+         result.items.Add (parse_interface_item ());
+         [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:1449.13-1449.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TIntefaceItem>'[0m (glib-2.0)
+            result.items.Add (parse_interface_item ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:1468.10-1468.25:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TComponentsItem>'[0m (glib-2.0)
+         result.items.Add (parse_components_first_item ());
+         [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:1471.13-1471.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TComponentsItem>'[0m (glib-2.0)
+            result.items.Add (parse_components_item ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:1370.13-1370.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TParamItem>'[0m (glib-2.0)
+            result.items.Add (parse_param_item ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:1374.16-1374.31:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TParamItem>'[0m (glib-2.0)
+               result.items.Add (parse_param_item ());
+               [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:2674.24-2674.29:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         if (isSymbol (number))
+                       [001;32m^^^^^^[0m
+[001mpas_parser.vala:2681.29-2681.39:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         else if (isSymbol (real_number))
+                            [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:2688.29-2688.42:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         else if (isSymbol (string_literal))
+                            [001;32m^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:2695.29-2695.45:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         else if (isSymbol (character_literal))
+                            [001;32m^^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:2751.29-2751.38:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         else if (isSymbol (identifier) || isSymbol (literal_1) || isSymbol (keyword_inherited))
+                            [001;32m^^^^^^^^^^[0m
+[001mpas_parser.vala:3043.24-3043.33:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         if (isSymbol (identifier))
+                       [001;32m^^^^^^^^^^[0m
+[001mpas_parser.vala:1699.10-1699.25:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TEnumItem>'[0m (glib-2.0)
+         result.items.Add (parse_enum_item ());
+         [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:1703.13-1703.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TEnumItem>'[0m (glib-2.0)
+            result.items.Add (parse_enum_item ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:1992.29-1992.38:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         else if (isSymbol (identifier))
+                            [001;32m^^^^^^^^^^[0m
+[001mpas_parser.vala:1342.10-1342.25:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TParamIdent>'[0m (glib-2.0)
+         result.items.Add (parse_param_ident ());
+         [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:1346.13-1346.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TParamIdent>'[0m (glib-2.0)
+            result.items.Add (parse_param_ident ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:1387.10-1387.25:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TParamItem>'[0m (glib-2.0)
+         result.items.Add (parse_param_item ());
+         [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:1391.13-1391.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TParamItem>'[0m (glib-2.0)
+            result.items.Add (parse_param_item ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:1530.13-1530.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TDeclSect>'[0m (glib-2.0)
+            result.items.Add (parse_member_decl ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:1539.24-1539.33:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         if (isSymbol (identifier))
+                       [001;32m^^^^^^^^^^[0m
+[001mpas_parser.vala:1572.10-1572.25:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TFieldItem>'[0m (glib-2.0)
+         result.items.Add (parse_field_ident ());
+         [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:1576.13-1576.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TFieldItem>'[0m (glib-2.0)
+            result.items.Add (parse_field_ident ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:2017.10-2017.25:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TLabelDecl>'[0m (glib-2.0)
+         result.items.Add (parse_label_decl ());
+         [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:2021.13-2021.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TLabelDecl>'[0m (glib-2.0)
+            result.items.Add (parse_label_decl ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:2052.10-2052.25:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TConstDecl>'[0m (glib-2.0)
+         result.items.Add (parse_const_decl ());
+         [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:2053.27-2053.36:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         while (isSymbol (identifier))
+                          [001;32m^^^^^^^^^^[0m
+[001mpas_parser.vala:2055.13-2055.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TConstDecl>'[0m (glib-2.0)
+            result.items.Add (parse_const_decl ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:2080.10-2080.25:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TTypeDecl>'[0m (glib-2.0)
+         result.items.Add (parse_type_decl ());
+         [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:2081.27-2081.36:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         while (isSymbol (identifier))
+                          [001;32m^^^^^^^^^^[0m
+[001mpas_parser.vala:2083.13-2083.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TTypeDecl>'[0m (glib-2.0)
+            result.items.Add (parse_type_decl ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:2103.10-2103.25:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TVarItem>'[0m (glib-2.0)
+         result.items.Add (parse_var_item ());
+         [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:2107.13-2107.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TVarItem>'[0m (glib-2.0)
+            result.items.Add (parse_var_item ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:2127.10-2127.25:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TVarDecl>'[0m (glib-2.0)
+         result.items.Add (parse_var_decl ());
+         [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:2128.27-2128.36:[0m [001;31merror:[0m Argument 1: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+         while (isSymbol (identifier))
+                          [001;32m^^^^^^^^^^[0m
+[001mpas_parser.vala:2130.13-2130.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TVarDecl>'[0m (glib-2.0)
+            result.items.Add (parse_var_decl ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:2329.13-2329.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TDeclSect>'[0m (glib-2.0)
+            result.items.Add (parse_decl ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:2287.13-2287.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TDeclSect>'[0m (glib-2.0)
+            result.items.Add (parse_intf_decl ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:2357.13-2357.28:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TImportItem>'[0m (glib-2.0)
+            result.items.Add (parse_import_item ());
+            [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:2361.16-2361.31:[0m [001;31merror:[0m The name [001m`Add'[0m does not exist in the context of [001m`GLib.List<TImportItem>'[0m (glib-2.0)
+               result.items.Add (parse_import_item ());
+               [001;32m^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:6454.10-6454.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TUnitModule'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:6459.10-6459.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TProgramModule'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:6464.10-6464.20:[0m [001;35mwarning:[0m [001m`null'[0m incompatible with return type [001m`TLibraryModule'[0m
+         return null;
+         [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3333.18-3333.25:[0m [001;31merror:[0m The name [001m`Length'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+         int n = s.Length;
+                 [001;32m^^^^^^^^[0m
+[001mpas_parser.vala:3392.23-3392.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,2) == "nd")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3399.23-3399.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,2) == "iv")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3406.23-3406.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,2) == "nd")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3413.23-3413.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,2) == "or")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3420.23-3420.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,2) == "od")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3444.23-3444.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,2) == "ut")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3472.23-3472.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,2) == "ry")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3479.23-3479.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,2) == "ar")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3486.23-3486.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,2) == "or")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3496.23-3496.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,3) == "ase")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3503.23-3503.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,3) == "lse")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3510.23-3510.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,3) == "ile")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3517.23-3517.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,3) == "oto")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3524.23-3524.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,3) == "ead")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3533.29-3533.39:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                        if (s.Substring (2,2) == "en")
+                            [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3540.29-3540.39:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                        if (s.Substring (2,2) == "pe")
+                            [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3550.29-3550.39:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                        if (s.Substring (2,2) == "it")
+                            [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3557.29-3557.39:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                        if (s.Substring (2,2) == "es")
+                            [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3565.23-3565.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,3) == "ith")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3575.23-3575.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,4) == "rray")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3582.23-3582.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,4) == "egin")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3591.29-3591.39:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                        if (s.Substring (2,3) == "ecl")
+                            [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3598.29-3598.39:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                        if (s.Substring (2,3) == "ass")
+                            [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3605.29-3605.39:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                        if (s.Substring (2,3) == "nst")
+                            [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3613.23-3613.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,4) == "abel")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3620.23-3620.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,4) == "aise")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3627.23-3627.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,4) == "ntil")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3636.29-3636.39:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                        if (s.Substring (2,3) == "ile")
+                            [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3643.29-3643.39:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                        if (s.Substring (2,3) == "ite")
+                            [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3654.23-3654.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,5) == "ownto")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3661.23-3661.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,5) == "xcept")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3668.23-3668.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,5) == "nline")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3675.23-3675.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,5) == "bject")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3686.35-3686.45:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                              if (s.Substring (3,3) == "ked")
+                                  [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3693.35-3693.45:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                              if (s.Substring (3,3) == "cal")
+                                  [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3701.29-3701.39:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                        if (s.Substring (2,4) == "blic")
+                            [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3713.35-3713.45:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                              if (s.Substring (3,3) == "ord")
+                                  [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3720.35-3720.45:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                              if (s.Substring (3,3) == "eat")
+                                  [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3733.35-3733.45:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                              if (s.Substring (3,3) == "red")
+                                  [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3740.35-3740.45:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                              if (s.Substring (3,3) == "ing")
+                                  [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3754.29-3754.39:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                        if (s.Substring (2,5) == "fault")
+                            [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3761.29-3761.39:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                        if (s.Substring (2,5) == "namic")
+                            [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3771.29-3771.39:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                        if (s.Substring (2,5) == "nally")
+                            [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3778.29-3778.39:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                        if (s.Substring (2,5) == "rward")
+                            [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3786.23-3786.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,6) == "ibrary")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3797.35-3797.45:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                              if (s.Substring (3,4) == "vate")
+                                  [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3804.35-3804.45:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                              if (s.Substring (3,4) == "gram")
+                                  [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3813.23-3813.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,6) == "tdcall")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3820.23-3820.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,6) == "irtual")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3830.23-3830.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,7) == "bstract")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3837.23-3837.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,7) == "xternal")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3844.23-3844.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,7) == "unction")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3851.23-3851.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,7) == "verride")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3858.23-3858.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,7) == "roperty")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3865.23-3865.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,7) == "egister")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3872.23-3872.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,7) == "afecall")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3882.23-3882.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,8) == "utomated")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3893.35-3893.45:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                              if (s.Substring (3,6) == "erited")
+                                  [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3900.35-3900.45:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                              if (s.Substring (3,6) == "erface")
+                                  [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3909.23-3909.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,8) == "odefault")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3922.41-3922.51:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                                    if (s.Substring (4,5) == "edure")
+                                        [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3929.41-3929.51:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                                    if (s.Substring (4,5) == "ected")
+                                        [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3938.29-3938.39:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                        if (s.Substring (2,7) == "blished")
+                            [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3949.23-3949.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,9) == "estructor")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3956.23-3956.33:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                  if (s.Substring (1,9) == "mplements")
+                      [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3964.17-3964.27:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+            if (s.Substring (0,11) == "constructor")
+                [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3971.17-3971.27:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+            if (s.Substring (0,12) == "finalization")
+                [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3982.29-3982.39:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                        if (s.Substring (2,12) == "plementation")
+                            [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:3989.29-3989.39:[0m [001;31merror:[0m The name [001m`Substring'[0m does not exist in the context of [001m`string?'[0m (glib-2.0)
+                        if (s.Substring (2,12) == "itialization")
+                            [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4030.28-4030.41:[0m [001;31merror:[0m Operands must be strings
+               tokenText = tokenText + ch;
+                           [001;32m^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:4044.28-4044.41:[0m [001;31merror:[0m Operands must be strings
+               tokenText = tokenText + ch;
+                           [001;32m^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:4058.28-4058.41:[0m [001;31merror:[0m Operands must be strings
+               tokenText = tokenText + ch;
+                           [001;32m^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:4064.28-4064.41:[0m [001;31merror:[0m Operands must be strings
+               tokenText = tokenText + ch;
+                           [001;32m^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:4078.28-4078.41:[0m [001;31merror:[0m Operands must be strings
+               tokenText = tokenText + ch;
+                           [001;32m^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:4339.13-4339.30:[0m [001;31merror:[0m Assignment: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+            token = identifier;
+            [001;32m^^^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:4344.13-4344.26:[0m [001;31merror:[0m Assignment: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+            token = number;
+            [001;32m^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:4348.13-4348.37:[0m [001;31merror:[0m Assignment: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+            token = character_literal;
+            [001;32m^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:4352.13-4352.34:[0m [001;31merror:[0m Assignment: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+            token = string_literal;
+            [001;32m^^^^^^^^^^^^^^^^^^^^^^[0m
+[001mpas_parser.vala:4356.13-4356.23:[0m [001;31merror:[0m Assignment: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+            token = eos;
+            [001;32m^^^^^^^^^^^[0m
+[001mpas_parser.vala:4360.13-4360.29:[0m [001;31merror:[0m Assignment: Cannot convert from [001m`int'[0m to [001m`CmmSymbol'[0m
+            token = separator;
+            [001;32m^^^^^^^^^^^^^^^^^[0m

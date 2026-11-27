@@ -1,0 +1,295 @@
+<!DOCTYPE html5">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>JS View</title>
+
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/icon.css">
+    <script type="text/javascript" src="http://www.jeasyui.com/easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="http://www.jeasyui.com/easyui/jquery.easyui.min.js"></script>
+
+    <script src="https://ace.c9.io/build/src/ace.js" type="text/javascript" charset="utf-8"></script>
+    <link href="https://ace.c9.io/doc/site/style.css" rel="stylesheet" type="text/css" />
+
+    <style type="text/css">
+        #editor_tab {
+            width:100%;
+            height: 100%;
+            display:inline-block;
+            position: relative;
+        }
+        #editor {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
+    </style>
+
+    <!--
+    <script src="https://threejs.org/build/three.js"></script>
+    <script src="http://threejs.org/examples/js/controls/DragControls.js"></script>
+    <script src="http://threejs.org/examples/js/controls/TrackballControls.js"></script>
+    -->
+
+    <!--
+    <script> mxBasePath = 'http://jgraph.github.io/mxgraph/javascript/src'; </script>
+    <script src="http://jgraph.github.io/mxgraph/javascript/src/js/mxClient.js"></script>
+    -->
+
+    <!--
+    <script src="lexer.js"></script>
+    <script src="mini_parser.js"></script>
+    <script src="mini_product.js"></script>
+    -->
+
+    <!--
+    <script>
+       const nodeList = document.querySelectorAll ('script');
+       for (let i = 0; i < nodeList.length; i++) {
+           let node = nodeList[i];
+           console.log ("script " + node.src)
+       }
+       // http://stackoverflow.com/questions/14521108/dynamically-load-js-inside-js
+    </script>
+    -->
+
+</head>
+<body class="easyui-layout" >
+
+    <!--
+    <div id="tt" class="easyui-tree" title="Tree" region="west" split="true" width="180px" url="tree.json" method="get"></div>
+    -->
+    <div id="tt" class="easyui-tree" title="Tree" region="west" split="true" width="180px"></div>
+
+    <div title="Tabs" class="easyui-tabs" region="center" split="true" iconCls="icon-tip">
+
+         <div title="diagram_tab" id="diagram_tab">
+         </div>
+
+         <div id="editor_tab" title="ACE Editor" iconCls="icon-edit">
+             <div id="editor">
+                /* ACE Editor */
+                function add(x, y)
+                {
+                   var resultString = "Hello, ACE! The result of your math is: ";
+                   var result = x + y;
+                   return resultString + result;
+                }
+
+                var result = add(3, 2);
+                document.getElementById ('info').append (result);
+                /* Press F8 to execute code */
+
+                /* F2 store file, F3 recall file */
+
+                function print (txt)
+                {
+                   $('#info').append (txt);
+                }
+
+                function put (txt)
+                {
+                   $('#tt').tree('append', {
+                      data: [{"id":1,"text":txt }]
+                   });
+                }
+
+                code = ace.edit ("editor").getValue();
+                lexer = new Lexer (code);
+                displayProperties (lexer);
+                while (lexer.token != lexer.eos)
+                {
+                   print ('<' + 'br' + '> token text: ' + lexer.tokenText);
+                   put (lexer.tokenText);
+                   lexer.nextToken ();
+                }
+             </div>
+         </div>
+
+    </div>
+
+    <div title="Properties" region="east" split="true" iconCls="icon-edit" width="360px">
+       <table id="pg" class="easyui-propertygrid" showGroup=true
+              url0="properties.json" method0="get">
+       </table>
+    </div>
+
+    <div id="info" title="Info" region="south" split="true" height="160px">
+    </div>
+
+    <script type="text/javascript">
+       // tree propeties
+       $('#tt').tree ({ lines: true })
+       $('#tt').tree ({ checkbox: true })
+    </script>
+
+    <script type="text/javascript">
+       // tree contex menu
+       $('#tt').tree
+       ({
+           onContextMenu: function (e, node)
+           {
+               e.preventDefault ();
+               // select the node
+               $('#tt').tree ('select', node.target);
+               // display context menu
+               $('#mm').menu ('show', { left: e.pageX, top: e.pageY });
+            }
+       });
+    </script>
+
+    <div id="mm" class="easyui-menu" width="120px">
+        <div onclick="fce_append()" iconCls="icon-add">Append</div>
+        <div onclick="fce_remove()" iconCls="icon-remove">Remove</div>
+    </div>
+
+    <script type="text/javascript">
+        $('#info').append ("Hello from Java Script<br>");
+    </script>
+
+    <script type="text/javascript">
+        // tree click
+        $('#tt').tree
+        ({
+            onClick: function (node)
+            {
+               var txt = "";
+               /*
+               for (var prop in node)
+               {
+                   if (txt != "")
+                       txt += ", ";
+                   txt += prop + "=" + node [prop];
+               }
+               */
+
+               $('#info').append ("<br><b>Tree click</b> " + txt);
+
+               // $('#dg').datagrid ('appendRow', { name: node["text"] } );
+
+               container = document.getElementById ('diagram_tab');
+               var graph = new mxGraph (container);
+               new mxRubberband (graph);
+               var parent = graph.getDefaultParent ();
+               graph.getModel().beginUpdate();
+               var v1 = graph.insertVertex (parent, null, 'Hello,', 20, 20, 80, 30);
+               var v2 = graph.insertVertex (parent, null, 'Tree', 200, 150, 80, 30);
+               var e1 = graph.insertEdge (parent, null, '', v1, v2);
+               graph.getModel().endUpdate ();
+            }
+        });
+    </script>
+
+    <!-- ACE Editor -->
+
+    <script type="text/javascript">
+        $('#info').append ("<br>Setup editor");
+        var editor = ace.edit ("editor");
+        // editor.setTheme("ace/theme/monokai");
+        editor.session.setMode("ace/mode/javascript");
+        // editor.insert("something");
+
+        editor.commands.addCommand({
+           name: 'run',
+           bindKey: { win: 'F8',  mac: 'F8' },
+           readOnly: true, // false if this command should not apply in readOnly mode
+           exec: function (editor) {
+               var code = editor.getValue();
+               eval (code);
+               // editor.insert("something");
+               // document.getElementById ('editor').style.fontSize='16px';
+           }
+        });
+
+    </script>
+
+    <!-- Load HTML -->
+
+    <script>
+
+    $(function(){
+
+      if (1)
+      {
+         $.getJSON ("tree.json", function( data ) {
+            $('#tt').tree({ data: data });
+            // $('#tt').tree({ data: [{ text: 'Test' }] });
+
+            // // $('#info').append ("<p>");
+            // $('#info').append (JSON.stringify(data));
+            // $('#info').append ("<p>");
+            // $('#info').append ("O.K");
+         });
+      }
+
+      if (0)
+      {
+         $.getScript("tree.js");
+      }
+
+      // $.getScript("cone.js"); // only with already loaded three.js
+      // $("#diagram_tab").load("cone.html"); // only with already loaded three.js
+      if (1) $.getScript("cone2.js");
+
+      // $("#diagram_tab").load("jgraph-simple.html"); // only with already loaded mxgraph
+      // $.getScript("jgraph-simple.js"); // only with already loaded mxgraph
+
+      // https://stackoverflow.com/questions/8988855/include-another-html-file-in-a-html-file
+    });
+
+    </script>
+
+    <!--
+    <script src="https://threejs.org/build/three.js"></script>
+    <script>
+      var container = document.getElementById ( 'diagram_tab' );
+
+      var camera = new THREE.PerspectiveCamera ( 70, window.innerWidth / window.innerHeight, 1, 1000 );
+      camera.position.z = 400;
+
+      var scene = new THREE.Scene();
+      scene.background = new THREE.Color( 0x404080 );
+
+      var geometry = new THREE.ConeBufferGeometry( 120, 160, 80, 80 );
+      var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+      var cone = new THREE.Mesh( geometry, material );
+      scene.add( cone );
+
+      var renderer = new THREE.WebGLRenderer();
+      renderer.setSize( window.innerWidth, window.innerHeight );
+      container.appendChild( renderer.domElement );
+
+      renderer.render( scene, camera );
+    </script>
+    -->
+
+    <!--
+    <script> mxBasePath = 'http://jgraph.github.io/mxgraph/javascript/src'; </script>
+    <script src="http://jgraph.github.io/mxgraph/javascript/src/js/mxClient.js"></script>
+    <script>
+        container = document.getElementById ('diagram_tab');
+        var graph = new mxGraph (container);
+        new mxRubberband (graph);
+        var parent = graph.getDefaultParent ();
+        graph.getModel().beginUpdate();
+        var v1 = graph.insertVertex (parent, null, 'Hello,', 20, 20, 80, 30);
+        var v2 = graph.insertVertex (parent, null, 'World!', 200, 150, 80, 30);
+        var e1 = graph.insertEdge (parent, null, '', v1, v2);
+        graph.getModel().endUpdate ();
+    </script>
+    -->
+
+<!--
+https://stemkoski.github.io/Three.js/Graphulus-Function.html
+https://stackoverflow.com/questions/62470679/3d-graph-using-three-js
+https://stackoverflow.com/questions/62470679/3d-graph-using-three-js
+-->
+
+<!--
+kate: tab-indent off; tab-width 8; show-tabs on; indent-width 1; end-of-line: unix; remove-trailing-spaces all;
+-->
+</body>
+</html>

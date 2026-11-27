@@ -1,0 +1,26 @@
+java -jar BlueJ-generic-510.jar
+
+/usr/lib/jvm/java
+/usr/lib/jvm/openjfx-with-lib
+
+mkdir /usr/lib/jvm/openjfx-with-lib
+ln -s /usr/lib/jvm/openjfx /usr/lib/jvm/openjfx-with-lib/lib
+
+dnf install java-latest-openjdk-jmods (OpenJDK 16)
+dnf install openjfx-devel
+
+Fedora 34:
+----------
+JDK 16 insufficient for BlueJ 5.10
+BlueJ 5.03 - does not work
+BlueJ 4.1.4 - does not work
+BlueJ 3.1.7
+
+http://www.bluej.org/versions.html
+java -jar bluej-3.17.jar
+/usr/lib/jvm/java-1.8.0
+
+dnf install java-1.8.0-openjdk-openjfx
+
+
+
